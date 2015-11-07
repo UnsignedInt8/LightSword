@@ -11,8 +11,7 @@ const util = require('util');
 const assert = require('assert');
 const ipaddr = require('ipaddr');
 const socks5Const = require('./socks5Const');
-
-const logger = console;
+const logger = require('winston');
 
 class Socks5Proxy {
   
@@ -119,6 +118,7 @@ class Socks5Proxy {
         break;
     }
     
+    let hostname = os.hostname();
     this._requestHandlers[cmd](dstAddr, dstPort, data);
   }
   
@@ -134,26 +134,19 @@ class Socks5Proxy {
       let port = udpSocket.address().port;
       let ip = ipaddr.parse(addr).toByteArray();
       
-      let bytes = [0x05, 0x00, 0x0, isIPv4 ? socks5Const.ATYP.IPV4 : socks5Const.ATYP.IPV6].concat(ip).concat([0x00, 0x00]);
+      let bytes = [0x05, 0x00, 0x0, net.isIPv4(addr) ? socks5Const.ATYP.IPV4 : socks5Const.ATYP.IPV6].concat(ip).concat([0x00, 0x00]);
       let res = new Buffer(bytes);
       res.writeUInt16BE(port, res.bytesLength - 2);
     });
-    
     
     udpSocket.bind();
   }
   
   handleConnect(dstAddr, dstPort) {
-    
-    let replyData = this._replyBytes;
-    if (!replyData) {
-      let bndAddr = new Buffer(os.hostname());
-      const bytes = [0x05, 0x00, 0x00, socks5Const.ATYP.DN, bndAddr.byteLength].concat(bndAddr.toArray()).concat([0, 0]);;
-      replyData = bytes;
-      this._replyBytes = bytes;
-    }
-    
-    let reply = new Buffer(replyData);
+    let bndAddr = new Buffer(os.hostname());
+    const bytes = [0x05, 0x00, 0x00, socks5Const.ATYP.DN, bndAddr.byteLength].concat(bndAddr.toArray()).concat([0, 0]);;
+      
+    let reply = new Buffer(bytes);
     reply.writeUInt16BE(dstPort, reply.byteLength - 2);
     
     logger.info('connect: ' + dstAddr + ':' + dstPort);

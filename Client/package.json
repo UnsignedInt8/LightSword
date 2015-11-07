@@ -23,6 +23,8 @@
   "homepage": "https://github.com/SunshinyNeko/LightSword#readme",
   "dependencies": {
     "commander": "^2.9.0",
-    "kinq": "0.0.5"
+    "ipaddr": "0.0.6",
+    "kinq": "0.0.5",
+    "winston": "^2.1.0"
   }
 }
