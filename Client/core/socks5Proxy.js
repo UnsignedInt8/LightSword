@@ -1,3 +1,7 @@
+//--------------------------------------------- 
+// Copyright(c) 2015 SunshinyNeko Written by VSCode
+//--------------------------------------------- 
+
 'use strict'
 
 const os = require('os');
