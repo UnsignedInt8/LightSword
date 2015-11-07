@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/SunshinyNeko/LightSword/issues"
   },
-  "homepage": "https://github.com/SunshinyNeko/LightSword#readme"
+  "homepage": "https://github.com/SunshinyNeko/LightSword#readme",
+  "dependencies": {
+    "kinq": "0.0.5"
+  }
 }
