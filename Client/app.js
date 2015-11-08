@@ -10,6 +10,6 @@ const Socks5Server = require('./core/socks5Server');
 let server = new Socks5Server('localhost', 2002);
 server.start();
 
-process.title = 'LightSword';
+process.title = 'LightSword-Socks5 Proxy Server';
 
 module.exports = server;
