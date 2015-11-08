@@ -9,7 +9,7 @@ const net = require('net');
 const dgram = require('dgram');
 const util = require('util');
 const assert = require('assert');
-const ipaddr = require('ipaddr');
+const ipaddr = require('ipaddr.js');
 const socks5Const = require('./socks5Const');
 const logger = require('winston');
 

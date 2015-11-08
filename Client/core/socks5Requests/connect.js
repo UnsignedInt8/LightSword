@@ -78,10 +78,12 @@ function handleConnect(options) {
         
         if (err) {
           proxySocket.end();
+          buf[1] = socks5Const.REPLY_CODE.SOCKS_SERVER_FAILURE;
           return clientSocket.end(buf);
         }
         
-          buf[1] = socks5Const.REPLY_CODE.SUCCESS;
+        buf[1] = socks5Const.REPLY_CODE.SUCCESS;
+        clientSocket.write(buf);
       });
       
       clientSocket.on('error', (err) => {});

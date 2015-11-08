@@ -4,7 +4,7 @@
   "description": "Socks5 Proxy",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/**/*.js test/*.js"
   },
   "repository": {
     "type": "git",
@@ -23,8 +23,11 @@
   "homepage": "https://github.com/SunshinyNeko/LightSword#readme",
   "dependencies": {
     "commander": "^2.9.0",
-    "ipaddr": "0.0.6",
+    "ipaddr.js": "^1.0.4",
     "kinq": "0.0.5",
     "winston": "^2.1.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.3.3"
   }
 }

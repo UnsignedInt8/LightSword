@@ -6,7 +6,7 @@
 
 const os = require('os');
 const dns = require('dns');
-const ipaddr = require('ipaddr');
+const ipaddr = require('ipaddr.js');
 const socks5Const = require('../socks5Const');
 const logger = require('winston');
 
@@ -15,7 +15,8 @@ let hostIP;
 let hostIPFamily;
 let socks5Reply;
 
-function getHostIp(callback) {
+function getHostIP(callback) {
+  
   if (hostIP && hostIPFamily) {
     return process.nextTick(() => {
       callback(hostIP, hostIPFamily);
@@ -30,6 +31,7 @@ function getHostIp(callback) {
     
     hostIP = addr;
     hostIPFamily = family;
+    callback(hostIP, hostIPFamily);
   });
 }
 
@@ -47,7 +49,7 @@ function getDefaultSocks5Reply(callback) {
     });
   }
   
-  getHostIp((ip, family) => {
+  getHostIP((ip, family) => {
     let bndAddr = ipaddr.parse(ip).toByteArray();
     let atyp = family === 4 ? socks5Const.ATYP.IPV4 : socks5Const.ATYP.IPV6;
     const bytes = [0x05, 0x00, 0x00, atyp, bndAddr.length].concat(bndAddr).concat([0, 0]);;
@@ -60,6 +62,6 @@ function getDefaultSocks5Reply(callback) {
 }
 
 module.exports = {
-  getHostIp,
-  getDefaultSocks5Reply
+  getHostIP: getHostIP,
+  getDefaultSocks5Reply: getDefaultSocks5Reply
 }
