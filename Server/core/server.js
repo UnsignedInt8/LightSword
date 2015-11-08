@@ -5,6 +5,7 @@
 'use strict'
 
 const net = require('net');
+const requestHandler = require('./requestHandler');
 
 class LightSwordServer {
   constructor(options) {
@@ -15,9 +16,13 @@ class LightSwordServer {
   
   start() {
     let server = net.createServer((socket) => {
-      socket.once('data', (data) => {
-        
-      })
+      let options = {
+        socket,
+        password: this.password,
+        cipherAlgorithm: this._cipherAlgorithm
+      };
+      
+      requestHandler(options);
     });
     
     server.listen(this._port);

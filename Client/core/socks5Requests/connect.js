@@ -97,6 +97,7 @@ function socks5Connect(options) {
 
   socks5Helper.getDefaultSocks5Reply((buf) => {
     let clientSocket = options.clientSocket;
+    let timeout = options.timeout ? options.timeout : 60;
     let lsAddr = options.lsAddr;
     let lsPort = options.lsPort;
     
@@ -145,6 +146,7 @@ function socks5Connect(options) {
       });
     });
     
+    proxySocket.setTimeout(timeout * 1000);
   });
   
 }

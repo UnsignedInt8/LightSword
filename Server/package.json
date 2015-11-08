@@ -24,7 +24,8 @@
   },
   "homepage": "https://github.com/SunshinyNeko/LightSword#readme",
   "dependencies": {
-    "kinq": "0.0.5"
+    "kinq": "0.0.5",
+    "winston": "^2.1.0"
   },
   "devDependencies": {
     "mocha": "^2.3.3"
