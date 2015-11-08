@@ -35,8 +35,10 @@ function negotiateCipher(options, callback) {
   // Build negotiation object
   let handshake = {
     cipherKey,
+    cipherAlgorithm,
     verificationNum,
-    randomPadding: Math.random() * Date.now()
+    randomPadding: Math.random() * Date.now(),
+    lightSword: '0.0.1'
   };
   
   proxySocket.once('data', (data) => {
@@ -45,7 +47,7 @@ function negotiateCipher(options, callback) {
     
     try {
       let res = JSON.parse(buf.toString('utf8'));
-      if (res.okNum !== verificationNum) return callback(new Error("Can't confirm verification number"));
+      if (res.okNum !== verificationNum + 1) return callback(new Error("Can't confirm verification number"));
 
       callback(null, cipherKey, res.okNum);
     } catch(ex) {
@@ -75,7 +77,8 @@ function handleCommunication(options) {
   let connect = {
     dstAddr,
     dstPort,
-    verificationNum
+    verificationNum,
+    type: 'connect'
   };
   
   let connectBuffer = cipher.update(JSON.stringify(connect));
@@ -110,9 +113,7 @@ function socks5Connect(options) {
       // Step2: Negotiate cipher with LightSword Server
       let negotiation = new Promise((resolve, reject) => {
         negotiateCipher(negotiationOptions, (err, cipherKey, vn) => {
-          if (err) {
-            return reject(err);
-          }
+          if (err) return reject(err);
           resolve({ cipherKey, vn });          
         });
       });

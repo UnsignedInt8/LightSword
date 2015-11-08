@@ -15,7 +15,7 @@ const logger = require('winston');
 
 class Socks5Proxy {
   
-  constructor(clientSocket, username, password) {
+  constructor(clientSocket, options) {
     this._handshook = false;
     this._authenticated = false;
     this._authentication = socks5Const.AUTHENTICATION.NOAUTH;
@@ -34,8 +34,13 @@ class Socks5Proxy {
     this._requestHandlers[socks5Const.REQUEST_CMD.CONNECT] = this.handleConnect.bind(this);
     this._requestHandlers[socks5Const.REQUEST_CMD.BIND] = this.handleBind.bind(this);
     
-    this.username = username || '';
-    this.password = password || '';
+    this.socks5Username = options.socks5Username || '';
+    this.socks5Password = options.socks5Password || '';
+    this.lsAddr = options.lsAddr;
+    this.lsPort = options.lsPort;
+    this.cipherAlgorithm = options.cipherAlgorithm;
+    this.password = options.password;
+    
     this.requestTimeout = 60;
   }
   
@@ -83,7 +88,7 @@ class Socks5Proxy {
     let passLength = data[2 + userLength]
     let password = data.toString('utf8', 2 + userLength + 1, 2 + userLength + 1 + passLength);
     
-    let success = username.toLowerCase() === this.username.toLowerCase() && password === this.password;
+    let success = username.toLowerCase() === this.socks5Username.toLowerCase() && password === this.socks5Password;
     let res = new Buffer([0x01, success ? 0x0 : 0x1]);
     this._clientSocket.write(res);
     

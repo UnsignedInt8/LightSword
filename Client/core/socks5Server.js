@@ -8,6 +8,7 @@
 
 require('kinq')();
 const net = require('net');
+const logger = require('winston');
 const Sock5Proxy = require('./socks5Proxy');
 
 class Socks5Server {
@@ -23,7 +24,7 @@ class Socks5Server {
     
     server.listen(this.port, 'localhost');
     server.on('error', (err) => {
-      console.log(err.code);
+      logger.error(err.code);
       process.exit(1);
     })
     
