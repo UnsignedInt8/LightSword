@@ -5,7 +5,7 @@
 'use strict'
 
 function handleUdpAssociate(options) {
-  
+  throw new Error('Not implement');
 }
 
 module.exports = handleUdpAssociate;

@@ -5,7 +5,7 @@
 'use strict'
 
 function handleBind(options) {
-  
+  throw new Error('Not implement');
 }
 
 module.exports = handleBind;
