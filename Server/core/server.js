@@ -17,7 +17,7 @@ class LightSwordServer {
   start() {
     let server = net.createServer((socket) => {
       let options = {
-        socket,
+        clientSocket: socket,
         password: this.password,
         cipherAlgorithm: this._cipherAlgorithm
       };

@@ -85,12 +85,13 @@ function handleCommunication(options) {
   proxySocket.write(connectBuffer);
   
   clientSocket.on('data', (data) => proxySocket.write(cipher.update(data)));
-  clientSocket.on('error', (err) => clientSocket.end());
-  clientSocket.on('end', () => proxySocket.end());
-  
   proxySocket.on('data', (data) => clientSocket.write(decipher.update(data)));
+  
+  clientSocket.on('end', () => proxySocket.end(cipher.final()));
+  proxySocket.on('end', () => clientSocket.end(decipher.final()));
+  
+  clientSocket.on('error', (err) => clientSocket.end());
   proxySocket.on('error', (error) => proxySocket.end());
-  proxySocket.on('end', () => clientSocket.end());
 }
 
 function socks5Connect(options) {

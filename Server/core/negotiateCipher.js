@@ -17,13 +17,13 @@ const crypto = require('crypto');
  * callback: (err, cipherKey, verificationNum) => void
  */
 function negotiateCipher(options, callback) {
-  let socket = options.socket;
+  let clientSocket = options.clientSocket;
   let cipherAlgorithm = options.cipherAlgorithm;
   let password = options.password;
   
   let decipher = crypto.createDecipher(cipherAlgorithm, password);
   
-  socket.once('data', (data) => {
+  clientSocket.once('data', (data) => {
     let buf = Buffer.concat([decipher.update(data), decipher.final()]);
     
     try {
@@ -43,7 +43,7 @@ function negotiateCipher(options, callback) {
       };
       
       let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-      socket.write(Buffer.concat([cipher.update(JSON.stringify(welcome)), cipher.final()]));
+      clientSocket.write(Buffer.concat([cipher.update(JSON.stringify(welcome)), cipher.final()]));
       
       callback(null, cipherKey, okNum);
     } catch(ex) {

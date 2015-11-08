@@ -14,17 +14,16 @@ const handleUdpAssociate = require('./socks5Response/udpAssociate');
 
 /**
  * options: {
- *    socket,
+ *    clientSocket,
  *    password,
  *    cipherAlgorithm
  * }
  */
 function handleRequest(options) {
-  let clientSocket =options.socket;
+  let clientSocket = options.clientSocket;
   
-  let negotiation = new Promise((resolve, reject) => {
-    
-    // Step1: Negotiate with client
+  // Step1: Negotiate with client
+  let negotiation = new Promise((resolve, reject) => {  
     negotiateCipher(options, (err, cipherKey, vn) => {
       if (err) return reject(err);
       resolve({ cipherKey, vn });
@@ -37,29 +36,36 @@ function handleRequest(options) {
     let cipherKey = values.cipherKey;
     let vn = values.vn;
     
+    // Step3: Dispatch incoming requests by type
     clientSocket.once('data', (data) => {
       let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
       let buf = Buffer.concat([decipher.update(data), decipher.final()]);
       
+      let request;
+      
       try {
-        let request = JSON.parse(buf.toString('utf8'));
-        if (request.verification !== vn) return clientSocket.end();
-        
-        let handlerOptions = {
-          clientSocket,
-          request
-        };
-        
-        let handlers = {
-          'bind': handleBind,
-          'connect': handleConnect,
-          'udpAssocaite': handleUdpAssociate
-        };
-        
-        handlers[request.type](handlerOptions);
+        request = JSON.parse(buf.toString('utf8'));
       } catch(ex) {
         clientSocket.end();
       }
+      
+      if (request.verification !== vn) return clientSocket.end();
+
+      let handlerOptions = {
+        clientSocket,
+        cipherAlgorithm,
+        cipherKey
+      };
+      
+      Object.assign(handlerOptions, request);
+      
+      let handlers = {
+        'bind': handleBind,
+        'connect': handleConnect,
+        'udpAssocaite': handleUdpAssociate
+      };
+      
+      handlers[request.type](handlerOptions);
     })
   }, (err) => {
     clientSocket.end();
