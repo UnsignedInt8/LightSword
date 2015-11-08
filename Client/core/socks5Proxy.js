@@ -149,7 +149,7 @@ class Socks5Proxy {
     let reply = new Buffer(bytes);
     reply.writeUInt16BE(dstPort, reply.byteLength - 2);
     
-    logger.info('connect: ' + dstAddr + ':' + dstPort);
+    // logger.info('connect: ' + dstAddr + ':' + dstPort);
     
     let proxySocket = net.createConnection(dstPort, dstAddr, () => {
       logger.info('proxy connected');
@@ -169,7 +169,8 @@ class Socks5Proxy {
       
       if (this._communicating) {
         if (error.code === 'ETIMEOUT') return;
-        return this.endClientSocket();
+        this.endClientSocket();
+        return this.endProxySocket();
       }
       
       reply[1] = socks5Const.ErrorCode.has(error.code) ? socks5Const.ErrorCode.get(error.code) : socks5Const.REPLY_CODE.SOCKS_SERVER_FAILURE;
@@ -215,7 +216,7 @@ class Socks5Proxy {
   }
   
   onClientError(error) {
-    logger.error(error.code);
+    // logger.error(error.code);
     this.endProxySocket();
   }
   
@@ -232,10 +233,11 @@ class Socks5Proxy {
     this._clientSocket = null;
     this.endProxySocket();
     
-    logger.log('client closed ' + hadError);
+    // logger.log('client closed ' + hadError);
   }
   
   onProxyEnd() {
+    logger.log('proxy end');
     this.endClientSocket();
   }
   

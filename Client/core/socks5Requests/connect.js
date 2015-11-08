@@ -6,6 +6,7 @@
 
 const os = require('os');
 const net = require('net');
+const util = require('util');
 const crypto = require('crypto');
 const socks5Helper = require('./helpers');
 const socks5Const = require('../socks5Const');
@@ -18,7 +19,7 @@ const logger = require('winston');
  *    password
  * }
  * 
- * callback: (err, cipherKey) => void
+ * callback: (err, cipherKey, verificationNum) => void
  */
 function negotiateCipher(options, callback) {
   let proxySocket = options.proxySocket;
@@ -29,11 +30,12 @@ function negotiateCipher(options, callback) {
   sha.update((Math.random() * Date.now()).toString());
   let cipherKey = sha.digest();
   
-  let verifyNum = (Math.random() * Date.now()).toFixed();
+  let verificationNum = (Math.random() * Date.now()).toFixed();
   
+  // Build negotiation object
   let handshake = {
     cipherKey,
-    verifyNum,
+    verificationNum,
     randomPadding: Math.random() * Date.now()
   };
   
@@ -43,9 +45,9 @@ function negotiateCipher(options, callback) {
     
     try {
       let res = JSON.parse(buf.toString('utf8'));
-      if (res.okNum !== verifyNum) return callback(new Error("Can't confirm verification number"));
+      if (res.okNum !== verificationNum) return callback(new Error("Can't confirm verification number"));
 
-      callback(null, cipherKey);
+      callback(null, cipherKey, res.okNum);
     } catch(ex) {
       logger.error(ex.message);
       callback(ex);
@@ -57,14 +59,46 @@ function negotiateCipher(options, callback) {
   proxySocket.write(hello);
 }
 
-function handleConnect(options) {
+function handleCommunication(options) {
+  let clientSocket = options.clientSocket;
+  let proxySocket = options.proxySocket;
+  let cipherAlgorithm = options.cipherAlgorithm;
+  let cipherKey = options.cipherKey;
+  
+  let dstAddr = options.dstAddr;
+  let dstPort = options.dstPort;
+  let verificationNum = options.verificationNum;
+  
+  let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
+  let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
+  
+  let connect = {
+    dstAddr,
+    dstPort,
+    verificationNum
+  };
+  
+  let connectBuffer = cipher.update(JSON.stringify(connect));
+  proxySocket.write(connectBuffer);
+  
+  clientSocket.on('data', (data) => proxySocket.write(cipher.update(data)));
+  clientSocket.on('error', (err) => clientSocket.end());
+  clientSocket.on('end', () => proxySocket.end());
+  
+  proxySocket.on('data', (data) => clientSocket.write(decipher.update(data)));
+  proxySocket.on('error', (error) => proxySocket.end());
+  proxySocket.on('end', () => clientSocket.end());
+}
+
+function socks5Connect(options) {
 
   socks5Helper.getDefaultSocks5Reply((buf) => {
     let clientSocket = options.clientSocket;
-    let dstAddr = options.dstAddr;
-    let dstPort = options.dstPort;
-  
-    let proxySocket = net.createConnection(dstPort, dstAddr, () => {
+    let lsAddr = options.lsAddr;
+    let lsPort = options.lsPort;
+    
+    // Step1: Connect to LightSword Server
+    let proxySocket = net.createConnection(lsAddr, lsPort, () => {
       logger.info('proxy connected');
       
       let negotiationOptions = {
@@ -73,48 +107,45 @@ function handleConnect(options) {
         cipherAlgorithm: options.cipherAlgorithm
       };
       
-      negotiateCipher(negotiationOptions, (err, cipherKey) => {
-        buf.writeUInt16BE(dstPort, buf.byteLength - 2);
-        
-        if (err) {
-          proxySocket.end();
-          buf[1] = socks5Const.REPLY_CODE.SOCKS_SERVER_FAILURE;
-          return clientSocket.end(buf);
-        }
-        
-        buf[1] = socks5Const.REPLY_CODE.SUCCESS;
-        clientSocket.write(buf);
+      // Step2: Negotiate cipher with LightSword Server
+      let negotiation = new Promise((resolve, reject) => {
+        negotiateCipher(negotiationOptions, (err, cipherKey, vn) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve({ cipherKey, vn });          
+        });
       });
       
-      clientSocket.on('error', (err) => {});
-      clientSocket.on('close', (hadError) => {});
-      clientSocket.on('data', (data) => proxySocket.write(handshakeCipher.update(data)));
-      
-    });
-    
-    proxySocket.on('data', (data) => clientSocket.write(decipher.update(data)));
-    
-    proxySocket.on('error', (error) => {
-      logger.error('proxy error: ' + error.code);
-      
-      if (this._communicating) {
-        if (error.code === 'ETIMEOUT') return;
-        return this.endClientSocket();
-      }
-      
-      buf[1] = socks5Const.ErrorCode.has(error.code) ? socks5Const.ErrorCode.get(error.code) : socks5Const.REPLY_CODE.SOCKS_SERVER_FAILURE;
-      this.endClientSocket(buf);
-    });
-    
-    proxySocket.on('end', () => {
-      
-    });
-    proxySocket.on('close', this.onProxyClose.bind(this));
+      // Step3: Send dstAddr, dstPort and communicate with LightServer
+      negotiation.then((secret) => {
+        let connectOptions = {};
+        connectOptions.dstAddr = options.dstAddr;
+        connectOptions.dstPort = options.dstPort;
+        connectOptions.cipherAlgorithm = options.cipherAlgorithm;
+        
+        connectOptions.clientSocket = clientSocket;
+        connectOptions.proxySocket = proxySocket;
+        connectOptions.cipherKey = secret.cipherKey;
+        connectOptions.verificationNum = secret.vn;
+        
+        handleCommunication(connectOptions);
 
-    logger.info('connect: ' + dstAddr + ':' + dstPort);
-
+        // Reply client socks5 connection succeed
+        buf.writeUInt16BE(options.dstPort, buf.byteLength - 2);
+        buf[1] = socks5Const.REPLY_CODE.SUCCESS;
+        clientSocket.write(buf);
+      }, (err) => {
+        logger.error(err);
+        
+        buf[1] = socks5Const.REPLY_CODE.SOCKS_SERVER_FAILURE;        
+        proxySocket.end();
+        return clientSocket.end(buf);
+      });
+    });
+    
   });
   
 }
 
-module.exports = handleConnect;
+module.exports = socks5Connect;
