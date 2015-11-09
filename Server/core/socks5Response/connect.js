@@ -17,19 +17,21 @@ function handleConnect(options) {
   
   let proxySocket = net.createConnection(dstPort, dstAddr, () => {
     logger.info('Server connected to %s:%d', dstAddr, dstPort);
-    let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-    clientSocket.write(Buffer.concat([cipher.update('connect ok'), cipher.final()]));
+    let cipherOnce = crypto.createCipher(cipherAlgorithm, cipherKey);
+    clientSocket.write(Buffer.concat([cipherOnce.update('connect ok'), cipherOnce.final()]));
     
+    let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
     proxySocket.on('data', (data) => {
-      let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-      clientSocket.write(Buffer.concat([cipher.update(data), cipher.final()]));
+      // clientSocket.write(Buffer.concat([cipher.update(data), cipher.final()]));
+      clientSocket.write(cipher.update(data));
       // logger.info('Server received: ' + data.length);
       // clientSocket.write(data);
     });
     
+    let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
     clientSocket.on('data', (data) => {
-      let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
-      proxySocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
+      // proxySocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
+      proxySocket.write(decipher.update(data));
       // logger.info('Server from client: ' + data.length + data);
       // proxySocket.write(data);
     });

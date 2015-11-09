@@ -84,22 +84,24 @@ function handleCommunication(options, connectCallback) {
   proxySocket.write(connectBuffer);
   
   proxySocket.once('data', (data) => {
-    let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);  
-    let connectOk = decipher.update(data).toString();
+    let decipherOnce = crypto.createDecipher(cipherAlgorithm, cipherKey);  
+    let connectOk = decipherOnce.update(data).toString();
     logger.info(connectOk);
     connectCallback(connectOk);
   
+    let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey); 
     proxySocket.on('data', data => {
-      let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey); 
-      clientSocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
+      // clientSocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
+      clientSocket.write(decipher.update(data));
       // logger.info('Client received: ' + data.length);
       // clientSocket.write(data);
     });
     
+    let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
     clientSocket.on('data', (data) => {
-      let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-      proxySocket.write(Buffer.concat([cipher.update(data), cipher.final()]));
-      // logger.info('Client write: ' + data.byteLength + data)
+      let enciphered = cipher.update(data);//Buffer.concat([cipher.update(data), cipher.final()]);
+      proxySocket.write(enciphered);
+      logger.info('Client write: ' + enciphered.byteLength + enciphered)
       // proxySocket.write(data);
     });    
   });
@@ -123,9 +125,12 @@ function handleCommunication(options, connectCallback) {
  *    dstPort
  * }
  */
-function handleConnect(options) {
+function handleConnect(options, dataBuf) {
 
   socks5Helper.getDefaultSocks5Reply((buf) => {
+    buf = new Buffer(dataBuf.length);
+    dataBuf.copy(buf);
+    
     let clientSocket = options.clientSocket;
     let timeout = options.timeout ? options.timeout : 60;
     let lsAddr = options.lsAddr;

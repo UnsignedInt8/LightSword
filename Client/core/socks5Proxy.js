@@ -124,7 +124,7 @@ function handleRequest(clientSocket, options) {
     };
     
     Object.assign(handleOptions, options); 
-    requestHandlers[request.cmd](handleOptions);
+    requestHandlers[request.cmd](handleOptions, data);
     clientSocket.removeListener('data', hello);
   }
   
