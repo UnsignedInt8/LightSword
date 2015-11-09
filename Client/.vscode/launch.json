@@ -2,6 +2,12 @@
 	"version": "0.1.0",
 	// List of configurations. Add new configurations or edit existing ones.
 	"configurations": [
+    {
+      "name": "Launch cli.js",
+      "type": "node",
+      "program": "./bin/cli.js",
+      "args": ["-o", "2002"]
+    },
 		{
 			// Name of configuration; appears in the launch configuration drop down menu.
 			"name": "Launch app.js",

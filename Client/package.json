@@ -4,6 +4,7 @@
   "description": "Socks5 Proxy",
   "main": "index.js",
   "scripts": {
+    "start": "./bin/cli.js",
     "test": "mocha test/**/*.js test/*.js"
   },
   "repository": {

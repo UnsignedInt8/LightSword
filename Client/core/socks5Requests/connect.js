@@ -84,11 +84,22 @@ function handleCommunication(options, connectCallback) {
   proxySocket.write(connectBuffer);
   
   proxySocket.once('data', (data) => {
-    let decipherOnce = crypto.createDecipher(cipherAlgorithm, cipherKey);  
-    let connectOk = decipherOnce.update(data).toString();
-    logger.info(connectOk);
+    let decipherOnce = crypto.createDecipher(cipherAlgorithm, cipherKey);
+      
+    let connectOk;
+    try {
+      connectOk = JSON.parse(decipherOnce.update(data).toString());
+      if (!(connectOk.verificationNum === connect.verificationNum + 1)) {
+        proxySocket.end();
+        return clientSocket.end();
+      }
+    } catch(ex) {
+      proxySocket.end();
+      return clientSocket.end();
+    }
+    
     connectCallback(connectOk);
-  
+    
     let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey); 
     proxySocket.on('data', data => {
       clientSocket.write(decipher.update(data));

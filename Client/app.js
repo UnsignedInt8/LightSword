@@ -12,15 +12,15 @@ module.exports = function(options) {
   const defaultOptions = {
     addr: 'localhost',
     port: 1080,
-    lsAddr: '',
+    lsAddr: 'localhost',
     lsPort: 23333,
     cipherAlgorithm: 'aes-256-cfb',
     password: 'lightsword',
     timeout: 60
   };
   
-  options.cipherAlgorithm = options.cipherAlgorithm || defaultOptions.cipherAlgorithm;
-  options.password = options.password || defaultOptions.password;
+  Object.getOwnPropertyNames(defaultOptions)
+    .forEach(n => options[n] = options[n] ? options[n] : defaultOptions[n]);
   
   if (!options.lsPort || !options.lsAddr) {
     console.error('Invalid arguments: server address, server port')

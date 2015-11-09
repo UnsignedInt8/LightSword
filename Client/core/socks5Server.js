@@ -28,7 +28,8 @@ class Socks5Server {
     server.listen(this.port, this.addr);
     
     server.on('error', (err) => {
-      logger.error(err.code);
+      
+      logger.error(err.code, this.addr, this.port);
       process.exit(1);
     })
     

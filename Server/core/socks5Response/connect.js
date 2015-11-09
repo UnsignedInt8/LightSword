@@ -18,14 +18,12 @@ function handleConnect(options) {
   let proxySocket = net.createConnection(dstPort, dstAddr, () => {
     logger.info('Server connected to %s:%d', dstAddr, dstPort);
     let cipherOnce = crypto.createCipher(cipherAlgorithm, cipherKey);
-    clientSocket.write(Buffer.concat([cipherOnce.update('connect ok'), cipherOnce.final()]));
+    let conncetOk = { msg: 'connect ok', verificationNum: Number(options.verificationNum) + 1 };
+    clientSocket.write(Buffer.concat([cipherOnce.update(JSON.stringify(conncetOk)), cipherOnce.final()]));
     
     let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
     proxySocket.on('data', (data) => {
-      // clientSocket.write(Buffer.concat([cipher.update(data), cipher.final()]));
       clientSocket.write(cipher.update(data));
-      // logger.info('Server received: ' + data.length);
-      // clientSocket.write(data);
     });
     
     let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
