@@ -91,19 +91,14 @@ function handleCommunication(options, connectCallback) {
   
     let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey); 
     proxySocket.on('data', data => {
-      // clientSocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
       clientSocket.write(decipher.update(data));
-      // logger.info('Client received: ' + data.length);
-      // clientSocket.write(data);
     });
     
     let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
     clientSocket.on('data', (data) => {
-      let enciphered = cipher.update(data);//Buffer.concat([cipher.update(data), cipher.final()]);
+      let enciphered = cipher.update(data);
       proxySocket.write(enciphered);
-      logger.info('Client write: ' + enciphered.byteLength + enciphered)
-      // proxySocket.write(data);
-    });    
+    });
   });
   
   clientSocket.on('end', () => proxySocket.end());

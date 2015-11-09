@@ -7,19 +7,28 @@
 require('kinq')();
 const Socks5Server = require('./core/socks5Server');
 
-let options = {
-  addr: 'localhost',
-  port: 2002,
-  lsAddr: 'localhost',
-  lsPort: 23333,
-  cipherAlgorithm: 'aes-256-cfb',
-  password: 'lightsword',
-  timeout: 60
-};
-
-let server = new Socks5Server(options);
-server.start();
-
-process.title = 'LightSword-Socks5 Proxy Server';
-
-module.exports = server;
+module.exports = function(options) {
+  
+  const defaultOptions = {
+    addr: 'localhost',
+    port: 1080,
+    lsAddr: '',
+    lsPort: 23333,
+    cipherAlgorithm: 'aes-256-cfb',
+    password: 'lightsword',
+    timeout: 60
+  };
+  
+  options.cipherAlgorithm = options.cipherAlgorithm || defaultOptions.cipherAlgorithm;
+  options.password = options.password || defaultOptions.password;
+  
+  if (!options.lsPort || !options.lsAddr) {
+    console.error('Invalid arguments: server address, server port')
+    process.exit(1);
+  }
+  
+  let server = new Socks5Server(options);
+  server.start();
+  
+  process.title = 'LightSword-Socks5 Proxy Server';   
+}

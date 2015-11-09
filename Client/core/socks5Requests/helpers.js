@@ -50,11 +50,10 @@ function getDefaultSocks5Reply(callback) {
   }
   
   getHostIP((ip, family) => {
-    ip = '108.61.127.161';
     let bndAddr = ipaddr.parse(ip).toByteArray();
     let atyp = family === 4 ? socks5Const.ATYP.IPV4 : socks5Const.ATYP.IPV6;
     const bytes = [0x05, 0x0, 0x0, atyp].concat(bndAddr.toArray()).concat([0x0, 0x0]);
-      
+
     socks5Reply = new Buffer(bytes);
     let cpy = new Buffer(socks5Reply.byteLength);
     socks5Reply.copy(cpy);

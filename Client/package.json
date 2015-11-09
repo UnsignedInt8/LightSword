@@ -10,6 +10,9 @@
     "type": "git",
     "url": "git+ssh://git@github.com/SunshinyNeko/LightSword.git"
   },
+  "bin": {
+    "lslocal": "./bin/cli.js"
+  },
   "keywords": [
     "GFW",
     "Socks5",
