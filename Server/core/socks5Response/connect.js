@@ -30,10 +30,7 @@ function handleConnect(options) {
     
     let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
     clientSocket.on('data', (data) => {
-      // proxySocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
       proxySocket.write(decipher.update(data));
-      // logger.info('Server from client: ' + data.length + data);
-      // proxySocket.write(data);
     });
     
     proxySocket.on('end', () => clientSocket.end());
