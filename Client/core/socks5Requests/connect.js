@@ -90,17 +90,17 @@ function handleCommunication(options, connectCallback) {
     connectCallback(connectOk);
   
     proxySocket.on('data', data => {
-      // let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey); 
-      // clientSocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
-      logger.info('Client received: ' + data.length);
-      clientSocket.write(data);
+      let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey); 
+      clientSocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
+      // logger.info('Client received: ' + data.length);
+      // clientSocket.write(data);
     });
     
     clientSocket.on('data', (data) => {
-      // let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-      // proxySocket.write(Buffer.concat([cipher.update(data), cipher.final()]));
-      logger.info('Client write: ' + data.byteLength + data)
-      proxySocket.write(data);
+      let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
+      proxySocket.write(Buffer.concat([cipher.update(data), cipher.final()]));
+      // logger.info('Client write: ' + data.byteLength + data)
+      // proxySocket.write(data);
     });    
   });
   

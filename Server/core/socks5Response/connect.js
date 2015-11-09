@@ -21,17 +21,17 @@ function handleConnect(options) {
     clientSocket.write(Buffer.concat([cipher.update('connect ok'), cipher.final()]));
     
     proxySocket.on('data', (data) => {
-      // let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-      // clientSocket.write(Buffer.concat([cipher.update(data), cipher.final()]));
-      logger.info('Server received: ' + data.length);
-      clientSocket.write(data);
+      let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
+      clientSocket.write(Buffer.concat([cipher.update(data), cipher.final()]));
+      // logger.info('Server received: ' + data.length);
+      // clientSocket.write(data);
     });
     
     clientSocket.on('data', (data) => {
-      // let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
-      // proxySocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
-      logger.info('Server from client: ' + data.length + data);
-      proxySocket.write(data);
+      let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
+      proxySocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
+      // logger.info('Server from client: ' + data.length + data);
+      // proxySocket.write(data);
     });
     
     proxySocket.on('end', () => clientSocket.end());
