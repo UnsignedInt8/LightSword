@@ -6,6 +6,7 @@
 
 const net = require('net');
 const crypto = require('crypto');
+const logger = require('winston');
 
 function handleConnect(options) {
   let clientSocket = options.clientSocket;
@@ -14,19 +15,36 @@ function handleConnect(options) {
   let cipherAlgorithm = options.cipherAlgorithm;
   let cipherKey = options.cipherKey;
   
-  let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-  let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
+  let proxySocket = net.createConnection(dstPort, dstAddr, () => {
+    logger.info('Server connected to %s:%d', dstAddr, dstPort);
+    let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
+    clientSocket.write(Buffer.concat([cipher.update('connect ok'), cipher.final()]));
+    
+    proxySocket.on('data', (data) => {
+      // let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
+      // clientSocket.write(Buffer.concat([cipher.update(data), cipher.final()]));
+      logger.info('Server received: ' + data.length);
+      clientSocket.write(data);
+    });
+    
+    clientSocket.on('data', (data) => {
+      // let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
+      // proxySocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
+      logger.info('Server from client: ' + data.length + data);
+      proxySocket.write(data);
+    });
+    
+    proxySocket.on('end', () => clientSocket.end());
+    clientSocket.on('end', () => proxySocket.end());
+    
+  });
+
+  proxySocket.on('error', (error) => {
+    logger.error('Server error ', error);
+    clientSocket.end();
+  });
   
-  let proxySocket = net.createConnection(dstPort, dstAddr);
-  
-  proxySocket.on('data', (data) => clientSocket.write(cipher.update(data)));
-  clientSocket.on('data', (data) => proxySocket.write(decipher.update(data)));
-  
-  proxySocket.on('end', () => clientSocket.end(cipher.final()));
-  clientSocket.on('end', () => proxySocket.end(decipher.final()));
-  
-  proxySocket.on('error', () => proxySocket.end());
-  clientSocket.on('error', () => clientSocket.end());
+  clientSocket.on('error', () => proxySocket.end());
 }
 
 module.exports = handleConnect;

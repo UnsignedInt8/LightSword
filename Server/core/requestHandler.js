@@ -36,8 +36,7 @@ function handleRequest(options) {
     let cipherKey = values.cipherKey;
     let vn = values.vn;
     
-    // Step3: Dispatch incoming requests by type
-    clientSocket.once('data', (data) => {
+    function dispatchRequest(data) {
       let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
       let buf = Buffer.concat([decipher.update(data), decipher.final()]);
       
@@ -49,7 +48,7 @@ function handleRequest(options) {
         clientSocket.end();
       }
       
-      if (request.verification !== vn) return clientSocket.end();
+      if (request.verificationNum !== vn) return clientSocket.end();
 
       let handlerOptions = {
         clientSocket,
@@ -66,7 +65,11 @@ function handleRequest(options) {
       };
       
       handlers[request.type](handlerOptions);
-    })
+      clientSocket.removeListener('data', dispatchRequest);
+    }
+    
+    // Step3: Dispatch incoming requests by type
+    clientSocket.on('data', dispatchRequest);
   }, (err) => {
     clientSocket.end();
   });

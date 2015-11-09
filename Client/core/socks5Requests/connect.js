@@ -28,9 +28,9 @@ function negotiateCipher(options, callback) {
   
   let sha = crypto.createHash('sha256');
   sha.update((Math.random() * Date.now()).toString());
-  let cipherKey = sha.digest();
+  let cipherKey = sha.digest().toString('hex');
   
-  let verificationNum = (Math.random() * Date.now()).toFixed();
+  let verificationNum = Number((Math.random() * Date.now()).toFixed());
   
   // Build negotiation object
   let handshake = {
@@ -42,14 +42,15 @@ function negotiateCipher(options, callback) {
   };
   
   proxySocket.once('data', (data) => {
-    let handshakeDecipher = crypto.createDecipher(cipherAlgorithm, password);
+    let handshakeDecipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
     let buf = Buffer.concat([handshakeDecipher.update(data), handshakeDecipher.final()]);
     
     try {
       let res = JSON.parse(buf.toString('utf8'));
-      if (res.okNum !== verificationNum + 1) return callback(new Error("Can't confirm verification number"));
+      let okNum = Number(res.okNum);
+      if (okNum !== verificationNum + 1) return callback(new Error("Can't confirm verification number"));
 
-      callback(null, cipherKey, res.okNum);
+      callback(null, cipherKey, okNum);
     } catch(ex) {
       logger.error(ex.message);
       callback(ex);
@@ -61,7 +62,7 @@ function negotiateCipher(options, callback) {
   proxySocket.write(hello);
 }
 
-function handleCommunication(options) {
+function handleCommunication(options, connectCallback) {
   let clientSocket = options.clientSocket;
   let proxySocket = options.proxySocket;
   let cipherAlgorithm = options.cipherAlgorithm;
@@ -71,9 +72,6 @@ function handleCommunication(options) {
   let dstPort = options.dstPort;
   let verificationNum = options.verificationNum;
   
-  let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-  let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
-  
   let connect = {
     dstAddr,
     dstPort,
@@ -81,20 +79,51 @@ function handleCommunication(options) {
     type: 'connect'
   };
   
+  let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);  
   let connectBuffer = cipher.update(JSON.stringify(connect));
   proxySocket.write(connectBuffer);
   
-  clientSocket.on('data', (data) => proxySocket.write(cipher.update(data)));
-  proxySocket.on('data', (data) => clientSocket.write(decipher.update(data)));
+  proxySocket.once('data', (data) => {
+    let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);  
+    let connectOk = decipher.update(data).toString();
+    logger.info(connectOk);
+    connectCallback(connectOk);
   
-  clientSocket.on('end', () => proxySocket.end(cipher.final()));
-  proxySocket.on('end', () => clientSocket.end(decipher.final()));
+    proxySocket.on('data', data => {
+      // let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey); 
+      // clientSocket.write(Buffer.concat([decipher.update(data), decipher.final()]));
+      logger.info('Client received: ' + data.length);
+      clientSocket.write(data);
+    });
+    
+    clientSocket.on('data', (data) => {
+      // let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
+      // proxySocket.write(Buffer.concat([cipher.update(data), cipher.final()]));
+      logger.info('Client write: ' + data.byteLength + data)
+      proxySocket.write(data);
+    });    
+  });
   
-  clientSocket.on('error', (err) => clientSocket.end());
-  proxySocket.on('error', (error) => proxySocket.end());
+  clientSocket.on('end', () => proxySocket.end());
+  proxySocket.on('end', () => clientSocket.end());
+  
+  clientSocket.on('error', (err) => proxySocket.end());
+  proxySocket.on('error', (error) => clientSocket.end());
 }
 
-function socks5Connect(options) {
+/**
+ * options: {
+ *    clientSocket,
+ *    timeout?,
+ *    lsAddr,
+ *    lsPort,
+ *    cipherAlgorithm,
+ *    password,
+ *    dstAddr,
+ *    dstPort
+ * }
+ */
+function handleConnect(options) {
 
   socks5Helper.getDefaultSocks5Reply((buf) => {
     let clientSocket = options.clientSocket;
@@ -103,7 +132,7 @@ function socks5Connect(options) {
     let lsPort = options.lsPort;
     
     // Step1: Connect to LightSword Server
-    let proxySocket = net.createConnection(lsAddr, lsPort, () => {
+    let proxySocket = net.createConnection(lsPort, lsAddr, () => {
       logger.info('proxy connected');
       
       let negotiationOptions = {
@@ -132,12 +161,13 @@ function socks5Connect(options) {
         connectOptions.cipherKey = secret.cipherKey;
         connectOptions.verificationNum = secret.vn;
         
-        handleCommunication(connectOptions);
+        handleCommunication(connectOptions, (ok) => {
+          // Reply client socks5 connection succeed
+          buf.writeUInt16BE(options.dstPort, buf.byteLength - 2);
+          buf[1] = socks5Const.REPLY_CODE.SUCCESS;
+          clientSocket.write(buf);
+        });
 
-        // Reply client socks5 connection succeed
-        buf.writeUInt16BE(options.dstPort, buf.byteLength - 2);
-        buf[1] = socks5Const.REPLY_CODE.SUCCESS;
-        clientSocket.write(buf);
       }, (err) => {
         logger.error(err);
         
@@ -147,9 +177,12 @@ function socks5Connect(options) {
       });
     });
     
+    proxySocket.on('error', (err) => { 
+      logger.error(err);
+    });
     proxySocket.setTimeout(timeout * 1000);
   });
   
 }
 
-module.exports = socks5Connect;
+module.exports = handleConnect;

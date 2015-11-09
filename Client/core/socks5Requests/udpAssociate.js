@@ -3,3 +3,9 @@
 //--------------------------------------------- 
 
 'use strict'
+
+function handleUdpAssociate(options) {
+  
+}
+
+module.exports = handleUdpAssociate;

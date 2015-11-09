@@ -3,3 +3,9 @@
 //--------------------------------------------- 
 
 'use strict'
+
+function handleBind(options) {
+  
+}
+
+module.exports = handleBind;

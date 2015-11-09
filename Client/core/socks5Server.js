@@ -9,28 +9,28 @@
 require('kinq')();
 const net = require('net');
 const logger = require('winston');
-const Sock5Proxy = require('./socks5Proxy');
+const handleRequest = require('./socks5Proxy');
 
 class Socks5Server {
-  constructor(addr, port) {
-    this.addr = addr || 'localhost';
-    this.port = port || 1080;
+  
+  constructor(options) {
+    Object.assign(this, options);
+    this._options = options;
   }
   
   start() {
+
     let server = net.createServer((socket) => {
-      new Sock5Proxy(socket);
+      let proxyOptions = this._options;
+      handleRequest(socket, proxyOptions);
     });
     
-    server.listen(this.port, 'localhost');
+    server.listen(this.port, this.addr);
+    
     server.on('error', (err) => {
       logger.error(err.code);
       process.exit(1);
     })
-    
-    server.on('error', (error) => {
-      
-    });
     
     this._server = server;
   }

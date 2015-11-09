@@ -31,11 +31,11 @@ function negotiateCipher(options, callback) {
       let lightSword = handshake.lightSword;
       let cipherKey = handshake.cipherKey;
       let clientCipherAlgorithm = handshake.cipherAlgorithm;
-      let okNum = handshake.verificationNum;
+      let okNum = Number(handshake.verificationNum);
       let fields = [lightSword, cipherKey, okNum, clientCipherAlgorithm];
       
       if (fields.any(f => f === null || f === undefined)) return callback(new Error('Fields lost'));
-      if (typeof handshake.verificationNum !== 'number') return callback(new Error('Not recognizable data!!!'));
+      if (typeof okNum !== 'number') return callback(new Error('Not recognizable data!!!'));
       if (cipherAlgorithm !== clientCipherAlgorithm) return callback(new Error('Cipher algorithm not equal'));
       
       let welcome = {

@@ -9,9 +9,9 @@ const requestHandler = require('./requestHandler');
 
 class LightSwordServer {
   constructor(options) {
-    this._port = options.port || 23333;
-    this._password = options.password;
-    this._cipherAlgorithm = options.cipherAlgorithm;
+    this.port = options.port || 23333;
+    this.password = options.password || 'lightsword';
+    this.cipherAlgorithm = options.cipherAlgorithm || 'aes-256-cfb';
   }
   
   start() {
@@ -19,13 +19,13 @@ class LightSwordServer {
       let options = {
         clientSocket: socket,
         password: this.password,
-        cipherAlgorithm: this._cipherAlgorithm
+        cipherAlgorithm: this.cipherAlgorithm
       };
       
       requestHandler(options);
     });
     
-    server.listen(this._port);
+    server.listen(this.port);
   }
 }
 
