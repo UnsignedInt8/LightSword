@@ -22,6 +22,8 @@ class Socks5Server {
 
     let server = net.createServer((socket) => {
       let proxyOptions = this._options;
+      // handleRequest(socket, proxyOptions);
+      // new handleRequest(socket, proxyOptions);
       handleRequest(socket, proxyOptions);
     });
     

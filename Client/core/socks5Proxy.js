@@ -114,7 +114,7 @@ function handleRequest(clientSocket, options) {
       return clientSocket.write(res);
     }
     
-    let request =refineRequest(data);
+    let request = refineRequest(data);
     if (!request) return clientSocket.end();
     
     let handleOptions = {
@@ -142,6 +142,7 @@ class Socks5Proxy {
     
     this._clientSocket = clientSocket;
     clientSocket.on('data', this.onClientData.bind(this));
+    clientSocket.on('error', () => {});
     
     this._authenticationHandlers = {};
     this._authenticationHandlers[socks5Const.AUTHENTICATION.USERPASS] = this.onClientUserPassAuthenticate.bind(this);
@@ -239,7 +240,6 @@ class Socks5Proxy {
         break;
     }
     
-    let hostname = os.hostname();
     this._requestHandlers[cmd](dstAddr, dstPort, data);
   }
   
@@ -377,4 +377,5 @@ class Socks5Proxy {
   }
 }
 
+// module.exports = Socks5Proxy;
 module.exports = handleRequest;
