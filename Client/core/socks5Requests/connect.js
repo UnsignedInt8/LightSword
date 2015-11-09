@@ -112,11 +112,11 @@ function handleCommunication(options, connectCallback) {
     });
   });
   
-  clientSocket.on('end', () => proxySocket.end());
-  proxySocket.on('end', () => clientSocket.end());
+  clientSocket.on('end', () => proxySocket.destroy());
+  proxySocket.on('end', () => clientSocket.destroy());
   
-  clientSocket.on('error', (err) => proxySocket.end());
-  proxySocket.on('error', (error) => clientSocket.end());
+  clientSocket.on('error', (err) => { logger.error(err.code);  proxySocket.destroy(); });
+  proxySocket.on('error', (err) => { logger.error(err.code); clientSocket.destroy(); });
 }
 
 /**
