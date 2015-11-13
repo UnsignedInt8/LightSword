@@ -1,0 +1,22 @@
+{
+  "name": "lightsword",
+  "version": "0.0.2",
+  "description": "LigthSword Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/SunshinyNeko/LightSword.git"
+  },
+  "keywords": [
+    "SOCKS5"
+  ],
+  "author": "Neko",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/SunshinyNeko/LightSword/issues"
+  },
+  "homepage": "https://github.com/SunshinyNeko/LightSword#readme"
+}
