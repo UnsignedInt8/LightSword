@@ -19,7 +19,6 @@ var os = require('os');
 var dns = require('dns');
 var ipaddr = require('ipaddr.js');
 var consts = require('./consts');
-const hostname = os.hostname();
 let ip;
 let ipFamily;
 function lookupHostIPAsync() {
@@ -28,7 +27,7 @@ function lookupHostIPAsync() {
             return new Promise(resolve => resolve(ip));
         }
         return new Promise((resolve, reject) => {
-            dns.lookup(hostname, (err, addr, family) => {
+            dns.lookup(os.hostname(), (err, addr, family) => {
                 if (err)
                     reject(null);
                 ip = addr;
@@ -39,13 +38,13 @@ function lookupHostIPAsync() {
     });
 }
 exports.lookupHostIPAsync = lookupHostIPAsync;
-let socks5;
+let socks5Buf;
 function buildDefaultSocks5ReplyAsync() {
     return __awaiter(this, void 0, Promise, function* () {
-        if (socks5) {
+        if (socks5Buf) {
             return new Promise(resolve => {
-                let duplicate = new Buffer(socks5.length);
-                socks5.copy(duplicate);
+                let duplicate = new Buffer(socks5Buf.length);
+                socks5Buf.copy(duplicate);
                 resolve(duplicate);
             });
         }
@@ -53,9 +52,9 @@ function buildDefaultSocks5ReplyAsync() {
         let bndAddr = ipaddr.parse(ip).toByteArray();
         let atyp = ipFamily === 4 ? consts.ATYP.IPV4 : consts.ATYP.IPV6;
         const bytes = [0x05, 0x0, 0x0, atyp].concat(bndAddr).concat([0x0, 0x0]);
-        socks5 = new Buffer(bytes);
+        socks5Buf = new Buffer(bytes);
         let duplicate = new Buffer(bytes.length);
-        socks5.copy(duplicate);
+        socks5Buf.copy(duplicate);
         return duplicate;
     });
 }

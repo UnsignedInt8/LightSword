@@ -57,7 +57,7 @@ class LocalServer {
                 return socket.destroy();
             // Step4: Dispatch request
             let requestOptions = {
-                socket: socket,
+                clientSocket: socket,
                 dstAddr: request.addr,
                 dstPort: request.port,
                 serverAddr: _this.serverAddr,

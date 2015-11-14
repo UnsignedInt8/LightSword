@@ -1,6 +1,6 @@
 import * as net from 'net';
 export declare type RequestOptions = {
-    socket: net.Socket;
+    clientSocket: net.Socket;
     dstAddr: string;
     dstPort: number;
     serverAddr: string;

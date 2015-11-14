@@ -15,3 +15,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var net = require('net');
+class Socks5Connect {
+    receive(msg, args) {
+        let options = args;
+        let _this = this;
+        Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
+    }
+    connectServer() {
+        let proxySocket = net.connect(this.serverPort, this.serverAddr, () => {
+        });
+    }
+}
+exports.Socks5Connect = Socks5Connect;
