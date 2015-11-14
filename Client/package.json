@@ -1,0 +1,29 @@
+{
+  "name": "lightsword-client",
+  "version": "0.1.0",
+  "description": "LightSword Client",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/**/*.js test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/SunshinyNeko/LightSword.git"
+  },
+  "keywords": [
+    "SOCKS5",
+    "Proxy"
+  ],
+  "author": "猫王子",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/SunshinyNeko/LightSword/issues"
+  },
+  "homepage": "https://github.com/SunshinyNeko/LightSword#readme",
+  "devDependencies": {
+    "mocha": "^2.3.3"
+  },
+  "dependencies": {
+    "kinq": "0.0.6"
+  }
+}
