@@ -6,42 +6,29 @@
 
 import * as net from 'net';
 
-/** 
- * 协商密匙
- */
-export type NegotiationOptions = {
-  serverAddr: string;
-  serverPort: number;
+export interface IConnectOptions {
   cipherAlgorithm: string;
   password: string;
   proxySocket: net.Socket;
 }
 
-export type Negotiate = (options: NegotiationOptions, callback: (success: boolean) => void) => void;
-
-/**
- * Connect 命令请求使用
- * 
- * 要求第一次远程服务器Connect成功之后反馈本地客户端是否连接成功
- */
-export type Connect = (success: boolean) => void;
-
-/**
- * 传输处理
- */
-export type TransportOptions = {
-  serverAddr: string;
-  serverPort: number;
+export interface INegotiationOptions extends IConnectOptions {
   dstAddr: string;
   dstPort: number;
-  proxySocket: net.Socket;
+}
+
+export interface ITransportOptions extends IConnectOptions {
   clientSocket: net.Socket;
 }
 
-export type Transport = (options: TransportOptions, communicationEnd: () => void) => void;
-
-export interface IExecutor {
-  negotiate: Negotiate,
-  transport: Transport,
-  firstConnect?: Connect
+export interface IConnectExecutor {
+  
+  // Step 1: Negotiate with LightSword Server.
+  negotiate: (options: INegotiationOptions, callback: (success: boolean) => void) => void,
+  
+  // Step 2: Reply local client connection succeed.
+  connectDestination: (options: INegotiationOptions, success: boolean) => void,
+  
+  // Step 3: Transport data.
+  transport: (options: ITransportOptions, communicationEnd: () => void) => void,
 }

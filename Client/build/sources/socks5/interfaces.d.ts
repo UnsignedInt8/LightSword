@@ -1,18 +1,18 @@
 import * as net from 'net';
-export declare type NegotiationOptions = {
-    serverAddr: string;
-    serverPort: number;
+export interface IConnectOptions {
     cipherAlgorithm: string;
     password: string;
     proxySocket: net.Socket;
-};
-export declare type INegotiate = (options: NegotiationOptions, callback: (success: boolean) => void) => void;
-export declare type TransportOptions = {
-    serverAddr: string;
-    serverPort: number;
+}
+export interface INegotiationOptions extends IConnectOptions {
     dstAddr: string;
     dstPort: number;
-    proxySocket: net.Socket;
+}
+export interface ITransportOptions extends IConnectOptions {
     clientSocket: net.Socket;
-};
-export declare type ITransport = (options: TransportOptions, communicationEnd: () => void) => void;
+}
+export interface IConnectExecutor {
+    negotiate: (options: INegotiationOptions, callback: (success: boolean) => void) => void;
+    connectDestination: (options: INegotiationOptions, success: boolean) => void;
+    transport: (options: ITransportOptions, communicationEnd: () => void) => void;
+}

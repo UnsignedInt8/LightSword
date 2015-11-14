@@ -34,12 +34,12 @@ export class Socks5Connect implements IReceiver {
     let _this = this;
     let proxySocket = net.connect(this.serverPort, this.serverAddr, async () => {
       let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
-      let executor = <interfaces.IExecutor>require('../plugins/connect/main');
+      let executor = <interfaces.IConnectExecutor>require('../plugins/connect/main');
       
       let negotiater = executor.negotiate;
-      let negotiationOps: interfaces.NegotiationOptions = {
-        serverAddr: _this.serverAddr,
-        serverPort: _this.serverPort,
+      let negotiationOps: interfaces.INegotiationOptions = {
+        dstAddr: _this.dstAddr,
+        dstPort: _this.dstPort,
         cipherAlgorithm: _this.cipherAlgorithm,
         password: _this.password,
         proxySocket
@@ -58,11 +58,9 @@ export class Socks5Connect implements IReceiver {
         
         // Step2
         let transporter = executor.transport;
-        let transportOps: interfaces.TransportOptions = {
-          dstAddr: _this.dstAddr,
-          dstPort: _this.dstPort,
-          serverAddr: _this.serverAddr,
-          serverPort: _this.serverPort,
+        let transportOps: interfaces.ITransportOptions = {
+          cipherAlgorithm: _this.cipherAlgorithm,
+          password: _this.password,
           clientSocket: _this.clientSocket,
           proxySocket
         }

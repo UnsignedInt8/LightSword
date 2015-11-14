@@ -27,15 +27,16 @@ class Socks5Connect {
     connectServer() {
         let _this = this;
         let proxySocket = net.connect(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
-            let negotiater = require('../plugins/connect/negotiate');
+            let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
+            let executor = require('../plugins/connect/main');
+            let negotiater = executor.negotiate;
             let negotiationOps = {
-                serverAddr: _this.serverAddr,
-                serverPort: _this.serverPort,
+                dstAddr: _this.dstAddr,
+                dstPort: _this.dstPort,
                 cipherAlgorithm: _this.cipherAlgorithm,
                 password: _this.password,
                 proxySocket: proxySocket
             };
-            let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
             // Step1: negotiate with server
             negotiater(negotiationOps, (success) => __awaiter(this, void 0, Promise, function* () {
                 // If negotiation failed, refuse client socket
@@ -46,12 +47,10 @@ class Socks5Connect {
                     return proxySocket.destroy();
                 }
                 // Step2
-                let transporter = require('../plugins/connect/transport');
+                let transporter = executor.transport;
                 let transportOps = {
-                    dstAddr: _this.dstAddr,
-                    dstPort: _this.dstPort,
-                    serverAddr: _this.serverAddr,
-                    serverPort: _this.serverPort,
+                    cipherAlgorithm: _this.cipherAlgorithm,
+                    password: _this.password,
                     clientSocket: _this.clientSocket,
                     proxySocket: proxySocket
                 };
