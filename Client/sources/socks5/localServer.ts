@@ -10,7 +10,7 @@ import * as consts from './consts';
 import * as util from 'util';
 
 export type RequestOptions = {
-  socket: net.Socket,
+  clientSocket: net.Socket,
   dstAddr: string,
   dstPort: number,
   serverAddr: string,
@@ -60,7 +60,7 @@ export class LocalServer {
       
       // Step4: Dispatch request
       let requestOptions: RequestOptions = {
-        socket,
+        clientSocket: socket,
         dstAddr: request.addr,
         dstPort: request.port,
         serverAddr: _this.serverAddr,

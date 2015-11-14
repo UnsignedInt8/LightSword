@@ -9,7 +9,6 @@ import * as dns from 'dns';
 import * as ipaddr from 'ipaddr.js';
 import * as consts from './consts';
 
-const hostname = os.hostname();
 let ip;
 let ipFamily;
 
@@ -19,7 +18,7 @@ export async function lookupHostIPAsync(): Promise<string> {
   }
   
   return new Promise<string>((resolve, reject) => {
-    dns.lookup(hostname, (err, addr, family) => {
+    dns.lookup(os.hostname(), (err, addr, family) => {
       if (err) reject(null);
       
       ip = addr;
