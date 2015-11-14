@@ -3,7 +3,4 @@
 //-----------------------------------
 
 'use strict'
-
-namespace LightSword.Client.App {
-  
-}
+require('kinq').enable();

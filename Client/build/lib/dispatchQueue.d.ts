@@ -7,3 +7,4 @@ export declare class DispatchQueue {
     unregister(msg: string, receiver: Receiver): boolean;
     publish(msg: string, things: any): boolean;
 }
+export declare let defaultQueue: DispatchQueue;

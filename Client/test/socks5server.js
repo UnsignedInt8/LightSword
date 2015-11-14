@@ -1,6 +1,6 @@
 'use strict'
 
-const Socks5Server = require('../build/socks5/server');
+const Socks5Server = require('../build/socks5/server').Server;
 const assert = require('assert');
 
 describe('test server', () => {

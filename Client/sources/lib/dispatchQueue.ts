@@ -49,7 +49,7 @@ export class DispatchQueue {
     
     return true;
   }
+  
 }
 
-exports.DispatchQueue = DispatchQueue;
-exports.defaultQueue = new DispatchQueue(); 
+export let defaultQueue = new DispatchQueue();

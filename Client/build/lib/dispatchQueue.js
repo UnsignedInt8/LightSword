@@ -40,5 +40,4 @@ class DispatchQueue {
     }
 }
 exports.DispatchQueue = DispatchQueue;
-exports.DispatchQueue = DispatchQueue;
 exports.defaultQueue = new DispatchQueue();
