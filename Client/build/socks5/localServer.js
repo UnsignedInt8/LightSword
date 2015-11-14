@@ -16,16 +16,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var net = require('net');
+var dispatchQueue_1 = require('../lib/dispatchQueue');
 var consts = require('./consts');
 var util = require('util');
-class Server {
+class LocalServer {
     constructor() {
         this.addr = 'localhost';
         this.port = 1080;
         this.password = 'lightsword';
-        this.cipherAlgoirthm = 'aes-256-cfb';
-        this.remoteAddr = '';
-        this.remotePort = 23333;
+        this.cipherAlgorithm = 'aes-256-cfb';
+        this.serverAddr = '';
+        this.serverPort = 23333;
         this.timeout = 60;
         this.socks5Username = '';
         this.socks5Password = '';
@@ -51,6 +52,21 @@ class Server {
             }
             // Step3: Refine requests.
             data = yield socket.readAsync();
+            let request = _this.refineRequest(data);
+            if (!request)
+                return socket.destroy();
+            // Step4: Dispatch request
+            let requestOptions = {
+                socket: socket,
+                dstAddr: request.addr,
+                dstPort: request.port,
+                serverAddr: _this.serverAddr,
+                serverPort: _this.serverPort,
+                cipherAlgorithm: _this.cipherAlgorithm,
+                password: _this.password,
+                timeout: _this.timeout
+            };
+            dispatchQueue_1.defaultQueue.publish(request.cmd.toString(), requestOptions);
         }));
         server.listen(this.port, this.addr);
         this._server = server;
@@ -63,7 +79,7 @@ class Server {
         return true;
     }
     handleHandshake(data) {
-        if (!Server.SupportedVersions.any(i => i === data[0]))
+        if (!LocalServer.SupportedVersions.any(i => i === data[0]))
             return consts.AUTHENTICATION.NONE;
         let methodCount = data[1];
         let methods = data.skip(2).take(methodCount).toArray();
@@ -88,7 +104,7 @@ class Server {
     }
     refineRequest(data) {
         if (!data || data[0] === consts.SOCKS_VER.V5)
-            return { success: false };
+            return null;
         let cmd = data[1];
         let atyp = data[3];
         let addr = '';
@@ -107,10 +123,11 @@ class Server {
                     addr += (new Buffer(bytes.skip(i * 2).take(2).toArray()).toString('hex') + (i < 7 ? ':' : ''));
                 }
                 break;
+            default:
+                return null;
         }
-        return { success: true, cmd: cmd, addr: addr, port: port };
+        return { cmd: cmd, addr: addr, port: port };
     }
 }
-Server.SupportedNegotiatonMethods = [consts.AUTHENTICATION.NOAUTH, consts.AUTHENTICATION.USERPASS];
-Server.SupportedVersions = [consts.SOCKS_VER.V5, consts.SOCKS_VER.V4];
-exports.Server = Server;
+LocalServer.SupportedVersions = [consts.SOCKS_VER.V5, consts.SOCKS_VER.V4];
+exports.LocalServer = LocalServer;

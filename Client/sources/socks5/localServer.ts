@@ -9,18 +9,28 @@ import { defaultQueue } from '../lib/dispatchQueue';
 import * as consts from './consts';
 import * as util from 'util';
 
-export class Server {
+export type RequestOptions = {
+  socket: net.Socket,
+  dstAddr: string,
+  dstPort: number,
+  serverAddr: string,
+  serverPort: number,
+  cipherAlgorithm: string,
+  password: string,
+  timeout?: number
+}
+
+export class LocalServer {
   public addr = 'localhost';
   public port = 1080;
   public password = 'lightsword';
-  public cipherAlgoirthm = 'aes-256-cfb';
-  public remoteAddr = '';
-  public remotePort = 23333;
+  public cipherAlgorithm = 'aes-256-cfb';
+  public serverAddr = '';
+  public serverPort = 23333;
   public timeout = 60;
   public socks5Username = '';
   public socks5Password = '';
   private _server: net.Server;
-  private static SupportedNegotiatonMethods = [consts.AUTHENTICATION.NOAUTH, consts.AUTHENTICATION.USERPASS];
   private static SupportedVersions = [consts.SOCKS_VER.V5, consts.SOCKS_VER.V4];
   
   public start(): boolean {
@@ -48,7 +58,18 @@ export class Server {
       if (!request) return socket.destroy();
       
       // Step4: Dispatch request
-      defaultQueue.publish(request.cmd.toString(), { request, socket });
+      let requestOptions: RequestOptions = {
+        socket,
+        dstAddr: request.addr,
+        dstPort: request.port,
+        serverAddr: _this.serverAddr,
+        serverPort: _this.serverPort,
+        cipherAlgorithm: _this.cipherAlgorithm,
+        password: _this.password,
+        timeout: _this.timeout
+      };
+      
+      defaultQueue.publish(request.cmd.toString(), requestOptions);
     });
     
     server.listen(this.port, this.addr);
@@ -65,7 +86,7 @@ export class Server {
   }
   
   private handleHandshake(data: Buffer): consts.AUTHENTICATION {
-    if (!Server.SupportedVersions.any(i => i === data[0])) return consts.AUTHENTICATION.NONE;
+    if (!LocalServer.SupportedVersions.any(i => i === data[0])) return consts.AUTHENTICATION.NONE;
     
     let methodCount = data[1];
     let methods = data.skip(2).take(methodCount).toArray();
