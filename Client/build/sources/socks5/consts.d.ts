@@ -14,7 +14,7 @@ export declare enum ATYP {
     DN = 3,
     IPV6 = 4,
 }
-export declare enum RESPONSE_CODE {
+export declare enum REPLY_CODE {
     SUCCESS = 0,
     SOCKS_SERVER_FAILURE = 1,
     CONNECTION_NOT_ALLOWED = 2,

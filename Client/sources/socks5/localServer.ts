@@ -10,14 +10,14 @@ import * as consts from './consts';
 import * as util from 'util';
 
 export type RequestOptions = {
-  clientSocket: net.Socket,
-  dstAddr: string,
-  dstPort: number,
-  serverAddr: string,
-  serverPort: number,
-  cipherAlgorithm: string,
-  password: string,
-  timeout?: number
+  clientSocket: net.Socket, // Local client socket
+  dstAddr: string,  // Socks5 Destination Address
+  dstPort: number,  // Socks5 Destination Port
+  serverAddr: string, // LightSword Server Address
+  serverPort: number, // LightSword Server Port
+  cipherAlgorithm: string,  // User specified cipher algorithm
+  password: string, // User specified cipher algorithm key
+  timeout?: number  // Timeout
 }
 
 export class LocalServer {

@@ -23,7 +23,7 @@ export enum ATYP {
   IPV6 = 0x04
 }
 
-export enum RESPONSE_CODE {
+export enum REPLY_CODE {
   SUCCESS= 0x00,
   SOCKS_SERVER_FAILURE= 0x01,
   CONNECTION_NOT_ALLOWED= 0x02,
