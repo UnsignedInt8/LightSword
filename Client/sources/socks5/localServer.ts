@@ -21,6 +21,7 @@ export type RequestOptions = {
 }
 
 export class LocalServer {
+  
   public addr = 'localhost';
   public port = 1080;
   public password = 'lightsword';

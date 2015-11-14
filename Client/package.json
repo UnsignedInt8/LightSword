@@ -4,7 +4,7 @@
   "description": "LightSword Client",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/**/*.js test/*.js"
+    "test": "mocha test/**/*.js test/*.js build/test/*.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,8 @@
     "mocha": "^2.3.3"
   },
   "dependencies": {
-    "kinq": "0.0.6"
+    "ipaddr.js": "^1.0.4",
+    "kinq": "0.0.6",
+    "winston": "^2.1.0"
   }
 }

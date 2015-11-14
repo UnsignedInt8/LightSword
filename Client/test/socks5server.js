@@ -6,6 +6,7 @@ const assert = require('assert');
 describe('test server', () => {
   it('start server', () => {
     let s = new Socks5Server();
+    s.port = 4090;
     assert(s.start());    
   })
 })
