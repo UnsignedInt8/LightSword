@@ -34,7 +34,8 @@ class Socks5Connect {
         if (Socks5Connect.isLocal !== null)
             return;
         let isLocal = Socks5Connect.isLocal = ['localhost', '', undefined, null].contains(addr.toLowerCase());
-        Socks5Connect.pluginPath = `../plugins/connect/${isLocal ? 'local' : 'main'}`;
+        let pluginPath = `../plugins/connect/${isLocal ? 'local' : 'main'}`;
+        Socks5Connect.plugin = require(pluginPath);
     }
     connectServer() {
         let _this = this;
@@ -44,7 +45,7 @@ class Socks5Connect {
             let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
             let executor;
             try {
-                executor = require(Socks5Connect.pluginPath).createExecutor();
+                executor = Socks5Connect.plugin.createExecutor();
             }
             catch (ex) {
                 logger.error(ex.message);
@@ -85,17 +86,14 @@ class Socks5Connect {
             if (!success) {
                 reply[1] = consts.REPLY_CODE.CONNECTION_NOT_ALLOWED;
                 yield _this.clientSocket.writeAsync(reply);
-                _this.clientSocket.destroy();
-                return proxySocket.destroy();
+                return disposeSockets();
             }
             // Step 2: Reply client destination connected or not. 
             success = yield connectDestinationAsync();
             reply[1] = success ? consts.REPLY_CODE.SUCCESS : consts.REPLY_CODE.CONNECTION_REFUSED;
             yield _this.clientSocket.writeAsync(reply);
-            if (!success) {
-                _this.clientSocket.destroy();
-                return proxySocket.destroy();
-            }
+            if (!success)
+                return disposeSockets();
             // Step 3: Transport data.
             let transportOps = {
                 cipherAlgorithm: _this.cipherAlgorithm,
@@ -108,13 +106,15 @@ class Socks5Connect {
             });
             // Handling errors.
             function disposeSockets(error, from) {
+                if (_this.clientSocket === null || proxySocket === null)
+                    return;
                 logger.info(from + ': ' + (error ? error.message : 'close'));
                 _this.clientSocket.end();
-                _this.clientSocket.destroy();
                 _this.clientSocket.removeAllListeners();
+                _this.clientSocket.destroy();
                 proxySocket.end();
-                proxySocket.destroy();
                 proxySocket.removeAllListeners();
+                proxySocket.destroy();
                 _this.clientSocket = null;
                 proxySocket = null;
                 logger.info('count: ' + --Socks5Connect.count);

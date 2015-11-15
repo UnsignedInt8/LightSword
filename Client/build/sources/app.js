@@ -46,6 +46,8 @@ class App {
 }
 exports.App = App;
 if (!module.parent) {
+    process.title = 'LightSword Client Debug';
+    // Visit http://www.bilibili.com/mobile/video/av2766276.html to debug memory leak
     new App();
 }
 //# sourceMappingURL=app.js.map

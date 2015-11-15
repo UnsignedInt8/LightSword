@@ -37,6 +37,6 @@ let options = {
   timeout: args.timeout
 }
 
-new App(options);
-
 process.title = 'LightSword Client';
+
+new App(options);

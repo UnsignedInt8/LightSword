@@ -41,6 +41,6 @@ let options = {
     socks5Password: args.socks5password,
     timeout: args.timeout
 };
-new app_1.App(options);
 process.title = 'LightSword Client';
+new app_1.App(options);
 //# sourceMappingURL=cli.js.map
