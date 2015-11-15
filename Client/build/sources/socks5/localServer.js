@@ -49,7 +49,6 @@ class LocalServer {
             let request = _this.refineRequest(data);
             if (!request)
                 return socket.destroy();
-            console.log('dispatch request');
             // Step4: Dispatch request
             let requestOptions = {
                 clientSocket: socket,

@@ -36,6 +36,7 @@ class Socks5Connect {
     connectServer() {
         let _this = this;
         let proxySocket = net.connect(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
+            logger.info('connect: ' + _this.dstAddr);
             let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
             let executor;
             try {
@@ -103,7 +104,23 @@ class Socks5Connect {
                 _this.clientSocket.destroy();
                 proxySocket.destroy();
             });
+            // Handling errors.
+            function disposeSockets(error) {
+                logger.info(error.message);
+                _this.clientSocket.end();
+                _this.clientSocket.destroy();
+                proxySocket.end();
+                proxySocket.destroy();
+                _this.clientSocket = null;
+                proxySocket = null;
+            }
+            _this.clientSocket.on('error', disposeSockets);
+            proxySocket.on('error', disposeSockets);
         }));
+        proxySocket.once('error', (error) => { logger.info(error.message); proxySocket.destroy(); });
+        if (!this.timeout)
+            return;
+        proxySocket.setTimeout(this.timeout * 1000);
     }
 }
 exports.Socks5Connect = Socks5Connect;
