@@ -1,3 +1,6 @@
+//-----------------------------------
+// Copyright(c) 2015 猫王子
+//-----------------------------------
 'use strict';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
     return new Promise(function (resolve, reject) {
@@ -12,20 +15,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-var assert = require('assert');
-var util = require('../sources/socks5/util');
-describe('test util', () => {
-    it('lookup host ip', (done) => __awaiter(this, void 0, Promise, function* () {
-        let ip = yield util.lookupHostIPAsync();
-        assert(ip.length > 0);
-        assert(ip.startsWith('192.168'));
-        done();
-    }));
-    it('socks5 default response', (done) => __awaiter(this, void 0, Promise, function* () {
-        let buf = yield util.buildDefaultSocks5ReplyAsync();
-        assert(buf.length > 0);
-        assert(buf[0] === 0x05);
-        done();
-    }));
-});
-//# sourceMappingURL=util.js.map
+let executorPath = './lightsword';
+module.exports.createExecutor = function () {
+    let executor = require(executorPath);
+    return new executor();
+};
+//# sourceMappingURL=main.js.map

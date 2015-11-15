@@ -3,3 +3,4 @@
 //-----------------------------------
 'use strict';
 require('kinq').enable();
+//# sourceMappingURL=app.js.map

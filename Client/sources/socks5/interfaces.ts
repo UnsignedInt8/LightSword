@@ -17,6 +17,8 @@ export interface INegotiationOptions extends IConnectOptions {
   dstPort: number;
 }
 
+export type IConnectDestinationOptions = INegotiationOptions;
+
 export interface ITransportOptions extends IConnectOptions {
   clientSocket: net.Socket;
 }
@@ -24,10 +26,10 @@ export interface ITransportOptions extends IConnectOptions {
 export interface IConnectExecutor {
   
   // Step 1: Negotiate with LightSword Server.
-  negotiate: (options: INegotiationOptions, callback: (success: boolean) => void) => void,
+  negotiate: (options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) => void,
   
   // Step 2: Reply local client connection succeed.
-  connectDestination: (options: INegotiationOptions, success: boolean) => void,
+  connectDestination: (options: IConnectDestinationOptions, callback: (result: boolean, reason?: string) => void) => void,
   
   // Step 3: Transport data.
   transport: (options: ITransportOptions, communicationEnd: () => void) => void,

@@ -18,18 +18,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var net = require('net');
 var consts = require('./consts');
 var socks5Util = require('./util');
+var logger = require('winston');
 class Socks5Connect {
     receive(msg, args) {
-        let options = args;
         let _this = this;
-        Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
+        Object.getOwnPropertyNames(args).forEach(n => _this[n] = args[n]);
     }
     connectServer() {
         let _this = this;
         let proxySocket = net.connect(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
             let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
-            let executor = require('../plugins/connect/main');
-            let negotiater = executor.negotiate;
+            let executor;
+            try {
+                let isLocal = ['localhost', '', undefined, null].contains(_this.serverAddr.toLowerCase());
+                let plugin = '../plugins/connect/' + isLocal ? 'local' : 'main';
+                executor = require('../plugins/connect/main').createExecutor();
+            }
+            catch (ex) {
+                logger.error(ex.message);
+                return process.exit(1);
+            }
             let negotiationOps = {
                 dstAddr: _this.dstAddr,
                 dstPort: _this.dstPort,
@@ -37,27 +45,54 @@ class Socks5Connect {
                 password: _this.password,
                 proxySocket: proxySocket
             };
-            // Step1: negotiate with server
-            negotiater(negotiationOps, (success) => __awaiter(this, void 0, Promise, function* () {
-                // If negotiation failed, refuse client socket
-                if (!success) {
-                    reply[1] = consts.REPLY_CODE.CONNECTION_NOT_ALLOWED;
-                    yield _this.clientSocket.writeAsync(reply);
-                    _this.clientSocket.destroy();
-                    return proxySocket.destroy();
-                }
-                // Step2
-                let transporter = executor.transport;
-                let transportOps = {
-                    cipherAlgorithm: _this.cipherAlgorithm,
-                    password: _this.password,
-                    clientSocket: _this.clientSocket,
-                    proxySocket: proxySocket
-                };
-                transporter(transportOps, () => {
+            function negotiateAsync() {
+                return __awaiter(this, void 0, Promise, function* () {
+                    return new Promise(resolve => {
+                        executor.negotiate(negotiationOps, (success) => {
+                            resolve(success);
+                        });
+                    });
                 });
-            }));
+            }
+            function connectDestinationAsync() {
+                return __awaiter(this, void 0, Promise, function* () {
+                    return new Promise(resolve => {
+                        executor.connectDestination(negotiationOps, (success) => {
+                            resolve(success);
+                        });
+                    });
+                });
+            }
+            // Step 1: Negotiate with server      
+            let success = yield negotiateAsync();
+            // If negotiation failed, refuse client socket
+            if (!success) {
+                reply[1] = consts.REPLY_CODE.CONNECTION_NOT_ALLOWED;
+                yield _this.clientSocket.writeAsync(reply);
+                _this.clientSocket.destroy();
+                return proxySocket.destroy();
+            }
+            // Step 2: Reply client destination connected or not. 
+            success = yield connectDestinationAsync();
+            reply[1] = success ? consts.REPLY_CODE.SUCCESS : consts.REPLY_CODE.CONNECTION_REFUSED;
+            yield _this.clientSocket.writeAsync(reply);
+            if (!success) {
+                _this.clientSocket.destroy();
+                return proxySocket.destroy();
+            }
+            // Step 3: Transport data.
+            let transportOps = {
+                cipherAlgorithm: _this.cipherAlgorithm,
+                password: _this.password,
+                clientSocket: _this.clientSocket,
+                proxySocket: proxySocket
+            };
+            executor.transport(transportOps, () => {
+                _this.clientSocket.destroy();
+                proxySocket.destroy();
+            });
         }));
     }
 }
 exports.Socks5Connect = Socks5Connect;
+//# sourceMappingURL=connect.js.map

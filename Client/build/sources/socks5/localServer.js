@@ -131,3 +131,4 @@ class LocalServer {
 }
 LocalServer.SupportedVersions = [consts.SOCKS_VER.V5, consts.SOCKS_VER.V4];
 exports.LocalServer = LocalServer;
+//# sourceMappingURL=localServer.js.map

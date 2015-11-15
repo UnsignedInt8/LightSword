@@ -59,3 +59,4 @@ function buildDefaultSocks5ReplyAsync() {
     });
 }
 exports.buildDefaultSocks5ReplyAsync = buildDefaultSocks5ReplyAsync;
+//# sourceMappingURL=util.js.map

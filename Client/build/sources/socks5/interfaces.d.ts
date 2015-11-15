@@ -8,11 +8,12 @@ export interface INegotiationOptions extends IConnectOptions {
     dstAddr: string;
     dstPort: number;
 }
+export declare type IConnectDestinationOptions = INegotiationOptions;
 export interface ITransportOptions extends IConnectOptions {
     clientSocket: net.Socket;
 }
 export interface IConnectExecutor {
-    negotiate: (options: INegotiationOptions, callback: (success: boolean) => void) => void;
-    connectDestination: (options: INegotiationOptions, success: boolean) => void;
+    negotiate: (options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) => void;
+    connectDestination: (options: IConnectDestinationOptions, callback: (result: boolean, reason?: string) => void) => void;
     transport: (options: ITransportOptions, communicationEnd: () => void) => void;
 }
