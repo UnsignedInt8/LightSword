@@ -24,6 +24,7 @@
     "mocha": "^2.3.3"
   },
   "dependencies": {
+    "commander": "^2.9.0",
     "ipaddr.js": "^1.0.4",
     "kinq": "0.0.6",
     "winston": "^2.1.0"
