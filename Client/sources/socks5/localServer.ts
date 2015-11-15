@@ -22,17 +22,22 @@ export type RequestOptions = {
 
 export class LocalServer {
   
-  public addr = 'localhost';
-  public port = 1080;
-  public password = 'lightsword';
-  public cipherAlgorithm = 'aes-256-cfb';
-  public serverAddr = '';
-  public serverPort = 23333;
-  public timeout = 60;
-  public socks5Username = '';
-  public socks5Password = '';
+  public addr: string;
+  public port: number;
+  public password: string;
+  public cipherAlgorithm: string;
+  public serverAddr: string;
+  public serverPort: number;
+  public timeout: number;
+  public socks5Username: string;
+  public socks5Password: string;
   private _server: net.Server;
   private static SupportedVersions = [consts.SOCKS_VER.V5, consts.SOCKS_VER.V4];
+  
+  public constructor(options) {
+    let _this = this;
+    Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
+  }
   
   public start(): boolean {
     let _this = this;
@@ -58,6 +63,7 @@ export class LocalServer {
       let request = _this.refineRequest(data);
       if (!request) return socket.destroy();
       
+      console.log('dispatch request');
       // Step4: Dispatch request
       let requestOptions: RequestOptions = {
         clientSocket: socket,
@@ -115,7 +121,7 @@ export class LocalServer {
   }
   
   private refineRequest(data: Buffer): { cmd: consts.REQUEST_CMD, addr: string, port: number } {
-    if (!data || data[0] === consts.SOCKS_VER.V5) return null;
+    if (!data || data[0] !== consts.SOCKS_VER.V5) return null;
     
     let cmd = data[1];
     let atyp = data[3];
@@ -140,6 +146,7 @@ export class LocalServer {
         break;
         
       default:
+      console.log('break default null');
         return null;
     }
     

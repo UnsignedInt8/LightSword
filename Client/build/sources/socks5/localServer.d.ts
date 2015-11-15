@@ -21,6 +21,7 @@ export declare class LocalServer {
     socks5Password: string;
     private _server;
     private static SupportedVersions;
+    constructor(options: any);
     start(): boolean;
     stop(): boolean;
     private handleHandshake(data);

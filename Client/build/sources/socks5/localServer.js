@@ -20,16 +20,9 @@ var dispatchQueue_1 = require('../lib/dispatchQueue');
 var consts = require('./consts');
 var util = require('util');
 class LocalServer {
-    constructor() {
-        this.addr = 'localhost';
-        this.port = 1080;
-        this.password = 'lightsword';
-        this.cipherAlgorithm = 'aes-256-cfb';
-        this.serverAddr = '';
-        this.serverPort = 23333;
-        this.timeout = 60;
-        this.socks5Username = '';
-        this.socks5Password = '';
+    constructor(options) {
+        let _this = this;
+        Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
     }
     start() {
         let _this = this;
@@ -55,6 +48,7 @@ class LocalServer {
             let request = _this.refineRequest(data);
             if (!request)
                 return socket.destroy();
+            console.log('dispatch request');
             // Step4: Dispatch request
             let requestOptions = {
                 clientSocket: socket,
@@ -103,7 +97,7 @@ class LocalServer {
         return username == this.socks5Username && password == this.socks5Password;
     }
     refineRequest(data) {
-        if (!data || data[0] === consts.SOCKS_VER.V5)
+        if (!data || data[0] !== consts.SOCKS_VER.V5)
             return null;
         let cmd = data[1];
         let atyp = data[3];
@@ -124,6 +118,7 @@ class LocalServer {
                 }
                 break;
             default:
+                console.log('break default null');
                 return null;
         }
         return { cmd: cmd, addr: addr, port: port };
