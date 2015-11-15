@@ -18,25 +18,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 require('kinq').enable();
 require('async-node');
 var localServer_1 = require('./socks5/localServer');
-let App = function (options) {
-    let defaultOptions = {
-        addr: 'localhost',
-        port: 1080,
-        serverAddr: 'localhost',
-        serverPort: 23333,
-        cipherAlgorithm: 'aes-256-cfb',
-        password: 'lightsword',
-        socks5Username: '',
-        socks5Password: '',
-        timeout: 60
-    };
-    if (options)
-        Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
-    let server = new localServer_1.LocalServer(options || defaultOptions);
-    server.start();
-};
+var connect_1 = require('./socks5/connect');
+var dispatchQueue_1 = require('./lib/dispatchQueue');
+var consts = require('./socks5/consts');
+class App {
+    constructor(options) {
+        let defaultOptions = {
+            addr: 'localhost',
+            port: 1080,
+            serverAddr: 'localhost',
+            serverPort: 23333,
+            cipherAlgorithm: 'aes-256-cfb',
+            password: 'lightsword',
+            socks5Username: '',
+            socks5Password: '',
+            timeout: 60
+        };
+        if (options)
+            Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
+        dispatchQueue_1.defaultQueue.register(consts.REQUEST_CMD.CONNECT.toString(), this);
+        let server = new localServer_1.LocalServer(options || defaultOptions);
+        server.start();
+    }
+    receive(msg, args) {
+        new connect_1.Socks5Connect(args);
+    }
+}
 if (!module.parent) {
-    App();
+    new App();
 }
 module.exports = App;
 //# sourceMappingURL=app.js.map

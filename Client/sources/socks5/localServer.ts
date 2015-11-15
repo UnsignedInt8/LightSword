@@ -5,9 +5,10 @@
 'use strict'
 
 import * as net from 'net';
-import { defaultQueue } from '../lib/dispatchQueue';
-import * as consts from './consts';
 import * as util from 'util';
+import * as logger from 'winston';
+import * as consts from './consts';
+import { defaultQueue } from '../lib/dispatchQueue';
 
 export type RequestOptions = {
   clientSocket: net.Socket, // Local client socket
@@ -63,7 +64,6 @@ export class LocalServer {
       let request = _this.refineRequest(data);
       if (!request) return socket.destroy();
       
-      console.log('dispatch request');
       // Step4: Dispatch request
       let requestOptions: RequestOptions = {
         clientSocket: socket,
@@ -80,8 +80,9 @@ export class LocalServer {
     });
     
     server.listen(this.port, this.addr);
-    this._server = server;
+    server.on('error', (err) => { logger.error(err.message); process.exit(1); });
     
+    this._server = server;
     return server !== null;
   }
   

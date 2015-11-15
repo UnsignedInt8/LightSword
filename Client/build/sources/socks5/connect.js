@@ -20,9 +20,18 @@ var consts = require('./consts');
 var socks5Util = require('./util');
 var logger = require('winston');
 class Socks5Connect {
-    receive(msg, args) {
+    constructor(args) {
+        this.isLocal = Socks5Connect.isLocalProxy(args.serverAddr);
+        if (this.isLocal) {
+            args.serverAddr = args.dstAddr;
+            args.serverPort = args.dstPort;
+        }
         let _this = this;
         Object.getOwnPropertyNames(args).forEach(n => _this[n] = args[n]);
+        this.connectServer();
+    }
+    static isLocalProxy(addr) {
+        return ['localhost', '', undefined, null].contains(addr.toLowerCase());
     }
     connectServer() {
         let _this = this;
@@ -30,9 +39,8 @@ class Socks5Connect {
             let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
             let executor;
             try {
-                let isLocal = ['localhost', '', undefined, null].contains(_this.serverAddr.toLowerCase());
-                let plugin = '../plugins/connect/' + isLocal ? 'local' : 'main';
-                executor = require('../plugins/connect/main').createExecutor();
+                let pluginPath = `../plugins/connect/${_this.isLocal ? 'local' : 'main'}`;
+                executor = require(pluginPath).createExecutor();
             }
             catch (ex) {
                 logger.error(ex.message);
@@ -48,7 +56,9 @@ class Socks5Connect {
             function negotiateAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
                     return new Promise(resolve => {
-                        executor.negotiate(negotiationOps, (success) => {
+                        executor.negotiate(negotiationOps, (success, reason) => {
+                            if (!success)
+                                logger.warn(reason);
                             resolve(success);
                         });
                     });
@@ -57,7 +67,9 @@ class Socks5Connect {
             function connectDestinationAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
                     return new Promise(resolve => {
-                        executor.connectDestination(negotiationOps, (success) => {
+                        executor.connectDestination(negotiationOps, (success, reason) => {
+                            if (!success)
+                                logger.warn(reason);
                             resolve(success);
                         });
                     });

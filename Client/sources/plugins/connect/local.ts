@@ -13,15 +13,7 @@ export class LocalConnectExecutor implements IConnectExecutor {
   }
   
   connectDestination(options: IConnectDestinationOptions, callback: (result: boolean, reason?: string) => void) {
-    let proxySocket = options.proxySocket;
-    let errorHandler = (error: Error) => callback(false, error.message);
-    
-    proxySocket.connect(options.dstPort, options.dstAddr, () => {
-      proxySocket.removeListener('error', errorHandler);
-      callback(true);
-    });
-    
-    proxySocket.once('error', errorHandler);
+    callback(true);
   }
   
   transport(options: ITransportOptions, communicationEnd: () => void) {

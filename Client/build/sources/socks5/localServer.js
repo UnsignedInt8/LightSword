@@ -16,9 +16,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var net = require('net');
-var dispatchQueue_1 = require('../lib/dispatchQueue');
-var consts = require('./consts');
 var util = require('util');
+var logger = require('winston');
+var consts = require('./consts');
+var dispatchQueue_1 = require('../lib/dispatchQueue');
 class LocalServer {
     constructor(options) {
         let _this = this;
@@ -63,6 +64,7 @@ class LocalServer {
             dispatchQueue_1.defaultQueue.publish(request.cmd.toString(), requestOptions);
         }));
         server.listen(this.port, this.addr);
+        server.on('error', (err) => { logger.error(err.message); process.exit(1); });
         this._server = server;
         return server !== null;
     }

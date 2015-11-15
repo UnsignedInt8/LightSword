@@ -9,10 +9,9 @@ import * as consts from './consts';
 import * as socks5Util from './util';
 import * as logger from 'winston';
 import { RequestOptions } from './localServer';
-import { IReceiver } from '../lib/dispatchQueue'
 import { IConnectExecutor, INegotiationOptions, ITransportOptions } from './interfaces';
 
-export class Socks5Connect implements IReceiver {
+export class Socks5Connect {
   cipherAlgorithm: string;
   password: string;
   dstAddr: string;
@@ -22,9 +21,23 @@ export class Socks5Connect implements IReceiver {
   clientSocket: net.Socket;
   timeout: number;
   
-  receive(msg: string, args: RequestOptions) {
+  isLocal: boolean;
+  
+  static isLocalProxy(addr: string): boolean {
+    return ['localhost', '', undefined, null].contains(addr.toLowerCase());
+  }
+  
+  constructor(args: RequestOptions) {
+    this.isLocal = Socks5Connect.isLocalProxy(args.serverAddr); 
+    if (this.isLocal) {
+      args.serverAddr = args.dstAddr;
+      args.serverPort = args.dstPort;
+    }  
+    
     let _this = this;
     Object.getOwnPropertyNames(args).forEach(n => _this[n] = args[n]);
+    
+    this.connectServer();
   }
   
   connectServer() {
@@ -34,9 +47,8 @@ export class Socks5Connect implements IReceiver {
       let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
       let executor: IConnectExecutor;
       try {
-        let isLocal = ['localhost', '', undefined, null].contains(_this.serverAddr.toLowerCase());
-        let plugin = '../plugins/connect/' + isLocal ? 'local' : 'main';
-        executor = <IConnectExecutor>require('../plugins/connect/main').createExecutor();
+        let pluginPath = `../plugins/connect/${_this.isLocal ? 'local' : 'main'}`;
+        executor = <IConnectExecutor>require(pluginPath).createExecutor();
       } catch(ex) {
         logger.error(ex.message);
         return process.exit(1);
@@ -52,7 +64,8 @@ export class Socks5Connect implements IReceiver {
       
       async function negotiateAsync(): Promise<boolean> {
         return new Promise<boolean>(resolve => {
-          executor.negotiate(negotiationOps, (success) => {
+          executor.negotiate(negotiationOps, (success, reason) => {
+            if (!success) logger.warn(reason);
             resolve(success);
           });
         });
@@ -60,7 +73,8 @@ export class Socks5Connect implements IReceiver {
       
       async function connectDestinationAsync(): Promise<boolean> {
         return new Promise<boolean>(resolve => {
-          executor.connectDestination(negotiationOps, (success) => {
+          executor.connectDestination(negotiationOps, (success, reason) => {
+            if (!success) logger.warn(reason);
             resolve(success);
           });
         });

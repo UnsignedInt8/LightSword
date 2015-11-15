@@ -20,13 +20,7 @@ class LocalConnectExecutor {
         callback(true);
     }
     connectDestination(options, callback) {
-        let proxySocket = options.proxySocket;
-        let errorHandler = (error) => callback(false, error.message);
-        proxySocket.connect(options.dstPort, options.dstAddr, () => {
-            proxySocket.removeListener('error', errorHandler);
-            callback(true);
-        });
-        proxySocket.once('error', errorHandler);
+        callback(true);
     }
     transport(options, communicationEnd) {
         let proxySocket = options.proxySocket;
