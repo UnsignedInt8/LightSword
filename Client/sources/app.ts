@@ -12,7 +12,7 @@ import { Socks5Connect } from './socks5/connect';
 import { IDispatchReceiver, defaultQueue as DefaultDispatchQueue } from './lib/dispatchQueue';
 import * as consts from './socks5/consts';
 
-class App implements IDispatchReceiver {
+export class App implements IDispatchReceiver {
   constructor(options?) {
     let defaultOptions = {
       addr: 'localhost',
@@ -41,5 +41,3 @@ class App implements IDispatchReceiver {
 if (!module.parent) {
   new App();
 }
-
-module.exports = App;

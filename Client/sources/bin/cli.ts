@@ -5,7 +5,7 @@
 'use strict'
 
 import * as program from 'commander';
-import * as App from '../app'
+import { App } from '../app'
 
 // Same as Shadowsocks https://shadowsocks.com/doc.html
 program.version('0.0.1')
@@ -36,3 +36,4 @@ let options = {
   timeout: args.timeout
 }
 
+new App(options);

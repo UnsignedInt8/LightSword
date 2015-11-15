@@ -44,8 +44,8 @@ class App {
         new connect_1.Socks5Connect(args);
     }
 }
+exports.App = App;
 if (!module.parent) {
     new App();
 }
-module.exports = App;
 //# sourceMappingURL=app.js.map
