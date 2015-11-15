@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-'use strict';
+#!/usr/bin/env node'use strict';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
     return new Promise(function (resolve, reject) {
         generator = generator.call(thisArg, _arguments);
@@ -43,4 +42,5 @@ let options = {
     timeout: args.timeout
 };
 new app_1.App(options);
+process.title = 'LightSword Client';
 //# sourceMappingURL=cli.js.map

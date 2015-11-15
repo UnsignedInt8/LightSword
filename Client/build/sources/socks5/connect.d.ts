@@ -9,8 +9,10 @@ export declare class Socks5Connect {
     serverPort: number;
     clientSocket: net.Socket;
     timeout: number;
-    isLocal: boolean;
-    static isLocalProxy(addr: string): boolean;
+    static isLocal: boolean;
+    static pluginPath: string;
+    static count: number;
+    static isLocalProxy(addr: string): void;
     constructor(args: RequestOptions);
     connectServer(): void;
 }

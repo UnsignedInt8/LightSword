@@ -1,6 +1,6 @@
 {
   "name": "lightsword",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "LigthSword Server",
   "main": "index.js",
   "scripts": {
@@ -18,5 +18,11 @@
   "bugs": {
     "url": "https://github.com/SunshinyNeko/LightSword/issues"
   },
-  "homepage": "https://github.com/SunshinyNeko/LightSword#readme"
+  "homepage": "https://github.com/SunshinyNeko/LightSword#readme",
+  "dependencies": {
+    "async-node": "0.0.1",
+    "commander": "^2.9.0",
+    "kinq": "0.0.6",
+    "winston": "^2.1.0"
+  }
 }

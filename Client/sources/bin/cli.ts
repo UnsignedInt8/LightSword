@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 //-----------------------------------
 // Copyright(c) 2015 猫王子
 //-----------------------------------
@@ -37,3 +38,5 @@ let options = {
 }
 
 new App(options);
+
+process.title = 'LightSword Client';

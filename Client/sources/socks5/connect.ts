@@ -21,18 +21,23 @@ export class Socks5Connect {
   clientSocket: net.Socket;
   timeout: number;
   
-  isLocal: boolean;
+  static isLocal: boolean = null;
+  static pluginPath: string;
+  static count = 0;
   
-  static isLocalProxy(addr: string): boolean {
-    return ['localhost', '', undefined, null].contains(addr.toLowerCase());
+  static isLocalProxy(addr: string) {
+    if (Socks5Connect.isLocal !== null) return;
+    let isLocal = Socks5Connect.isLocal = ['localhost', '', undefined, null].contains(addr.toLowerCase());
+    Socks5Connect.pluginPath = `../plugins/connect/${isLocal ? 'local' : 'main'}`
   }
   
   constructor(args: RequestOptions) {
-    this.isLocal = Socks5Connect.isLocalProxy(args.serverAddr); 
-    if (this.isLocal) {
+    Socks5Connect.isLocalProxy(args.serverAddr); 
+    
+    if (Socks5Connect.isLocal) {
       args.serverAddr = args.dstAddr;
       args.serverPort = args.dstPort;
-    }  
+    }
     
     let _this = this;
     Object.getOwnPropertyNames(args).forEach(n => _this[n] = args[n]);
@@ -43,13 +48,13 @@ export class Socks5Connect {
   connectServer() {
     let _this = this;
     let proxySocket = net.connect(this.serverPort, this.serverAddr, async () => {
-      logger.info('connect: ' + _this.dstAddr)
+      logger.info('connect: ' + _this.dstAddr);
+      logger.info('count: ' + ++Socks5Connect.count);
       
       let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
       let executor: IConnectExecutor;
       try {
-        let pluginPath = `../plugins/connect/${_this.isLocal ? 'local' : 'main'}`;
-        executor = <IConnectExecutor>require(pluginPath).createExecutor();
+        executor = <IConnectExecutor>require(Socks5Connect.pluginPath).createExecutor();
       } catch(ex) {
         logger.error(ex.message);
         return process.exit(1);
@@ -111,28 +116,31 @@ export class Socks5Connect {
       };
       
       executor.transport(transportOps, () => {
-        _this.clientSocket.destroy();
-        proxySocket.destroy();
+        disposeSockets();
       });
       
       // Handling errors.
-      function disposeSockets(error: Error) {
-        logger.info(error.message);
+      function disposeSockets(error?: Error, from?: string) {
+        logger.info(from + ': ' + (error ? error.message : 'close'));
         
         _this.clientSocket.end();
+        _this.clientSocket.removeAllListeners();
         _this.clientSocket.destroy();
         proxySocket.end();
+        proxySocket.removeAllListeners();
         proxySocket.destroy();
         
         _this.clientSocket = null;
         proxySocket = null;
+        
+        logger.info('count: ' + --Socks5Connect.count);
       }
       
-      _this.clientSocket.on('error', disposeSockets);
-      proxySocket.on('error', disposeSockets);
+      proxySocket.on('error', (err) => disposeSockets(err, 'proxy'));
+      _this.clientSocket.on('error', (err) => disposeSockets(err, 'client'));
     });
     
-    proxySocket.once('error', (error) => { logger.info(error.message); proxySocket.destroy(); });
+    proxySocket.once('error', (error) => { logger.info('first ' + error.message); proxySocket.destroy(); });
     
     if (!this.timeout) return;
     proxySocket.setTimeout(this.timeout * 1000);

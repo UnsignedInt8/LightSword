@@ -1,5 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES6"
-  }
+    "target": "ES6",
+    "module": "commonjs",
+    "outDir": "./build",
+    "declaration": true,
+    "sourceMap": true
+  },
+  "exclude": [
+    ".vscode",
+    "build",
+    "node_modules"
+  ]
 }
