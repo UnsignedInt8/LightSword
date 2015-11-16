@@ -17,3 +17,6 @@ export interface IConnectExecutor {
     connectDestination: (options: IConnectDestinationOptions, callback: (result: boolean, reason?: string) => void) => void;
     transport: (options: ITransportOptions, communicationEnd: () => void) => void;
 }
+export interface IPluginGenerator {
+    createExecutor?(): IConnectExecutor;
+}

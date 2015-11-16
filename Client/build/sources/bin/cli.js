@@ -31,7 +31,7 @@ program.version('0.0.1')
     .parse(process.argv);
 let args = program;
 let options = {
-    addr: args.any ? '*' : 'localhost',
+    addr: args.any ? '0.0.0.0' : 'localhost',
     port: args.localport,
     serverAddr: args.server,
     serverPort: args.port,

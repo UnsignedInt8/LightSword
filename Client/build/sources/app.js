@@ -36,18 +36,29 @@ class App {
         };
         if (options)
             Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
-        dispatchQueue_1.defaultQueue.register(consts.REQUEST_CMD.CONNECT.toString(), this);
+        else
+            options = defaultOptions;
+        let isLocalProxy = this.isLocalProxy = ['localhost', '', undefined, null].contains(options.serverAddr.toLowerCase());
+        let pluginPath = `./plugins/connect/${isLocalProxy ? 'local' : 'main'}`;
+        this.connectPlugin = require(pluginPath);
+        let msgMapper = new Map();
+        msgMapper.set(consts.REQUEST_CMD.CONNECT, [this.connectPlugin, connect_1.Socks5Connect]);
+        this.msgMapper = msgMapper;
+        dispatchQueue_1.defaultQueue.register(consts.REQUEST_CMD.CONNECT, this);
         let server = new localServer_1.LocalServer(options || defaultOptions);
         server.start();
     }
     receive(msg, args) {
-        new connect_1.Socks5Connect(args);
+        let tuple = this.msgMapper.get(msg);
+        if (!tuple)
+            return;
+        let executor = tuple[1];
+        new executor(tuple[0], args, this.isLocalProxy);
     }
 }
 exports.App = App;
 if (!module.parent) {
     process.title = 'LightSword Client Debug';
-    // Visit http://www.bilibili.com/mobile/video/av2766276.html to debug memory leak
     new App();
 }
 //# sourceMappingURL=app.js.map

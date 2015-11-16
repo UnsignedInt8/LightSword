@@ -60,7 +60,7 @@ class LocalServer {
                 password: _this.password,
                 timeout: _this.timeout
             };
-            dispatchQueue_1.defaultQueue.publish(request.cmd.toString(), requestOptions);
+            dispatchQueue_1.defaultQueue.publish(request.cmd, requestOptions);
         }));
         server.listen(this.port, this.addr);
         server.on('error', (err) => { logger.error(err.message); process.exit(1); });

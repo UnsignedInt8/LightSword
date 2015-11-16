@@ -20,22 +20,15 @@ var consts = require('./consts');
 var socks5Util = require('./util');
 var logger = require('winston');
 class Socks5Connect {
-    constructor(args) {
-        Socks5Connect.isLocalProxy(args.serverAddr);
-        if (Socks5Connect.isLocal) {
+    constructor(plugin, args, isLocal) {
+        this.connectPlugin = plugin;
+        if (isLocal) {
             args.serverAddr = args.dstAddr;
             args.serverPort = args.dstPort;
         }
         let _this = this;
         Object.getOwnPropertyNames(args).forEach(n => _this[n] = args[n]);
         this.connectServer();
-    }
-    static isLocalProxy(addr) {
-        if (Socks5Connect.isLocal !== null)
-            return;
-        let isLocal = Socks5Connect.isLocal = ['localhost', '', undefined, null].contains(addr.toLowerCase());
-        let pluginPath = `../plugins/connect/${isLocal ? 'local' : 'main'}`;
-        Socks5Connect.plugin = require(pluginPath);
     }
     connectServer() {
         let _this = this;
@@ -45,7 +38,7 @@ class Socks5Connect {
             let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
             let executor;
             try {
-                executor = Socks5Connect.plugin.createExecutor();
+                executor = _this.connectPlugin.createExecutor();
             }
             catch (ex) {
                 logger.error(ex.message);
@@ -128,7 +121,6 @@ class Socks5Connect {
         proxySocket.setTimeout(this.timeout * 1000);
     }
 }
-Socks5Connect.isLocal = null;
 Socks5Connect.count = 0;
 exports.Socks5Connect = Socks5Connect;
 //# sourceMappingURL=connect.js.map

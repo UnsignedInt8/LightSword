@@ -36,5 +36,5 @@ export interface IConnectExecutor {
 }
 
 export interface IPluginGenerator {
-  createConnectExecutor(): IConnectExecutor;
+  createExecutor?(): IConnectExecutor;
 }

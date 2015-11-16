@@ -15,7 +15,8 @@ import * as consts from './socks5/consts';
 
 export class App implements IDispatchReceiver {
   connectPlugin: IPluginGenerator;
-  isLocal: boolean;
+  isLocalProxy: boolean;
+  msgMapper: Map<consts.REQUEST_CMD, any>;
   
   constructor(options?) {
     let defaultOptions = {
@@ -30,22 +31,30 @@ export class App implements IDispatchReceiver {
       timeout: 60
     };
     
-    if (options) Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
-    DefaultDispatchQueue.register(consts.REQUEST_CMD.CONNECT.toString(), this);
+    if (options) 
+      Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
+    else
+      options = defaultOptions;
     
-    let isLocal = this.isLocal = ['localhost', '', undefined, null].contains(options.serverAddr.toLowerCase());
-    let pluginPath = `../plugins/connect/${isLocal ? 'local' : 'main'}`;
+    let isLocalProxy = this.isLocalProxy = ['localhost', '', undefined, null].contains(options.serverAddr.toLowerCase());
+    let pluginPath = `./plugins/connect/${isLocalProxy ? 'local' : 'main'}`;
     this.connectPlugin = require(pluginPath);
     
+    let msgMapper = new Map();
+    msgMapper.set(consts.REQUEST_CMD.CONNECT, [this.connectPlugin, Socks5Connect]);
+    this.msgMapper = msgMapper;
+    
+    DefaultDispatchQueue.register(consts.REQUEST_CMD.CONNECT, this);
     let server = new LocalServer(options || defaultOptions);
     server.start();
   }
   
-  
-  
-  receive(msg: string, args: any) {
+  receive(msg: any, args: any) {
+    let tuple = this.msgMapper.get(msg);
+    if (!tuple) return;
     
-    new Socks5Connect(this.connectPlugin, args, this.isLocal);
+    let executor = tuple[1];
+    new executor(tuple[0], args, this.isLocalProxy);
   }
 }
 

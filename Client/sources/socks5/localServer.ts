@@ -76,7 +76,7 @@ export class LocalServer {
         timeout: _this.timeout
       };
       
-      defaultQueue.publish(request.cmd.toString(), requestOptions);
+      defaultQueue.publish(request.cmd, requestOptions);
     });
     
     server.listen(this.port, this.addr);

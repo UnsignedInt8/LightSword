@@ -47,7 +47,7 @@ export class Socks5Connect {
       let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
       let executor: IConnectExecutor;
       try {
-        executor = <IConnectExecutor>_this.connectPlugin.createConnectExecutor();
+        executor = <IConnectExecutor>_this.connectPlugin.createExecutor();
       } catch(ex) {
         logger.error(ex.message);
         return process.exit(1);
@@ -108,7 +108,7 @@ export class Socks5Connect {
         disposeSockets();
       });
       
-      // Handling errors.
+      // Handling errors, disposing resources.
       function disposeSockets(error?: Error, from?: string) {
         if (_this.clientSocket === null || proxySocket === null) return;
         logger.info(from + ': ' + (error ? error.message : 'close'));

@@ -10,13 +10,13 @@ namespace LightSword.Client.Lib {
 }
 
 export interface IDispatchReceiver {
-  receive: (msg: string, args: any) => void;
+  receive: (msg: any, args: any) => void;
 }
 
 export class DispatchQueue {
   private _store = new Map<string, IDispatchReceiver[]>()
   
-  public register(msg: string, receiver: IDispatchReceiver): boolean {
+  public register(msg: any, receiver: IDispatchReceiver): boolean {
     let subscribers = <IDispatchReceiver[]>this._store.get(msg);
     if (!subscribers) {
       subscribers = [];
@@ -30,7 +30,7 @@ export class DispatchQueue {
     return true;
   }
   
-  public unregister(msg: string, receiver: IDispatchReceiver): boolean {
+  public unregister(msg: any, receiver: IDispatchReceiver): boolean {
     let subscribers = <IDispatchReceiver[]>this._store.get(msg);
     if (!subscribers) return false;
     let index = subscribers.indexOf(receiver);
@@ -39,7 +39,7 @@ export class DispatchQueue {
     return true;
   }
   
-  public publish(msg: string, things: any): boolean {
+  public publish(msg: any, things: any): boolean {
     let subscribers = <IDispatchReceiver[]>this._store.get(msg);
     if (!subscribers) return false;
     

@@ -1,10 +1,10 @@
 export interface IDispatchReceiver {
-    receive: (msg: string, args: any) => void;
+    receive: (msg: any, args: any) => void;
 }
 export declare class DispatchQueue {
     private _store;
-    register(msg: string, receiver: IDispatchReceiver): boolean;
-    unregister(msg: string, receiver: IDispatchReceiver): boolean;
-    publish(msg: string, things: any): boolean;
+    register(msg: any, receiver: IDispatchReceiver): boolean;
+    unregister(msg: any, receiver: IDispatchReceiver): boolean;
+    publish(msg: any, things: any): boolean;
 }
 export declare let defaultQueue: DispatchQueue;

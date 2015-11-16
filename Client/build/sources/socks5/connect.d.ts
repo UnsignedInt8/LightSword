@@ -1,5 +1,6 @@
 import * as net from 'net';
 import { RequestOptions } from './localServer';
+import { IPluginGenerator } from './interfaces';
 export declare class Socks5Connect {
     cipherAlgorithm: string;
     password: string;
@@ -9,10 +10,8 @@ export declare class Socks5Connect {
     serverPort: number;
     clientSocket: net.Socket;
     timeout: number;
-    static isLocal: boolean;
-    static plugin: any;
+    connectPlugin: IPluginGenerator;
     static count: number;
-    static isLocalProxy(addr: string): void;
-    constructor(args: RequestOptions);
+    constructor(plugin: IPluginGenerator, args: RequestOptions, isLocal?: boolean);
     connectServer(): void;
 }
