@@ -22,7 +22,6 @@ export class Socks5Connect {
   timeout: number;
   
   connectPlugin: IPluginGenerator;
-  static count = 0;
   
   constructor(plugin: IPluginGenerator, args: RequestOptions, isLocal?: boolean) {
     this.connectPlugin = plugin;
@@ -59,8 +58,7 @@ export class Socks5Connect {
     }
     
     var proxySocket = net.connect(this.serverPort, this.serverAddr, async () => {
-      logger.info('connect: ' + _this.dstAddr);
-      logger.info('count: ' + ++Socks5Connect.count);
+      logger.info(`connect: ${_this.dstAddr}`);
       
       let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
       let executor: IConnectExecutor;

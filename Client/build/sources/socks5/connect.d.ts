@@ -11,7 +11,6 @@ export declare class Socks5Connect {
     clientSocket: net.Socket;
     timeout: number;
     connectPlugin: IPluginGenerator;
-    static count: number;
     constructor(plugin: IPluginGenerator, args: RequestOptions, isLocal?: boolean);
     connectServer(): void;
 }

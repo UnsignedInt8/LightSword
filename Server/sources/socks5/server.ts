@@ -21,11 +21,16 @@ export class Server {
     
     server.listen(this.port);
     server.on('error', (err) => logger.error(err.message));
-    
+
     this._server = server;
   }
   
   stop() {
+    if (!this._server) return;
     
+    this._server.removeAllListeners();
+    this._server.close();
+    this._server.destroy();
+    this._server = null;
   }
 }

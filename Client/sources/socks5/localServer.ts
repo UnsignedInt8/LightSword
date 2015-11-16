@@ -87,9 +87,12 @@ export class LocalServer {
   }
   
   public stop(): boolean {
-    if (this._server === null) return false;
+    if (!this._server) return false;
     
+    this._server.removeAllListeners();
     this._server.close();
+    this._server.destroy();
+    this._server = null;
     return true;
   }
   

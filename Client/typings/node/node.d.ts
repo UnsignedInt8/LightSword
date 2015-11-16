@@ -1600,6 +1600,7 @@ declare module "tls" {
 }
 
 declare module "crypto" {
+    import * as stream from 'stream';
     export interface CredentialDetails {
         pfx: string;
         key: string;
@@ -1628,7 +1629,7 @@ declare module "crypto" {
     }
     export function createCipher(algorithm: string, password: any): Cipher;
     export function createCipheriv(algorithm: string, key: any, iv: any): Cipher;
-    interface Cipher {
+    interface Cipher extends stream.Duplex {
         update(data: Buffer): Buffer;
         update(data: string, input_encoding?: string, output_encoding?: string): string;
         final(): Buffer;
@@ -1637,7 +1638,7 @@ declare module "crypto" {
     }
     export function createDecipher(algorithm: string, password: any): Decipher;
     export function createDecipheriv(algorithm: string, key: any, iv: any): Decipher;
-    interface Decipher {
+    interface Decipher extends stream.Duplex {
         update(data: Buffer): Buffer;
         update(data: string, input_encoding?: string, output_encoding?: string): string;
         final(): Buffer;

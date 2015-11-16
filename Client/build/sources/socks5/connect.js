@@ -48,8 +48,7 @@ class Socks5Connect {
             _this = null;
         }
         var proxySocket = net.connect(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
-            logger.info('connect: ' + _this.dstAddr);
-            logger.info('count: ' + ++Socks5Connect.count);
+            logger.info(`connect: ${_this.dstAddr}`);
             let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
             let executor;
             try {
@@ -119,8 +118,8 @@ class Socks5Connect {
         if (!this.timeout)
             return;
         proxySocket.setTimeout(this.timeout * 1000);
+        _this.clientSocket.setTimeout(this.timeout * 1000);
     }
 }
-Socks5Connect.count = 0;
 exports.Socks5Connect = Socks5Connect;
 //# sourceMappingURL=connect.js.map
