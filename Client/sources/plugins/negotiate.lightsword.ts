@@ -9,56 +9,52 @@ import * as crypto from 'crypto';
 import * as logger from 'winston';
 import { INegotiationOptions } from './main';
 
-namespace Plugins.LightSword.Negotiate {
-  let cipherAlgorithm: string;
+
+export async function lightswordNegotiate(options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) {
+    
+  let cipherAlgorithm = options.cipherAlgorithm;
+  let proxySocket = options.proxySocket;
+  let dstAddr = options.dstAddr;
+  let dstPort = options.dstPort;
   let cipherKey: string;
-  let proxySocket: net.Socket;
-  let dstAddr: string;
-  let dstPort: number;
-  let vNum: number;
+  let vNum: number = 0;
   
-  export async function lightswordNegotiate(options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) {
-    cipherAlgorithm = options.cipherAlgorithm
-    proxySocket = options.proxySocket;
-    dstAddr = options.dstAddr;
-    dstPort = options.dstPort;
-    
-    let sha = crypto.createHash('sha256');
-    sha.update((Math.random() * Date.now()).toString());
-    cipherKey = sha.digest().toString('hex');
-    
-    vNum = Number((Math.random() * Date.now()).toFixed());
-    
-    let handshake = {
-      cipherKey,
-      cipherAlgorithm: options.cipherAlgorithm,
-      vNum,
-      version: process.versions
-    };
+  let sha = crypto.createHash('sha256');
+  sha.update((Math.random() * Date.now()).toString());
+  cipherKey = sha.digest().toString('hex');
   
-    let handshakeCipher = crypto.createCipher(options.cipherAlgorithm, options.password);
-    let hello = Buffer.concat([handshakeCipher.update(new Buffer(JSON.stringify(handshake))), handshakeCipher.final()]);
-    await proxySocket.writeAsync(hello);
+  vNum = Number((Math.random() * Date.now()).toFixed());
+  
+  let handshake = {
+    cipherKey,
+    cipherAlgorithm: options.cipherAlgorithm,
+    vNum,
+    version: process.versions
+  };
+
+  let handshakeCipher = crypto.createCipher(options.cipherAlgorithm, options.password);
+  let hello = Buffer.concat([handshakeCipher.update(new Buffer(JSON.stringify(handshake))), handshakeCipher.final()]);
+  await proxySocket.writeAsync(hello);
+  
+  let data = await proxySocket.readAsync();
+  if (!data) return callback(false);
+  
+  let handshakeDecipher = crypto.createDecipher(options.cipherAlgorithm, cipherKey);
+  let buf = Buffer.concat([handshakeDecipher.update(data), handshakeDecipher.final()]);
+  try {
+    let res = JSON.parse(buf.toString('utf8'));
+    let okNum = Number(res.okNum);
+    if (okNum !== vNum + 1) return callback(false, "Can't confirm verification number.");
     
-    let data = await proxySocket.readAsync();
-    if (!data) return callback(false);
+    vNum = okNum;
     
-    let handshakeDecipher = crypto.createDecipher(options.cipherAlgorithm, cipherKey);
-    let buf = Buffer.concat([handshakeDecipher.update(data), handshakeDecipher.final()]);
-    try {
-      let res = JSON.parse(buf.toString('utf8'));
-      let okNum = Number(res.okNum);
-      if (okNum !== vNum + 1) return callback(false, "Can't confirm verification number.");
-      
-      vNum = okNum;
-      
-      await connect(callback);
-    } catch(ex) {
-      logger.error(ex.message);
-      callback(false, ex.message);
-    }
+    await connect(callback);
+  } catch(ex) {
+    logger.error(ex.message);
+    callback(false, ex.message);
   }
   
+  // Connect to destination resource.  
   async function connect(callback: (result: boolean, reason?: string) => void) {
     let connect = {
       dstAddr: dstAddr,
@@ -88,6 +84,7 @@ namespace Plugins.LightSword.Negotiate {
       return callback(false, ex.message);
     }
   }
+
 }
 
-module.exports = Plugins.LightSword.Negotiate.lightswordNegotiate;
+module.exports = lightswordNegotiate;
