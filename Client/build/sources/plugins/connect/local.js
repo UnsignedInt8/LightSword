@@ -22,13 +22,11 @@ class LocalConnectExecutor {
     connectDestination(options, callback) {
         callback(true);
     }
-    transport(options, communicationEnd) {
+    transport(options) {
         let proxySocket = options.proxySocket;
         let clientSocket = options.clientSocket;
-        proxySocket.on('data', (data) => clientSocket.write(data));
-        clientSocket.on('data', (data) => proxySocket.write(data));
-        proxySocket.once('end', () => communicationEnd());
-        clientSocket.once('end', () => communicationEnd());
+        proxySocket.pipe(clientSocket);
+        clientSocket.pipe(proxySocket);
     }
 }
 exports.LocalConnectExecutor = LocalConnectExecutor;

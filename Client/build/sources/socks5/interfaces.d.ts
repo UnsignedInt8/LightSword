@@ -13,9 +13,9 @@ export interface ITransportOptions extends IConnectOptions {
     clientSocket: net.Socket;
 }
 export interface IConnectExecutor {
-    negotiate: (options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) => void;
-    connectDestination: (options: IConnectDestinationOptions, callback: (result: boolean, reason?: string) => void) => void;
-    transport: (options: ITransportOptions, communicationEnd: () => void) => void;
+    negotiate: (options: INegotiationOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
+    connectDestination: (options: IConnectDestinationOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
+    transport: (options: ITransportOptions) => void;
 }
 export interface IPluginGenerator {
     createExecutor?(): IConnectExecutor;

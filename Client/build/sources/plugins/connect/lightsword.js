@@ -85,15 +85,13 @@ class LightSwordConnectExecutor {
             }
         });
     }
-    transport(options, communicationEnd) {
+    transport(options) {
         let proxySocket = options.proxySocket;
         let clientSocket = options.clientSocket;
         let decipher = crypto.createDecipher(options.cipherAlgorithm, this.cipherKey);
         proxySocket.on('data', data => clientSocket.write(decipher.update(data)));
         let cipher = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
         clientSocket.on('data', (data) => proxySocket.write(cipher.update(data)));
-        clientSocket.once('end', () => communicationEnd());
-        proxySocket.once('end', () => communicationEnd());
     }
 }
 module.exports = LightSwordConnectExecutor;

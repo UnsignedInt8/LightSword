@@ -124,8 +124,8 @@ export class Socks5Connect {
       
       executor.transport(transportOps);
       
-      proxySocket.once('end', () => disposeSockets(null, 'client end'));
-      _this.clientSocket.once('end', () => disposeSockets(null, 'proxy end'));
+      proxySocket.once('end', () => disposeSockets(null, 'proxy end'));
+      _this.clientSocket.once('end', () => disposeSockets(null, 'end end'));
       
       proxySocket.on('error', (err) => disposeSockets(err, 'proxy'));
       _this.clientSocket.on('error', (err) => disposeSockets(err, 'client'));
@@ -135,6 +135,7 @@ export class Socks5Connect {
     
     if (!this.timeout) return;
     proxySocket.setTimeout(this.timeout * 1000);
+    _this.clientSocket.setTimeout(this.timeout * 1000);
   }
   
 }

@@ -16,7 +16,7 @@ export class LocalConnectExecutor implements IConnectExecutor {
     callback(true);
   }
   
-  transport(options: ITransportOptions, communicationEnd: () => void) {
+  transport(options: ITransportOptions) {
     let proxySocket = options.proxySocket;
     let clientSocket = options.clientSocket;
     

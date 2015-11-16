@@ -2,5 +2,5 @@ import { IConnectExecutor, INegotiationOptions, IConnectDestinationOptions, ITra
 export declare class LocalConnectExecutor implements IConnectExecutor {
     negotiate(options: INegotiationOptions, callback: (result: boolean, reason?: string) => void): void;
     connectDestination(options: IConnectDestinationOptions, callback: (result: boolean, reason?: string) => void): void;
-    transport(options: ITransportOptions, communicationEnd: () => void): void;
+    transport(options: ITransportOptions): void;
 }

@@ -89,7 +89,7 @@ class LightSwordConnectExecutor implements IConnectExecutor {
     
   }
   
-  transport(options: ITransportOptions, communicationEnd: () => void) {
+  transport(options: ITransportOptions) {
     let proxySocket = options.proxySocket;
     let clientSocket = options.clientSocket;
     
