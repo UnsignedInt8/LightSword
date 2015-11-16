@@ -14,9 +14,7 @@ export async function negotiate(options: INegotiationOptions): { result: boolean
   let dstAddr = options.dstAddr;
   let dstPort = options.dstPort;
   
-  let sha = crypto.createHash('sha256');
-  sha.update((Math.random() * Date.now()).toString());
-  let cipherKey = sha.digest().toString('hex');
+  let cipherKey = crypto.createHash('sha256').update((Math.random() * Date.now()).toString()).digest().toString('hex');
   let vNum = Number((Math.random() * Date.now()).toFixed());
   
   let handshake = {

@@ -3,3 +3,6 @@
 //-----------------------------------
 
 'use strict'
+
+let dstAddr: string;
+let dstPort: number;

@@ -11,16 +11,13 @@ export interface IBasicOptions {
   password: string;
 }
 
-export interface IStreamBasicOptions extends IBasicOptions {
+export interface INegotitationOptions extends IBasicOptions {
   clientSocket: net.Socket;
 }
 
-export interface INegotiationOptions extends IStreamBasicOptions {
-  dstAddr: string;
-  dstPort: number;
-}
+export type INegotiationOptions = INegotitationOptions;
 
-export interface IStreamTransportOptions extends IStreamBasicOptions {
+export interface IStreamTransportOptions extends INegotitationOptions {
   clientSocket: net.Socket;
 }
 
@@ -30,11 +27,13 @@ export interface IPluginPivot {
 }
 
 export class PluginPivot implements IPluginPivot {
-  public negotiate: (options: INegotiationOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
+  public negotiate: (options: INegotiationOptions) => boolean;
   public transportStream: (options: IStreamTransportOptions) => void;
 
   constructor(plugin: string) {
     let _this = this;
     ['negotiate', 'transportStream'].forEach(n => _this[n] = require(`./${n}.${plugin}`));
   }
+  
+  
 }
