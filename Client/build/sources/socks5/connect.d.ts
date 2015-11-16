@@ -1,6 +1,6 @@
 import * as net from 'net';
 import { RequestOptions } from './localServer';
-import { IPluginPivot } from '../plugins/main';
+import { ISocks5Plugin } from '../plugins/main';
 export declare class Socks5Connect {
     cipherAlgorithm: string;
     password: string;
@@ -10,7 +10,7 @@ export declare class Socks5Connect {
     serverPort: number;
     clientSocket: net.Socket;
     timeout: number;
-    pluginPivot: IPluginPivot;
-    constructor(plugin: IPluginPivot, args: RequestOptions, isLocal?: boolean);
+    socks5Plugin: ISocks5Plugin;
+    constructor(plugin: ISocks5Plugin, args: RequestOptions);
     connectServer(): void;
 }

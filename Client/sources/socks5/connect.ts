@@ -9,7 +9,7 @@ import * as consts from './consts';
 import * as socks5Util from './util';
 import * as logger from 'winston';
 import { RequestOptions } from './localServer';
-import { IPluginPivot, INegotiationOptions, IStreamTransportOptions } from '../plugins/main';
+import { ISocks5Plugin, INegotiationOptions, IStreamTransportOptions } from '../plugins/main';
 
 export class Socks5Connect {
   cipherAlgorithm: string;
@@ -21,10 +21,10 @@ export class Socks5Connect {
   clientSocket: net.Socket;
   timeout: number;
   
-  pluginPivot: IPluginPivot;
+  socks5Plugin: ISocks5Plugin;
   
-  constructor(plugin: IPluginPivot, args: RequestOptions) {
-    this.pluginPivot = plugin;
+  constructor(plugin: ISocks5Plugin, args: RequestOptions) {
+    this.socks5Plugin = plugin;
     
     let _this = this;
     Object.getOwnPropertyNames(args).forEach(n => _this[n] = args[n]);
@@ -56,7 +56,7 @@ export class Socks5Connect {
       logger.info(`connect: ${_this.dstAddr}`);
       
       let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
-      
+      let connect = _this.socks5Plugin.getConnect();
       
       let negotiationOps: INegotiationOptions = {
         dstAddr: _this.dstAddr,
@@ -68,7 +68,7 @@ export class Socks5Connect {
       
       async function negotiateAsync(): Promise<boolean> {
         return new Promise<boolean>(resolve => {
-          _this.pluginPivot.negotiate(negotiationOps, (success, reason) => {
+          connect.negotiate(negotiationOps, (success, reason) => {
             if (!success) logger.warn(reason);
             resolve(success);
           });
@@ -90,7 +90,7 @@ export class Socks5Connect {
         proxySocket
       };
       
-      _this.pluginPivot.transportStream(transportOps);
+      connect.transportStream(transportOps);
       
       proxySocket.once('end', () => disposeSockets(null, 'proxy end'));
       _this.clientSocket.once('end', () => disposeSockets(null, 'end end'));

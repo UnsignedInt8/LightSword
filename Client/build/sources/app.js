@@ -55,6 +55,10 @@ class App {
         let compoent = this.msgMapper.get(msg);
         if (!compoent)
             return;
+        if (this.isLocalProxy) {
+            args.serverAddr = args.dstAddr;
+            args.serverPort = args.dstPort;
+        }
         new compoent(this.pluginPivot, args, this.isLocalProxy);
     }
 }

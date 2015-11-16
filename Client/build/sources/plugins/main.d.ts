@@ -13,12 +13,19 @@ export interface INegotiationOptions extends IStreamBasicOptions {
 export interface IStreamTransportOptions extends IStreamBasicOptions {
     clientSocket: net.Socket;
 }
-export interface IPluginPivot {
+export interface ISocks5 {
     negotiate: (options: INegotiationOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
     transportStream: (options: IStreamTransportOptions) => void;
 }
-export declare class PluginPivot implements IPluginPivot {
-    negotiate: (options: INegotiationOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
-    transportStream: (options: IStreamTransportOptions) => void;
+export interface ISocks5Plugin {
+    getConnect: () => ISocks5;
+    getBind: () => ISocks5;
+    getUdpAssociate: () => ISocks5;
+}
+export declare class PluginPivot implements ISocks5Plugin {
+    components: Map<string, any>;
     constructor(plugin: string);
+    getConnect(): ISocks5;
+    getBind(): ISocks5;
+    getUdpAssociate(): ISocks5;
 }

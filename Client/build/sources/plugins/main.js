@@ -17,8 +17,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 class PluginPivot {
     constructor(plugin) {
+        this.components = new Map();
         let _this = this;
-        ['negotiate', 'transportStream'].forEach(n => _this[n] = require(`./${n}.${plugin}`));
+        // , 'bind', 'udpAssociate'
+        ['connect'].forEach(c => _this.components.set(c, require(`./${plugin}.${c}`)));
+    }
+    getConnect() {
+        return new (this.components.get('connect'))();
+    }
+    getBind() {
+        return null;
+    }
+    getUdpAssociate() {
+        return null;
     }
 }
 exports.PluginPivot = PluginPivot;

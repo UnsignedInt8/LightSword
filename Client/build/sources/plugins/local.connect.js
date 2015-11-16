@@ -15,10 +15,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-function lightswordNegotiate(options, callback) {
-    return __awaiter(this, void 0, Promise, function* () {
-    });
+class LocalConnect {
+    negotiate(options, callback) {
+        process.nextTick(() => callback(true));
+    }
+    transportStream(options) {
+        let proxySocket = options.proxySocket;
+        let clientSocket = options.clientSocket;
+        proxySocket.pipe(clientSocket);
+        clientSocket.pipe(proxySocket);
+    }
 }
-exports.lightswordNegotiate = lightswordNegotiate;
-module.exports = lightswordNegotiate;
-//# sourceMappingURL=negotiate.lightsword.js.map
+module.exports = LocalConnect;
+//# sourceMappingURL=local.connect.js.map
