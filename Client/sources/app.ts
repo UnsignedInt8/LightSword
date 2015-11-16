@@ -10,7 +10,6 @@ require('async-node');
 import { LocalServer } from './socks5/localServer';
 import { Socks5Connect } from './socks5/connect';
 import { IDispatchReceiver, defaultQueue as DefaultDispatchQueue } from './lib/dispatchQueue';
-import { IPluginGenerator } from './socks5/interfaces';
 import * as consts from './socks5/consts';
 import { PluginPivot } from './plugins/main';
 
@@ -47,13 +46,19 @@ export class App implements IDispatchReceiver {
     this.msgMapper = msgMapper;
     
     DefaultDispatchQueue.register(consts.REQUEST_CMD.CONNECT, this);
-    let server = new LocalServer(options || defaultOptions);
+    
+    let server = new LocalServer(options);
     server.start();
   }
   
   receive(msg: any, args: any) {
     let compoent = this.msgMapper.get(msg);
     if (!compoent) return;
+    
+    if (this.isLocalProxy) {
+      args.serverAddr = args.dstAddr;
+      args.serverPort = args.dstPort;
+    }
     
     new compoent(this.pluginPivot, args, this.isLocalProxy);
   }

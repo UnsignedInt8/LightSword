@@ -48,7 +48,7 @@ class App {
         msgMapper.set(consts.REQUEST_CMD.CONNECT, connect_1.Socks5Connect);
         this.msgMapper = msgMapper;
         dispatchQueue_1.defaultQueue.register(consts.REQUEST_CMD.CONNECT, this);
-        let server = new localServer_1.LocalServer(options || defaultOptions);
+        let server = new localServer_1.LocalServer(options);
         server.start();
     }
     receive(msg, args) {

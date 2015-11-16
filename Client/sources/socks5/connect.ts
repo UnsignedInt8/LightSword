@@ -9,7 +9,6 @@ import * as consts from './consts';
 import * as socks5Util from './util';
 import * as logger from 'winston';
 import { RequestOptions } from './localServer';
-// import { IConnectExecutor, INegotiationOptions, ITransportOptions, IPluginGenerator } from './interfaces';
 import { IPluginPivot, INegotiationOptions, IStreamTransportOptions } from '../plugins/main';
 
 export class Socks5Connect {
@@ -24,13 +23,8 @@ export class Socks5Connect {
   
   pluginPivot: IPluginPivot;
   
-  constructor(plugin: IPluginPivot, args: RequestOptions, isLocal?: boolean) {
+  constructor(plugin: IPluginPivot, args: RequestOptions) {
     this.pluginPivot = plugin;
-    
-    if (isLocal) {
-      args.serverAddr = args.dstAddr;
-      args.serverPort = args.dstPort;
-    }
     
     let _this = this;
     Object.getOwnPropertyNames(args).forEach(n => _this[n] = args[n]);
@@ -81,33 +75,14 @@ export class Socks5Connect {
         });
       }
       
-      // async function connectDestinationAsync(): Promise<boolean> {
-      //   return new Promise<boolean>(resolve => {
-      //     executor.connectDestination(negotiationOps, (success, reason) => {
-      //       if (!success) logger.warn(reason);
-      //       resolve(success);
-      //     });
-      //   });
-      // }
-      
       // Step 1: Negotiate with server      
       let success = await negotiateAsync();
-      
-      // If negotiation failed, refuse client socket
-      // if (!success) {
-      //   reply[1] = consts.REPLY_CODE.CONNECTION_NOT_ALLOWED;
-      //   await _this.clientSocket.writeAsync(reply);
-      //   return disposeSockets(null, 'proxy');
-      // }
-      
-      // Step 2: Reply client destination connected or not. 
-      // success = await connectDestinationAsync();
       
       reply[1] = success ? consts.REPLY_CODE.SUCCESS : consts.REPLY_CODE.CONNECTION_REFUSED;
       await _this.clientSocket.writeAsync(reply);
       if (!success) return disposeSockets(null, 'proxy');
       
-      // Step 3: Transport data.
+      // Step 2: Transport data.
       let transportOps: IStreamTransportOptions = {
         cipherAlgorithm: _this.cipherAlgorithm,
         password: _this.password,
