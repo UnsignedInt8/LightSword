@@ -40,7 +40,25 @@ export class Socks5Connect {
   
   connectServer() {
     let _this = this;
-    let proxySocket = net.connect(this.serverPort, this.serverAddr, async () => {
+    
+    // Handling errors, disposing resources.
+    function disposeSockets(error?: Error, from?: string) {
+      if (!_this || !_this || !proxySocket) return;
+      logger.info(from + ': ' + (error ? error.message : 'close'));
+      
+      _this.clientSocket.removeAllListeners();
+      _this.clientSocket.end();
+      _this.clientSocket.destroy();
+      proxySocket.removeAllListeners();
+      proxySocket.end();
+      proxySocket.destroy();
+      
+      _this.clientSocket = null;
+      proxySocket = null;
+      _this = null;
+    }
+    
+    var proxySocket = net.connect(this.serverPort, this.serverAddr, async () => {
       logger.info('connect: ' + _this.dstAddr);
       logger.info('count: ' + ++Socks5Connect.count);
       
@@ -86,7 +104,7 @@ export class Socks5Connect {
       if (!success) {
         reply[1] = consts.REPLY_CODE.CONNECTION_NOT_ALLOWED;
         await _this.clientSocket.writeAsync(reply);
-        return disposeSockets();
+        return disposeSockets(null, 'proxy');
       }
       
       // Step 2: Reply client destination connected or not. 
@@ -94,7 +112,7 @@ export class Socks5Connect {
       
       reply[1] = success ? consts.REPLY_CODE.SUCCESS : consts.REPLY_CODE.CONNECTION_REFUSED;
       await _this.clientSocket.writeAsync(reply);
-      if (!success) return disposeSockets();
+      if (!success) return disposeSockets(null, 'proxy');
       
       // Step 3: Transport data.
       let transportOps: ITransportOptions = {
@@ -104,33 +122,16 @@ export class Socks5Connect {
         proxySocket
       };
       
-      executor.transport(transportOps, () => {
-        disposeSockets();
-      });
+      executor.transport(transportOps);
       
-      // Handling errors, disposing resources.
-      function disposeSockets(error?: Error, from?: string) {
-        if (_this.clientSocket === null || proxySocket === null) return;
-        logger.info(from + ': ' + (error ? error.message : 'close'));
-        
-        _this.clientSocket.end();
-        _this.clientSocket.removeAllListeners();
-        _this.clientSocket.destroy();
-        proxySocket.end();
-        proxySocket.removeAllListeners();
-        proxySocket.destroy();
-        
-        _this.clientSocket = null;
-        proxySocket = null;
-        
-        logger.info('count: ' + --Socks5Connect.count);
-      }
+      proxySocket.once('end', () => disposeSockets(null, 'client end'));
+      _this.clientSocket.once('end', () => disposeSockets(null, 'proxy end'));
       
       proxySocket.on('error', (err) => disposeSockets(err, 'proxy'));
       _this.clientSocket.on('error', (err) => disposeSockets(err, 'client'));
     });
     
-    proxySocket.once('error', (error) => { logger.info('first ' + error.message); proxySocket.destroy(); });
+    proxySocket.once('error', (error) => disposeSockets(error, 'first'));
     
     if (!this.timeout) return;
     proxySocket.setTimeout(this.timeout * 1000);

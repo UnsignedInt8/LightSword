@@ -26,13 +26,13 @@ export interface ITransportOptions extends IConnectOptions {
 export interface IConnectExecutor {
   
   // Step 1: Negotiate with LightSword Server.
-  negotiate: (options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) => void,
+  negotiate: (options: INegotiationOptions, finishCallback: (result: boolean, reason?: string) => void) => void,
   
   // Step 2: Reply local client connection succeed.
-  connectDestination: (options: IConnectDestinationOptions, callback: (result: boolean, reason?: string) => void) => void,
+  connectDestination: (options: IConnectDestinationOptions, finishCallback: (result: boolean, reason?: string) => void) => void,
   
   // Step 3: Transport data.
-  transport: (options: ITransportOptions, communicationEnd: () => void) => void,
+  transport: (options: ITransportOptions) => void,
 }
 
 export interface IPluginGenerator {

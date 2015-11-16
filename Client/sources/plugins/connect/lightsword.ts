@@ -93,14 +93,11 @@ class LightSwordConnectExecutor implements IConnectExecutor {
     let proxySocket = options.proxySocket;
     let clientSocket = options.clientSocket;
     
-    let decipher = crypto.createDecipher(options.cipherAlgorithm, this.cipherKey); 
+    let decipher = crypto.createDecipher(options.cipherAlgorithm, this.cipherKey);
     proxySocket.on('data', data => clientSocket.write(decipher.update(data)));
     
     let cipher = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
     clientSocket.on('data', (data) => proxySocket.write(cipher.update(data)));
-    
-    clientSocket.once('end', () => communicationEnd());
-    proxySocket.once('end', () => communicationEnd());
   }
 }
 
