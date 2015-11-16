@@ -8,8 +8,7 @@ import * as net from 'net';
 import * as crypto from 'crypto';
 import * as logger from 'winston';
 import { defaultQueue } from '../lib/dispatchQueue';
-
-
+import { PluginPivot, INegotiationOptions } from '../plugins/main';
 
 export class Server {
   cipherAlgorithm: string;
@@ -17,16 +16,24 @@ export class Server {
   port: number;
   
   _server: net.Server;
+  _pluginPivot: PluginPivot;
   
-  constructor(options: { cipherAlgorithm: string, password: string, port: number }) {
+  constructor(options: { cipherAlgorithm: string, password: string, port: number, plugin: string }) {
     let _this = this;
     Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
+    this._pluginPivot = new PluginPivot(options.plugin);
   }
   
   start() {
     let _this = this;
     
     let server = net.createServer(async (socket) => {
+      let negotiationOptions: INegotiationOptions = {
+        cipherAlgorithm: _this.cipherAlgorithm,
+        password: _this.password,
+        clientSocket: socket
+      }
+      
       let data = await socket.readAsync();
       if (!data) return socket.destroy();
       

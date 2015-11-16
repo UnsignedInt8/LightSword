@@ -9,5 +9,15 @@ require('async-node');
 import { defaultQueue, IDispatchReceiver } from './lib/dispatchQueue';
 
 class App {
-  
+  constructor() {
+    const defaultOptions = {
+      cipherAlgorithm: 'aes-256-cfb',
+      password: 'lightsword.neko',
+      port: 23333,
+      plugin: 'lightsword'
+    }
+    
+  }
 }
+
+module.exports = App;
