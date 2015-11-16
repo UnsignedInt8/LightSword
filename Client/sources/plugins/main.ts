@@ -29,12 +29,12 @@ export interface IPluginPivot {
   transportStream: (options: IStreamTransportOptions) => void;
 }
 
-class PluginPivot implements IPluginPivot {
+export class PluginPivot implements IPluginPivot {
   public negotiate: (options: INegotiationOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
   public transportStream: (options: IStreamTransportOptions) => void;
 
   constructor(plugin: string) {
     let _this = this;
-    Object.getOwnPropertyNames(this).forEach(n => _this[n] = require(`./${n}.${plugin}`));
+    ['negotiate', 'transportStream'].forEach(n => _this[n] = require(`./${n}.${plugin}`));
   }
 }

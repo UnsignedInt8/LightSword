@@ -4,7 +4,7 @@
 
 'use strict'
 
-import {IStreamTransportOptions} from './main';
+import { IStreamTransportOptions } from './main';
 
 function transport(options: IStreamTransportOptions) {
   let proxySocket = options.proxySocket;

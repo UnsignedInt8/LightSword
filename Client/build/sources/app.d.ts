@@ -1,8 +1,8 @@
 import { IDispatchReceiver } from './lib/dispatchQueue';
-import { IPluginGenerator } from './socks5/interfaces';
 import * as consts from './socks5/consts';
+import { PluginPivot } from './plugins/main';
 export declare class App implements IDispatchReceiver {
-    connectPlugin: IPluginGenerator;
+    pluginPivot: PluginPivot;
     isLocalProxy: boolean;
     msgMapper: Map<consts.REQUEST_CMD, any>;
     constructor(options?: any);

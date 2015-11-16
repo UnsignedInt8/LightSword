@@ -12,9 +12,10 @@ import { Socks5Connect } from './socks5/connect';
 import { IDispatchReceiver, defaultQueue as DefaultDispatchQueue } from './lib/dispatchQueue';
 import { IPluginGenerator } from './socks5/interfaces';
 import * as consts from './socks5/consts';
+import { PluginPivot } from './plugins/main';
 
 export class App implements IDispatchReceiver {
-  connectPlugin: IPluginGenerator;
+  pluginPivot: PluginPivot;
   isLocalProxy: boolean;
   msgMapper: Map<consts.REQUEST_CMD, any>;
   
@@ -25,9 +26,10 @@ export class App implements IDispatchReceiver {
       serverAddr: 'localhost',
       serverPort: 23333,
       cipherAlgorithm: 'aes-256-cfb',
-      password: 'lightsword',
+      password: 'lightsword.neko',
       socks5Username: '',
       socks5Password: '',
+      plugin: 'lightsword',
       timeout: 60
     };
     
@@ -37,11 +39,11 @@ export class App implements IDispatchReceiver {
       options = defaultOptions;
     
     let isLocalProxy = this.isLocalProxy = ['localhost', '', undefined, null].contains(options.serverAddr.toLowerCase());
-    let pluginPath = `./plugins/connect/${isLocalProxy ? 'local' : 'main'}`;
-    this.connectPlugin = require(pluginPath);
+    if (isLocalProxy) options.plugin = 'local';
+    this.pluginPivot = new PluginPivot(options.plugin);
     
     let msgMapper = new Map();
-    msgMapper.set(consts.REQUEST_CMD.CONNECT, [this.connectPlugin, Socks5Connect]);
+    msgMapper.set(consts.REQUEST_CMD.CONNECT, Socks5Connect);
     this.msgMapper = msgMapper;
     
     DefaultDispatchQueue.register(consts.REQUEST_CMD.CONNECT, this);
@@ -50,11 +52,10 @@ export class App implements IDispatchReceiver {
   }
   
   receive(msg: any, args: any) {
-    let tuple = this.msgMapper.get(msg);
-    if (!tuple) return;
+    let compoent = this.msgMapper.get(msg);
+    if (!compoent) return;
     
-    let executor = tuple[1];
-    new executor(tuple[0], args, this.isLocalProxy);
+    new compoent(this.pluginPivot, args, this.isLocalProxy);
   }
 }
 

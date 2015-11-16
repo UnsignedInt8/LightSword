@@ -21,6 +21,7 @@ var localServer_1 = require('./socks5/localServer');
 var connect_1 = require('./socks5/connect');
 var dispatchQueue_1 = require('./lib/dispatchQueue');
 var consts = require('./socks5/consts');
+var main_1 = require('./plugins/main');
 class App {
     constructor(options) {
         let defaultOptions = {
@@ -29,9 +30,10 @@ class App {
             serverAddr: 'localhost',
             serverPort: 23333,
             cipherAlgorithm: 'aes-256-cfb',
-            password: 'lightsword',
+            password: 'lightsword.neko',
             socks5Username: '',
             socks5Password: '',
+            plugin: 'lightsword',
             timeout: 60
         };
         if (options)
@@ -39,21 +41,21 @@ class App {
         else
             options = defaultOptions;
         let isLocalProxy = this.isLocalProxy = ['localhost', '', undefined, null].contains(options.serverAddr.toLowerCase());
-        let pluginPath = `./plugins/connect/${isLocalProxy ? 'local' : 'main'}`;
-        this.connectPlugin = require(pluginPath);
+        if (isLocalProxy)
+            options.plugin = 'local';
+        this.pluginPivot = new main_1.PluginPivot(options.plugin);
         let msgMapper = new Map();
-        msgMapper.set(consts.REQUEST_CMD.CONNECT, [this.connectPlugin, connect_1.Socks5Connect]);
+        msgMapper.set(consts.REQUEST_CMD.CONNECT, connect_1.Socks5Connect);
         this.msgMapper = msgMapper;
         dispatchQueue_1.defaultQueue.register(consts.REQUEST_CMD.CONNECT, this);
         let server = new localServer_1.LocalServer(options || defaultOptions);
         server.start();
     }
     receive(msg, args) {
-        let tuple = this.msgMapper.get(msg);
-        if (!tuple)
+        let compoent = this.msgMapper.get(msg);
+        if (!compoent)
             return;
-        let executor = tuple[1];
-        new executor(tuple[0], args, this.isLocalProxy);
+        new compoent(this.pluginPivot, args, this.isLocalProxy);
     }
 }
 exports.App = App;

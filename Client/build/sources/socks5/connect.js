@@ -21,7 +21,7 @@ var socks5Util = require('./util');
 var logger = require('winston');
 class Socks5Connect {
     constructor(plugin, args, isLocal) {
-        this.connectPlugin = plugin;
+        this.pluginPivot = plugin;
         if (isLocal) {
             args.serverAddr = args.dstAddr;
             args.serverPort = args.dstPort;
@@ -50,14 +50,6 @@ class Socks5Connect {
         var proxySocket = net.connect(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
             logger.info(`connect: ${_this.dstAddr}`);
             let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
-            let executor;
-            try {
-                executor = _this.connectPlugin.createExecutor();
-            }
-            catch (ex) {
-                logger.error(ex.message);
-                return process.exit(1);
-            }
             let negotiationOps = {
                 dstAddr: _this.dstAddr,
                 dstPort: _this.dstPort,
@@ -68,7 +60,7 @@ class Socks5Connect {
             function negotiateAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
                     return new Promise(resolve => {
-                        executor.negotiate(negotiationOps, (success, reason) => {
+                        _this.pluginPivot.negotiate(negotiationOps, (success, reason) => {
                             if (!success)
                                 logger.warn(reason);
                             resolve(success);
@@ -76,27 +68,24 @@ class Socks5Connect {
                     });
                 });
             }
-            function connectDestinationAsync() {
-                return __awaiter(this, void 0, Promise, function* () {
-                    return new Promise(resolve => {
-                        executor.connectDestination(negotiationOps, (success, reason) => {
-                            if (!success)
-                                logger.warn(reason);
-                            resolve(success);
-                        });
-                    });
-                });
-            }
+            // async function connectDestinationAsync(): Promise<boolean> {
+            //   return new Promise<boolean>(resolve => {
+            //     executor.connectDestination(negotiationOps, (success, reason) => {
+            //       if (!success) logger.warn(reason);
+            //       resolve(success);
+            //     });
+            //   });
+            // }
             // Step 1: Negotiate with server      
             let success = yield negotiateAsync();
             // If negotiation failed, refuse client socket
-            if (!success) {
-                reply[1] = consts.REPLY_CODE.CONNECTION_NOT_ALLOWED;
-                yield _this.clientSocket.writeAsync(reply);
-                return disposeSockets(null, 'proxy');
-            }
+            // if (!success) {
+            //   reply[1] = consts.REPLY_CODE.CONNECTION_NOT_ALLOWED;
+            //   await _this.clientSocket.writeAsync(reply);
+            //   return disposeSockets(null, 'proxy');
+            // }
             // Step 2: Reply client destination connected or not. 
-            success = yield connectDestinationAsync();
+            // success = await connectDestinationAsync();
             reply[1] = success ? consts.REPLY_CODE.SUCCESS : consts.REPLY_CODE.CONNECTION_REFUSED;
             yield _this.clientSocket.writeAsync(reply);
             if (!success)
@@ -108,7 +97,7 @@ class Socks5Connect {
                 clientSocket: _this.clientSocket,
                 proxySocket: proxySocket
             };
-            executor.transport(transportOps);
+            _this.pluginPivot.transportStream(transportOps);
             proxySocket.once('end', () => disposeSockets(null, 'proxy end'));
             _this.clientSocket.once('end', () => disposeSockets(null, 'end end'));
             proxySocket.on('error', (err) => disposeSockets(err, 'proxy'));

@@ -68,9 +68,12 @@ class LocalServer {
         return server !== null;
     }
     stop() {
-        if (this._server === null)
+        if (!this._server)
             return false;
+        this._server.removeAllListeners();
         this._server.close();
+        this._server.destroy();
+        this._server = null;
         return true;
     }
     handleHandshake(data) {

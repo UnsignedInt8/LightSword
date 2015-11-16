@@ -22,6 +22,7 @@ program.version('0.0.1')
   .option('-f, --fork', 'Run as Cluster')
   .option('-u, --socsk5username', 'Socks5 Proxy Username', String)
   .option('-w, --socks5password', 'Socks5 Proxy Password', String)
+  .option('-i, --plugin [name]', 'Plugin Name', String)
   .parse(process.argv);
   
 let args = <any>program;
@@ -34,7 +35,8 @@ let options = {
   password: args.password,
   socks5Username: args.socks5username,
   socks5Password: args.socks5password,
-  timeout: args.timeout
+  timeout: args.timeout,
+  plugin: args.plugin
 }
 
 process.title = 'LightSword Client';
