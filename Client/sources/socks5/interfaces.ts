@@ -34,3 +34,7 @@ export interface IConnectExecutor {
   // Step 3: Transport data.
   transport: (options: ITransportOptions, communicationEnd: () => void) => void,
 }
+
+export interface IPluginGenerator {
+  createConnectExecutor(): IConnectExecutor;
+}

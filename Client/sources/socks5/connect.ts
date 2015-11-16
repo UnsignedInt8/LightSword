@@ -9,7 +9,7 @@ import * as consts from './consts';
 import * as socks5Util from './util';
 import * as logger from 'winston';
 import { RequestOptions } from './localServer';
-import { IConnectExecutor, INegotiationOptions, ITransportOptions } from './interfaces';
+import { IConnectExecutor, INegotiationOptions, ITransportOptions, IPluginGenerator } from './interfaces';
 
 export class Socks5Connect {
   cipherAlgorithm: string;
@@ -21,21 +21,13 @@ export class Socks5Connect {
   clientSocket: net.Socket;
   timeout: number;
   
-  static isLocal: boolean = null;
-  static plugin;
+  connectPlugin: IPluginGenerator;
   static count = 0;
   
-  static isLocalProxy(addr: string) {
-    if (Socks5Connect.isLocal !== null) return;
-    let isLocal = Socks5Connect.isLocal = ['localhost', '', undefined, null].contains(addr.toLowerCase());
-    let pluginPath = `../plugins/connect/${isLocal ? 'local' : 'main'}`;
-    Socks5Connect.plugin = require(pluginPath);
-  }
-  
-  constructor(args: RequestOptions) {
-    Socks5Connect.isLocalProxy(args.serverAddr); 
+  constructor(plugin: IPluginGenerator, args: RequestOptions, isLocal?: boolean) {
+    this.connectPlugin = plugin;
     
-    if (Socks5Connect.isLocal) {
+    if (isLocal) {
       args.serverAddr = args.dstAddr;
       args.serverPort = args.dstPort;
     }
@@ -55,7 +47,7 @@ export class Socks5Connect {
       let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
       let executor: IConnectExecutor;
       try {
-        executor = <IConnectExecutor>Socks5Connect.plugin.createExecutor();
+        executor = <IConnectExecutor>_this.connectPlugin.createConnectExecutor();
       } catch(ex) {
         logger.error(ex.message);
         return process.exit(1);
