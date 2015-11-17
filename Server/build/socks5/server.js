@@ -21,11 +21,13 @@ class Server {
     constructor(options) {
         let _this = this;
         ['cipherAlgorithm', 'password', 'port'].forEach(n => _this[n] = options[n]);
-        this.plugin = require(`../plugins/${options.plugin}`);
+        this.Socks5 = require(`../plugins/${options.plugin}`);
     }
     start() {
         let _this = this;
         let server = net.createServer((socket) => __awaiter(this, void 0, Promise, function* () {
+            logger.info('connect: ' + socket.remoteAddress + ':' + socket.remotePort);
+            let executor = new _this.Socks5();
             function disposeSocket() {
                 socket.removeAllListeners();
                 socket.end();
@@ -40,7 +42,7 @@ class Server {
             function negotiateAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
                     return new Promise(resolve => {
-                        _this.plugin.negotiate(options, (success, reason) => {
+                        executor.negotiate(options, (success, reason) => {
                             if (!success)
                                 logger.info(reason);
                             resolve(success);
@@ -48,11 +50,12 @@ class Server {
                     });
                 });
             }
+            console.log('negotiation succeed');
             let negotiated = yield negotiateAsync();
             if (!negotiated)
                 return disposeSocket();
             // Step 2: Process requests.
-            _this.plugin.transport(options);
+            executor.transport(options);
         }));
         server.listen(this.port);
         server.on('error', (err) => logger.error(err.message));

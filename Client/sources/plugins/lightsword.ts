@@ -11,7 +11,7 @@ import { INegotiationOptions } from './main';
 /**
  * LightSword Negotiation Algorithm
  */
-export async function negotiateAsync(options: INegotiationOptions): { result: boolean, reason?: string, cipherKey?: string, vNum?: number } {
+export async function negotiateAsync(options: INegotiationOptions): Promise<{ success: boolean, reason?: string, cipherKey?: string, vNum?: number }> {
   let cipherAlgorithm = options.cipherAlgorithm;
   let password = options.password;
   let proxySocket = options.proxySocket;
@@ -35,19 +35,19 @@ export async function negotiateAsync(options: INegotiationOptions): { result: bo
   await proxySocket.writeAsync(hello);
   
   let data = await proxySocket.readAsync();
-  if (!data) return { result: false };
+  if (!data) return { success: false };
   
   let handshakeDecipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
   let buf = Buffer.concat([handshakeDecipher.update(data), handshakeDecipher.final()]);
   try {
     let res = JSON.parse(buf.toString('utf8'));
     let okNum = Number(res.okNum);
-    if (okNum !== vNum + 1) return { result: false, reason: "Can't confirm verification number." };
+    if (okNum !== vNum + 1) return { success: false, reason: "Can't confirm verification number." };
     
-    return { result: true, vNum: okNum, cipherKey };
+    return { success: true, vNum: okNum, cipherKey };
   } catch(ex) {
     logger.error(ex.message);
-    return { result: false, reason: ex.message };
+    return { success: false, reason: ex.message };
   }
   
 }

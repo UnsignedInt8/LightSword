@@ -16,18 +16,21 @@ export class Server {
   port: number;
   
   server: net.Server;
-  plugin: ISocks5;
+  Socks5: ISocks5;
   
   constructor(options: { cipherAlgorithm: string, password: string, port: number, plugin: string }) {
     let _this = this;
     ['cipherAlgorithm', 'password', 'port'].forEach(n => _this[n] = options[n]);
-    this.plugin = require(`../plugins/${options.plugin}`);
+    this.Socks5 = require(`../plugins/${options.plugin}`);
   }
   
   start() {
     let _this = this;
     
     let server = net.createServer(async (socket) => {
+      logger.info('connect: ' + socket.remoteAddress + ':' + socket.remotePort);
+      
+      let executor = new _this.Socks5();
       
       function disposeSocket() {
         socket.removeAllListeners();
@@ -44,18 +47,20 @@ export class Server {
       // Step 1: Negotiate with Client.
       async function negotiateAsync(): Promise<boolean> { 
         return new Promise<boolean>(resolve => {
-          _this.plugin.negotiate(options, (success, reason) => {
+          executor.negotiate(options, (success, reason) => {
             if (!success) logger.info(reason);
             resolve(success);
           });
         });
       }
       
+      console.log('negotiation succeed');
+      
       let negotiated = await negotiateAsync();
       if (!negotiated) return disposeSocket();
       
       // Step 2: Process requests.
-      _this.plugin.transport(options);
+      executor.transport(options);
     });
     
     server.listen(this.port);

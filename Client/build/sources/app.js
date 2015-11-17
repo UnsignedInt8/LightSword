@@ -36,10 +36,8 @@ class App {
             plugin: 'lightsword',
             timeout: 60
         };
-        if (options)
-            Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
-        else
-            options = defaultOptions;
+        options = options || defaultOptions;
+        Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
         let isLocalProxy = this.isLocalProxy = ['localhost', '', undefined, null].contains(options.serverAddr.toLowerCase());
         if (isLocalProxy)
             options.plugin = 'local';
@@ -48,8 +46,7 @@ class App {
         msgMapper.set(consts.REQUEST_CMD.CONNECT, connect_1.Socks5Connect);
         this.msgMapper = msgMapper;
         dispatchQueue_1.defaultQueue.register(consts.REQUEST_CMD.CONNECT, this);
-        let server = new localServer_1.LocalServer(options);
-        server.start();
+        new localServer_1.LocalServer(options).start();
     }
     receive(msg, args) {
         let compoent = this.msgMapper.get(msg);
@@ -64,7 +61,7 @@ class App {
 }
 exports.App = App;
 if (!module.parent) {
-    process.title = 'LightSword Client Debug';
-    new App();
+    process.title = 'LightSword Client Debug Mode';
+    new App({ serverAddr: '::1' });
 }
 //# sourceMappingURL=app.js.map

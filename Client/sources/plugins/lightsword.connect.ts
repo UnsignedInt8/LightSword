@@ -12,14 +12,18 @@ class LightSwordConnect implements ISocks5 {
   cipherKey: string;
   vNum: number = 0;
   
-  async negotiate(options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) {
-    let { result, reason, cipherKey, vNum } = await negotiateAsync(options);
-    callback(result, reason);
-    this.cipherKey = cipherKey;
-    this.vNum = vNum;
+  async negotiate(options: INegotiationOptions, callback: (success: boolean, reason?: string) => void) {
+    let result = await negotiateAsync(options);
+    
+    let success = result.success;
+    let reason = result.reason;
+    
+    this.cipherKey = result.cipherKey;
+    this.vNum = result.vNum;
+    callback(success, reason);
   }
   
-  async sendCommand(options: ICommandOptions, callback: (result: boolean, reason?: string) => void) {
+  async sendCommand(options: ICommandOptions, callback: (success: boolean, reason?: string) => void) {
     let proxySocket = options.proxySocket;
     let connect = {
       dstAddr: options.dstAddr,

@@ -63,5 +63,5 @@ export class App implements IDispatchReceiver {
 
 if (!module.parent) {
   process.title = 'LightSword Client Debug Mode';
-  new App();
+  new App({ serverAddr: '::1' });
 }

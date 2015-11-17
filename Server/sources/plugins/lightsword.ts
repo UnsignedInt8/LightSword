@@ -8,7 +8,7 @@ import * as net from 'net';
 import * as crypto from 'crypto';
 import { ISocks5, ISocks5Options } from './main';
 
-export class LightSwordSocks5 implements ISocks5 {
+class LightSwordSocks5 implements ISocks5 {
   cipherKey: string;
   vNum: number = 0;
   digest: string;
@@ -106,3 +106,5 @@ export class LightSwordSocks5 implements ISocks5 {
     clientSocket.on('end', () => disposeSocket());
   }
 }
+
+module.exports = LightSwordSocks5;

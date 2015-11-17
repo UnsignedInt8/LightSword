@@ -5,7 +5,7 @@ export declare class Server {
     password: string;
     port: number;
     server: net.Server;
-    plugin: ISocks5;
+    Socks5: ISocks5;
     constructor(options: {
         cipherAlgorithm: string;
         password: string;

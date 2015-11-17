@@ -19,8 +19,7 @@ class PluginPivot {
     constructor(plugin) {
         this.components = new Map();
         let _this = this;
-        // , 'bind', 'udpAssociate'
-        ['connect'].forEach(c => _this.components.set(c, require(`./${plugin}.${c}`)));
+        ['connect' /* , 'bind', 'udpAssociate' */].forEach(c => _this.components.set(c, require(`./${plugin}.${c}`)));
     }
     getConnect() {
         return new (this.components.get('connect'))();

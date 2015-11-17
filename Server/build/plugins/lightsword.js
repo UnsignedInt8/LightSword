@@ -106,5 +106,5 @@ class LightSwordSocks5 {
         });
     }
 }
-exports.LightSwordSocks5 = LightSwordSocks5;
+module.exports = LightSwordSocks5;
 //# sourceMappingURL=lightsword.js.map

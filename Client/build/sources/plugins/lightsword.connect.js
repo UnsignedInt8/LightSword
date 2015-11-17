@@ -23,10 +23,12 @@ class LightSwordConnect {
     }
     negotiate(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
-            let { result, reason, cipherKey, vNum } = yield lightsword_1.negotiate(options);
-            callback(result, reason);
-            this.cipherKey = cipherKey;
-            this.vNum = vNum;
+            let result = yield lightsword_1.negotiateAsync(options);
+            let success = result.success;
+            let reason = result.reason;
+            this.cipherKey = result.cipherKey;
+            this.vNum = result.vNum;
+            callback(success, reason);
         });
     }
     sendCommand(options, callback) {
