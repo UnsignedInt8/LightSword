@@ -14,8 +14,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var program = require('commander');
 var app_1 = require('../app');
-'use strict';
-// Same as Shadowsocks https://shadowsocks.com/doc.html
+var fs = require('fs');
+var logger = require('winston');
+// Same with Shadowsocks https://shadowsocks.com/doc.html
 program
     .usage('[options]')
     .option('-s, --server <addr|domain>', 'Server Address', String)
@@ -31,8 +32,23 @@ program
     .option('-w, --socks5password [password]', 'Socks5 Proxy Password', String)
     .option('-i, --plugin [name]', 'Plugin Name', String)
     .parse(process.argv);
-let args = program;
-let options = {
+var args = program;
+function parseFile(path) {
+    if (!path)
+        return;
+    if (!fs.existsSync(path))
+        return;
+    var content = fs.readFileSync(path).toString();
+    try {
+        return JSON.parse(content);
+    }
+    catch (ex) {
+        logger.warn('Configuration file error');
+        logger.warn(ex.message);
+    }
+}
+var fileOptions = parseFile(args.config) || {};
+var argsOptions = {
     addr: args.any ? '0.0.0.0' : 'localhost',
     port: args.localport,
     serverAddr: args.server,
@@ -44,6 +60,7 @@ let options = {
     timeout: args.timeout,
     plugin: args.plugin
 };
+Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
 process.title = 'LightSword Client';
-new app_1.App(options);
+new app_1.App(argsOptions);
 //# sourceMappingURL=cli.js.map

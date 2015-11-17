@@ -4,8 +4,8 @@
   "description": "LightSword Client",
   "main": "index.js",
   "bin": {
-    "lsserver": "./build/bin/cli.js",
-    "lightsword-client": "./build/bin/cli.js"
+    "lslocal": "./build/sources/bin/cli.js",
+    "lightsword-client": "./build/sources/bin/cli.js"
   },
   "scripts": {
     "test": "mocha test/**/*.js test/*.js build/test/*.js"

@@ -8,8 +8,6 @@ import { App } from '../app';
 import * as fs from 'fs';
 import * as logger from 'winston';
 
-'use strict'
-
 program
   .options('-p, --port [number]', 'Server Listening Port', Number.parseInt)
   .options('-k, --password [password]', 'Cipher Password', String)
@@ -17,13 +15,13 @@ program
   .options('-c, --config <path>', 'Configuration File Path', String)
   .parse(progress.argv);
   
-let args = <any>program;
+var args = <any>program;
 
 function parseFile(path: string) {
   if (!path) return;
   if (!fs.existsSync(path)) return;
   
-  let content = fs.readFileSync(path).toString();
+  var content = fs.readFileSync(path).toString();
   
   try {
     return JSON.parse(content);
@@ -33,9 +31,9 @@ function parseFile(path: string) {
   }
 }
 
-let fileOptions = parseFile(args.config) || {};
+var fileOptions = parseFile(args.config) || {};
 
-let argsOptions = {
+var argsOptions = {
   port: args.port,
   password: args.password,
   cipherAlgorithm: args.method

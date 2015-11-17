@@ -1,7 +1,4 @@
-//-----------------------------------
-// Copyright(c) 2015 猫王子
-//-----------------------------------
-'use strict';
+#!/usr/bin/env node
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
     return new Promise(function (resolve, reject) {
         generator = generator.call(thisArg, _arguments);
@@ -17,19 +14,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var program = require('commander');
 var app_1 = require('../app');
+var fs = require('fs');
+var logger = require('winston');
 program
     .options('-p, --port [number]', 'Server Listening Port', Number.parseInt)
     .options('-k, --password [password]', 'Cipher Password', String)
     .options('-m, --method [algorithm]', 'Cipher Algorithm', String)
     .options('-c, --config <path>', 'Configuration File Path', String)
     .parse(progress.argv);
-let args = program;
+var args = program;
 function parseFile(path) {
     if (!path)
         return;
     if (!fs.existsSync(path))
         return;
-    let content = fs.readFileSync(path).toString();
+    var content = fs.readFileSync(path).toString();
     try {
         return JSON.parse(content);
     }
@@ -38,8 +37,8 @@ function parseFile(path) {
         logger.warn(ex.message);
     }
 }
-let fileOptions = parseFile(args.config) || {};
-let argsOptions = {
+var fileOptions = parseFile(args.config) || {};
+var argsOptions = {
     port: args.port,
     password: args.password,
     cipherAlgorithm: args.method

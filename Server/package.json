@@ -4,7 +4,7 @@
   "description": "LigthSword Server",
   "main": "index.js",
   "bin": {
-    "lslocal": "./build/bin/cli.js",
+    "lsserver": "./build/bin/cli.js",
     "lightsword": "./build/bin/cli.js",
     "lightsword-server": "./build/bin/cli.js"
   },

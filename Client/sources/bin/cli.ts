@@ -3,13 +3,10 @@
 // Copyright(c) 2015 猫王子
 //-----------------------------------
 
-
 import * as program from 'commander';
 import { App } from '../app'
 import * as fs from 'fs';
 import * as logger from 'winston';
-
-'use strict'
 
 // Same with Shadowsocks https://shadowsocks.com/doc.html
 program
@@ -28,13 +25,13 @@ program
   .option('-i, --plugin [name]', 'Plugin Name', String)
   .parse(process.argv);
   
-let args = <any>program;
+var args = <any>program;
 
 function parseFile(path: string) {
   if (!path) return;
   if (!fs.existsSync(path)) return;
   
-  let content = fs.readFileSync(path).toString();
+  var content = fs.readFileSync(path).toString();
   
   try {
     return JSON.parse(content);
@@ -44,9 +41,9 @@ function parseFile(path: string) {
   }
 }
 
-let fileOptions = parseFile(args.config) || {};
+var fileOptions = parseFile(args.config) || {};
   
-let argsOptions = {
+var argsOptions = {
   addr: args.any ? '0.0.0.0' : 'localhost',
   port: args.localport,
   serverAddr: args.server,
