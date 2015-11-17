@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "description": "LigthSword Server",
   "main": "index.js",
+  "bin": {
+    "lslocal": "./build/bin/cli.js",
+    "lightsword": "./build/bin/cli.js",
+    "lightsword-server": "./build/bin/cli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,7 +18,8 @@
   "keywords": [
     "SOCKS5"
   ],
-  "author": "Neko",
+  "preferGlobal": true,
+  "author": "猫王子",
   "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/SunshinyNeko/LightSword/issues"

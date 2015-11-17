@@ -31,7 +31,7 @@ class App {
         new server_1.Server(options).start();
     }
 }
-module.exports = App;
+exports.App = App;
 if (!module.parent) {
     process.title = 'LightSword Server Debug Mode';
     new App();

@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "LightSword Client",
   "main": "index.js",
+  "bin": {
+    "lsserver": "./build/bin/cli.js",
+    "lightsword-client": "./build/bin/cli.js"
+  },
   "scripts": {
     "test": "mocha test/**/*.js test/*.js build/test/*.js"
   },
@@ -14,6 +18,7 @@
     "SOCKS5",
     "Proxy"
   ],
+  "preferGlobal": true,
   "author": "猫王子",
   "license": "GPL-2.0",
   "bugs": {

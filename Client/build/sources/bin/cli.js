@@ -1,4 +1,4 @@
-#!/usr/bin/env node'use strict';
+#!/usr/bin/env node
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
     return new Promise(function (resolve, reject) {
         generator = generator.call(thisArg, _arguments);
@@ -14,20 +14,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var program = require('commander');
 var app_1 = require('../app');
+'use strict';
 // Same as Shadowsocks https://shadowsocks.com/doc.html
-program.version('0.0.1')
+program
     .usage('[options]')
     .option('-s, --server <addr|domain>', 'Server Address', String)
     .option('-p, --port <number>', 'Server Port Number', Number.parseInt)
     .option('-l, --localport <number>', 'Local Port Number', Number.parseInt)
     .option('-m, --method <algorithm>', 'Cipher Algorithm', String)
     .option('-k, --password <password>', 'Password', String)
-    .option('-c, --config <path>', 'Configuration file path', String)
+    .option('-c, --config <path>', 'Configuration File Path', String)
     .option('-a, --any', 'Listen Any Connection')
     .option('-t, --timeout [number]', 'Timeout (second)')
     .option('-f, --fork', 'Run as Cluster')
-    .option('-u, --socsk5username', 'Socks5 Proxy Username', String)
-    .option('-w, --socks5password', 'Socks5 Proxy Password', String)
+    .option('-u, --socsk5username [name]', 'Socks5 Proxy Username', String)
+    .option('-w, --socks5password [password]', 'Socks5 Proxy Password', String)
     .option('-i, --plugin [name]', 'Plugin Name', String)
     .parse(process.argv);
 let args = program;

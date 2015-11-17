@@ -8,7 +8,7 @@ require('kinq').enable();
 require('async-node');
 import { Server } from './socks5/server'
 
-class App {
+export class App {
   constructor(options) {
     let defaultOptions = {
       cipherAlgorithm: 'aes-256-cfb',
@@ -23,8 +23,6 @@ class App {
     new Server(options).start();
   }
 }
-
-module.exports = App;
 
 if (!module.parent) {
   process.title = 'LightSword Server Debug Mode';
