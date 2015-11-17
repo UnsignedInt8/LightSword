@@ -1,11 +1,12 @@
+#!/usr/bin/env node
 //-----------------------------------
 // Copyright(c) 2015 猫王子
 //-----------------------------------
 
-'use strict'
-
 import * as program from 'commander';
 import { App } from '../app';
+
+'use strict'
 
 program
   .options('-p, --port [number]', 'Server Listening Port', Number.parseInt)
