@@ -11,23 +11,35 @@ export interface IBasicOptions {
   password: string;
 }
 
-export interface INegotitationOptions extends IBasicOptions {
+export interface INegotiationOptions extends IBasicOptions {
   clientSocket: net.Socket;
 }
 
-export type INegotiationOptions = INegotitationOptions;
+export interface ICommandOptions extends INegotiationOptions {
+  data: any;
+}
 
-export interface IStreamTransportOptions extends INegotitationOptions {
+export interface IStreamTransportOptions extends INegotiationOptions {
   clientSocket: net.Socket;
+}
+
+export enum Socks5CommandType {
+  connect = 0x1,
+  bind = 0x2,
+  udpAssociate = 0x3
 }
 
 export interface IPluginPivot {
-  negotiate: (options: INegotiationOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
+  negotiate: (options: INegotiationOptions, callback: (success: boolean, reason?: string) => void) => void;
+  // resolveCommandType: (options: INegotiationOptions, callback: (success: boolean, cmdType: Socks5CommandType, data: any, reason?: string) => void) => void;
+  // processCommand: (options: ICommandOptions, callback: (success: boolean, reason?: string) => void) => void;
   transportStream: (options: IStreamTransportOptions) => void;
 }
 
 export class PluginPivot implements IPluginPivot {
-  public negotiate: (options: INegotiationOptions) => boolean;
+  public negotiate: (options: INegotiationOptions, callback: (success: boolean, reason?: string) => void) => void;
+  // public resolveCommandType: (options: INegotiationOptions, callback: (success: boolean, cmdType: Socks5CommandType, data:any, reason?: string) => void) => void;
+  // public processCommand: (options: ICommandOptions, callback: (success: boolean, reason?: string) => void) => void;
   public transportStream: (options: IStreamTransportOptions) => void;
 
   constructor(plugin: string) {

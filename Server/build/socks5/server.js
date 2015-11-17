@@ -16,7 +16,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var net = require('net');
-var crypto = require('crypto');
 var logger = require('winston');
 var main_1 = require('../plugins/main');
 class Server {
@@ -28,24 +27,76 @@ class Server {
     start() {
         let _this = this;
         let server = net.createServer((socket) => __awaiter(this, void 0, Promise, function* () {
+            function disposeSocket() {
+                socket.removeAllListeners();
+                socket.end();
+                socket.destroy();
+            }
             let negotiationOptions = {
                 cipherAlgorithm: _this.cipherAlgorithm,
                 password: _this.password,
                 clientSocket: socket
             };
-            let data = yield socket.readAsync();
-            if (!data)
-                return socket.destroy();
+            function negotiateAsync() {
+                return __awaiter(this, void 0, Promise, function* () {
+                    return new Promise(resolve => {
+                        _this._pluginPivot.negotiate(negotiationOptions, (success, reason) => {
+                            if (!success)
+                                logger.info(reason);
+                            resolve(success);
+                        });
+                    });
+                });
+            }
+            let negotiated = yield negotiateAsync();
+            if (!negotiated)
+                return disposeSocket();
+            // Step 2: Resolving command type.
+            function resolveCommandType() {
+                return __awaiter(this, void 0, Promise, function* () {
+                    return new Promise(resolve => {
+                        _this._pluginPivot.resolveCommandType(negotiationOptions, (success, cmdType, data, reason) => {
+                            if (!success)
+                                logger.info(reason);
+                            resolve({ resolved: success, cmdType: cmdType, cmdData: data });
+                        });
+                    });
+                });
+            }
+            let { resolved, cmdType, cmdData } = yield resolveCommandType();
+            if (!resolved)
+                return disposeSocket();
+            function processCommandAsync() {
+                return __awaiter(this, void 0, Promise, function* () {
+                    let cmdOpts = {
+                        data: cmdData,
+                        cipherAlgorithm: _this.cipherAlgorithm,
+                        password: _this.password,
+                        clientSocket: socket
+                    };
+                    return new Promise(resolve => {
+                        _this._pluginPivot.processCommand(cmdOpts, (success, reason) => {
+                            if (!success)
+                                logger.info(reason);
+                            resolve(success);
+                        });
+                    });
+                });
+            }
+            let cmdProcessed = yield processCommandAsync();
+            if (!cmdProcessed)
+                return disposeSocket();
+            // let data = await socket.readAsync();
+            // if (!data) return socket.destroy();
             // Step 1: Negotiate with client.
-            let decipher = crypto.createDecipher(_this.cipherAlgorithm, _this.password);
-            let negotiationBuf = Buffer.concat([decipher.update(data), decipher.final()]);
-            try {
-                let msg = JSON.parse(negotiationBuf.toString('utf8'));
-            }
-            catch (ex) {
-                socket.end();
-                return socket.destroy();
-            }
+            // let decipher = crypto.createDecipher(_this.cipherAlgorithm, _this.password);
+            // let negotiationBuf = Buffer.concat([decipher.update(data), decipher.final()]);
+            // try {
+            //   let msg = JSON.parse(negotiationBuf.toString('utf8'));
+            // } catch(ex) {
+            //   socket.end();
+            //   return socket.destroy();
+            // }
         }));
         server.listen(this.port);
         server.on('error', (err) => logger.error(err.message));

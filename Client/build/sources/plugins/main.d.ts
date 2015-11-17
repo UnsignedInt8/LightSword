@@ -3,18 +3,18 @@ export interface IBasicOptions {
     cipherAlgorithm: string;
     password: string;
 }
-export interface IStreamBasicOptions extends IBasicOptions {
+export interface INegotiationOptions extends IBasicOptions {
     proxySocket: net.Socket;
 }
-export interface ICommandOptions extends IStreamBasicOptions {
+export interface ICommandOptions extends INegotiationOptions {
     dstAddr: string;
     dstPort: number;
 }
-export interface IStreamTransportOptions extends IStreamBasicOptions {
+export interface IStreamTransportOptions extends INegotiationOptions {
     clientSocket: net.Socket;
 }
 export interface ISocks5 {
-    negotiate: (options: IStreamBasicOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
+    negotiate: (options: INegotiationOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
     sendCommand: (options: ICommandOptions, callback: (result: boolean, reason?: string) => void) => void;
     transportStream?: (options: IStreamTransportOptions) => void;
 }

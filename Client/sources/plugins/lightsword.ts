@@ -6,12 +6,12 @@
 
 import * as crypto from 'crypto';
 import * as logger from 'winston';
-import { IStreamBasicOptions } from './main';
+import { INegotiationOptions } from './main';
 
 /**
  * LightSword Negotiation Algorithm
  */
-export async function negotiate(options: IStreamBasicOptions): { result: boolean, reason?: string, cipherKey?: string, vNum?: number } {
+export async function negotiate(options: INegotiationOptions): { result: boolean, reason?: string, cipherKey?: string, vNum?: number } {
   let cipherAlgorithm = options.cipherAlgorithm;
   let password = options.password;
   let proxySocket = options.proxySocket;

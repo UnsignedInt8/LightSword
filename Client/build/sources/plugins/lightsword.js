@@ -23,22 +23,23 @@ var logger = require('winston');
 function negotiate(options) {
     return __awaiter(this, void 0, Promise, function* () {
         let cipherAlgorithm = options.cipherAlgorithm;
+        let password = options.password;
         let proxySocket = options.proxySocket;
         let cipherKey = crypto.createHash('sha256').update((Math.random() * Date.now()).toString()).digest().toString('hex');
         let vNum = Number((Math.random() * Date.now()).toFixed());
         let handshake = {
             cipherKey: cipherKey,
-            cipherAlgorithm: options.cipherAlgorithm,
+            cipherAlgorithm: cipherAlgorithm,
             vNum: vNum,
             version: process.version
         };
-        let handshakeCipher = crypto.createCipher(options.cipherAlgorithm, options.password);
+        let handshakeCipher = crypto.createCipher(cipherAlgorithm, password);
         let hello = Buffer.concat([handshakeCipher.update(new Buffer(JSON.stringify(handshake))), handshakeCipher.final()]);
         yield proxySocket.writeAsync(hello);
         let data = yield proxySocket.readAsync();
         if (!data)
             return { result: false };
-        let handshakeDecipher = crypto.createDecipher(options.cipherAlgorithm, cipherKey);
+        let handshakeDecipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
         let buf = Buffer.concat([handshakeDecipher.update(data), handshakeDecipher.final()]);
         try {
             let res = JSON.parse(buf.toString('utf8'));

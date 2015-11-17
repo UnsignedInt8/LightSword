@@ -11,22 +11,22 @@ export interface IBasicOptions {
   password: string;
 }
 
-export interface IStreamBasicOptions extends IBasicOptions {
+export interface INegotiationOptions extends IBasicOptions {
   proxySocket: net.Socket;
 }
 
-export interface ICommandOptions extends IStreamBasicOptions {
+export interface ICommandOptions extends INegotiationOptions {
   dstAddr: string;
   dstPort: number;
 }
 
-export interface IStreamTransportOptions extends IStreamBasicOptions {
+export interface IStreamTransportOptions extends INegotiationOptions {
   clientSocket: net.Socket;
 }
 
 export interface ISocks5 {
   // Step 1: Negotiate with Server.
-  negotiate: (options: IStreamBasicOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
+  negotiate: (options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) => void;
   
   // Step 2: Send SOCKS5 Command to Server.
   sendCommand: (options: ICommandOptions, callback: (result: boolean, reason?: string) => void) => void;
@@ -46,8 +46,7 @@ export class PluginPivot implements ISocks5Plugin {
   
   constructor(plugin: string) {
     let _this = this;
-    // , 'bind', 'udpAssociate'
-    ['connect'].forEach(c => _this.components.set(c, require(`./${plugin}.${c}`)));
+    ['connect' /* , 'bind', 'udpAssociate' */].forEach(c => _this.components.set(c, require(`./${plugin}.${c}`)));
   }
   
   getConnect(): ISocks5 {

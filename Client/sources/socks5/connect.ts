@@ -9,7 +9,7 @@ import * as consts from './consts';
 import * as socks5Util from './util';
 import * as logger from 'winston';
 import { RequestOptions } from './localServer';
-import { ISocks5Plugin, IStreamBasicOptions, ICommandOptions, IStreamTransportOptions } from '../plugins/main';
+import { ISocks5Plugin, INegotiationOptions, ICommandOptions, IStreamTransportOptions } from '../plugins/main';
 
 export class Socks5Connect {
   cipherAlgorithm: string;
@@ -60,7 +60,7 @@ export class Socks5Connect {
       
       
       async function negotiateAsync(): Promise<boolean> {
-        let negotiationOps: IStreamBasicOptions = {
+        let negotiationOps: INegotiationOptions = {
           cipherAlgorithm: _this.cipherAlgorithm,
           password: _this.password,
           proxySocket

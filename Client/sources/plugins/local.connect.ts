@@ -4,11 +4,11 @@
 
 'use strict'
 
-import { ISocks5, IStreamBasicOptions, IStreamTransportOptions, ICommandOptions } from './main';
+import { ISocks5, INegotiationOptions, IStreamTransportOptions, ICommandOptions } from './main';
 
 class LocalConnect implements ISocks5 {
   
-  negotiate(options: IStreamBasicOptions, callback: (result: boolean, reason?: string) => void) {
+  negotiate(options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) {
     process.nextTick(() => callback(true));
   }
   
