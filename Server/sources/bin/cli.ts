@@ -9,11 +9,11 @@ import * as fs from 'fs';
 import * as logger from 'winston';
 
 program
-  .options('-p, --port [number]', 'Server Listening Port', Number.parseInt)
-  .options('-k, --password [password]', 'Cipher Password', String)
-  .options('-m, --method [algorithm]', 'Cipher Algorithm', String)
-  .options('-c, --config <path>', 'Configuration File Path', String)
-  .parse(progress.argv);
+  .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
+  .option('-k, --password [password]', 'Cipher Password', String)
+  .option('-m, --method [algorithm]', 'Cipher Algorithm', String)
+  .option('-c, --config <path>', 'Configuration File Path', String)
+  .parse(process.argv);
   
 var args = <any>program;
 

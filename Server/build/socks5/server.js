@@ -26,7 +26,7 @@ class Server {
     start() {
         let _this = this;
         let server = net.createServer((socket) => __awaiter(this, void 0, Promise, function* () {
-            let executor = new _this.Socks5();
+            let executor = (new _this.Socks5());
             function disposeSocket() {
                 socket.removeAllListeners();
                 socket.end();

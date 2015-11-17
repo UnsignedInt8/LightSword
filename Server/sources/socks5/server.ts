@@ -7,7 +7,6 @@
 import * as net from 'net';
 import * as crypto from 'crypto';
 import * as logger from 'winston';
-import { defaultQueue } from '../lib/dispatchQueue';
 import { ISocks5, ISocks5Options } from '../plugins/main';
 
 export class Server {
@@ -16,7 +15,7 @@ export class Server {
   port: number;
   
   server: net.Server;
-  Socks5: ISocks5;
+  Socks5: any;
   
   constructor(options: { cipherAlgorithm: string, password: string, port: number, plugin: string }) {
     let _this = this;
@@ -29,7 +28,7 @@ export class Server {
     
     let server = net.createServer(async (socket) => {
       
-      let executor = new _this.Socks5();
+      let executor = <ISocks5>(new _this.Socks5());
       
       function disposeSocket() {
         socket.removeAllListeners();

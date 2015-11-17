@@ -9,7 +9,7 @@ require('async-node');
 import { Server } from './socks5/server'
 
 export class App {
-  constructor(options) {
+  constructor(options?: any) {
     let defaultOptions = {
       cipherAlgorithm: 'aes-256-cfb',
       password: 'lightsword.neko',

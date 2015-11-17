@@ -17,11 +17,11 @@ var app_1 = require('../app');
 var fs = require('fs');
 var logger = require('winston');
 program
-    .options('-p, --port [number]', 'Server Listening Port', Number.parseInt)
-    .options('-k, --password [password]', 'Cipher Password', String)
-    .options('-m, --method [algorithm]', 'Cipher Algorithm', String)
-    .options('-c, --config <path>', 'Configuration File Path', String)
-    .parse(progress.argv);
+    .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
+    .option('-k, --password [password]', 'Cipher Password', String)
+    .option('-m, --method [algorithm]', 'Cipher Algorithm', String)
+    .option('-c, --config <path>', 'Configuration File Path', String)
+    .parse(process.argv);
 var args = program;
 function parseFile(path) {
     if (!path)
