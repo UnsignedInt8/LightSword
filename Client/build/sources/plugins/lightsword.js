@@ -17,15 +17,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var crypto = require('crypto');
 var logger = require('winston');
+/**
+ * LightSword Negotiation Algorithm
+ */
 function negotiate(options) {
     return __awaiter(this, void 0, Promise, function* () {
         let cipherAlgorithm = options.cipherAlgorithm;
         let proxySocket = options.proxySocket;
-        let dstAddr = options.dstAddr;
-        let dstPort = options.dstPort;
-        let sha = crypto.createHash('sha256');
-        sha.update((Math.random() * Date.now()).toString());
-        let cipherKey = sha.digest().toString('hex');
+        let cipherKey = crypto.createHash('sha256').update((Math.random() * Date.now()).toString()).digest().toString('hex');
         let vNum = Number((Math.random() * Date.now()).toFixed());
         let handshake = {
             cipherKey: cipherKey,
@@ -46,40 +45,11 @@ function negotiate(options) {
             let okNum = Number(res.okNum);
             if (okNum !== vNum + 1)
                 return { result: false, reason: "Can't confirm verification number." };
-            let { result, reason } = yield connect();
-            return { result: result, vNum: okNum, cipherKey: cipherKey };
+            return { result: true, vNum: okNum, cipherKey: cipherKey };
         }
         catch (ex) {
             logger.error(ex.message);
             return { result: false, reason: ex.message };
-        }
-        // Connect to destination resource.  
-        function connect() {
-            return __awaiter(this, void 0, Promise, function* () {
-                let connect = {
-                    dstAddr: dstAddr,
-                    dstPort: dstPort,
-                    vNum: vNum,
-                    type: 'connect'
-                };
-                let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-                let connectBuffer = cipher.update(new Buffer(JSON.stringify(connect)));
-                yield proxySocket.writeAsync(connectBuffer);
-                let data = yield proxySocket.readAsync();
-                if (!data)
-                    return { result: false, reason: 'Data not available.' };
-                let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
-                try {
-                    let connectOk = JSON.parse(decipher.update(data).toString());
-                    if (connectOk.vNum === connect.vNum + 1) {
-                        return { result: true };
-                    }
-                    return { result: false, "Can't confirm verification number.":  };
-                }
-                catch (ex) {
-                    return { result: false, reason: ex.message };
-                }
-            });
         }
     });
 }

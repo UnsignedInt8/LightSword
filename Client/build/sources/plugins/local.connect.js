@@ -19,6 +19,9 @@ class LocalConnect {
     negotiate(options, callback) {
         process.nextTick(() => callback(true));
     }
+    sendCommand(options, callback) {
+        process.nextTick(() => callback(true));
+    }
     transportStream(options) {
         let proxySocket = options.proxySocket;
         let clientSocket = options.clientSocket;

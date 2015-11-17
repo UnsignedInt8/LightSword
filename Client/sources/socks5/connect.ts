@@ -9,7 +9,7 @@ import * as consts from './consts';
 import * as socks5Util from './util';
 import * as logger from 'winston';
 import { RequestOptions } from './localServer';
-import { ISocks5Plugin, INegotiationOptions, IStreamTransportOptions } from '../plugins/main';
+import { ISocks5Plugin, IStreamBasicOptions, ICommandOptions, IStreamTransportOptions } from '../plugins/main';
 
 export class Socks5Connect {
   cipherAlgorithm: string;
@@ -58,17 +58,31 @@ export class Socks5Connect {
       let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
       let connect = _this.socks5Plugin.getConnect();
       
-      let negotiationOps: INegotiationOptions = {
-        dstAddr: _this.dstAddr,
-        dstPort: _this.dstPort,
-        cipherAlgorithm: _this.cipherAlgorithm,
-        password: _this.password,
-        proxySocket
-      };
       
       async function negotiateAsync(): Promise<boolean> {
+        let negotiationOps: IStreamBasicOptions = {
+          cipherAlgorithm: _this.cipherAlgorithm,
+          password: _this.password,
+          proxySocket
+        };
         return new Promise<boolean>(resolve => {
           connect.negotiate(negotiationOps, (success, reason) => {
+            if (!success) logger.warn(reason);
+            resolve(success);
+          });
+        });
+      }
+      
+      async function sendCommandAsync(): Promise<boolean> {
+        let commandOpts: ICommandOptions = {
+          dstAddr: _this.dstAddr,
+          dstPort: _this.dstPort,
+          cipherAlgorithm: _this.cipherAlgorithm,
+          password: _this.password,
+          proxySocket
+        }
+        return new Promise<boolean>(resolve => {
+          connect.sendCommand(commandOpts, (success, reason) => {
             if (!success) logger.warn(reason);
             resolve(success);
           });
@@ -78,11 +92,20 @@ export class Socks5Connect {
       // Step 1: Negotiate with server      
       let success = await negotiateAsync();
       
+      if (!success) {
+        reply[1] = consts.REPLY_CODE.CONNECTION_REFUSED;
+        await _this.clientSocket.writeAsync(reply);
+        return disposeSockets(null, 'proxy');
+      }
+      
+      // Step 2: Send command to Server
+      success = await sendCommandAsync();
+      
       reply[1] = success ? consts.REPLY_CODE.SUCCESS : consts.REPLY_CODE.CONNECTION_REFUSED;
       await _this.clientSocket.writeAsync(reply);
       if (!success) return disposeSockets(null, 'proxy');
       
-      // Step 2: Transport data.
+      // Step 3: Transport data.
       let transportOps: IStreamTransportOptions = {
         cipherAlgorithm: _this.cipherAlgorithm,
         password: _this.password,

@@ -6,7 +6,7 @@ export interface IBasicOptions {
 export interface IStreamBasicOptions extends IBasicOptions {
     proxySocket: net.Socket;
 }
-export interface INegotiationOptions extends IStreamBasicOptions {
+export interface ICommandOptions extends IStreamBasicOptions {
     dstAddr: string;
     dstPort: number;
 }
@@ -14,8 +14,9 @@ export interface IStreamTransportOptions extends IStreamBasicOptions {
     clientSocket: net.Socket;
 }
 export interface ISocks5 {
-    negotiate: (options: INegotiationOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
-    transportStream: (options: IStreamTransportOptions) => void;
+    negotiate: (options: IStreamBasicOptions, finishCallback: (result: boolean, reason?: string) => void) => void;
+    sendCommand: (options: ICommandOptions, callback: (result: boolean, reason?: string) => void) => void;
+    transportStream?: (options: IStreamTransportOptions) => void;
 }
 export interface ISocks5Plugin {
     getConnect: () => ISocks5;

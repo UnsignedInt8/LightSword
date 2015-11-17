@@ -29,6 +29,34 @@ class LightSwordConnect {
             this.vNum = vNum;
         });
     }
+    sendCommand(options, callback) {
+        return __awaiter(this, void 0, Promise, function* () {
+            let proxySocket = options.proxySocket;
+            let connect = {
+                dstAddr: options.dstAddr,
+                dstPort: options.dstPort,
+                vNum: this.vNum,
+                type: 'connect'
+            };
+            let cipher = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
+            let connectBuffer = cipher.update(new Buffer(JSON.stringify(connect)));
+            yield proxySocket.writeAsync(connectBuffer);
+            let data = yield proxySocket.readAsync();
+            if (!data)
+                return callback(false, 'Data not available.');
+            let decipher = crypto.createDecipher(options.cipherAlgorithm, this.cipherKey);
+            try {
+                let connectOk = JSON.parse(decipher.update(data).toString());
+                if (connectOk.vNum === connect.vNum + 1) {
+                    return callback(true);
+                }
+                return callback(false, "Can't confirm verification number.");
+            }
+            catch (ex) {
+                return callback(false, ex.message);
+            }
+        });
+    }
     transportStream(options) {
         return __awaiter(this, void 0, Promise, function* () {
             let proxySocket = options.proxySocket;

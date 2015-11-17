@@ -47,15 +47,13 @@ class Socks5Connect {
             logger.info(`connect: ${_this.dstAddr}`);
             let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
             let connect = _this.socks5Plugin.getConnect();
-            let negotiationOps = {
-                dstAddr: _this.dstAddr,
-                dstPort: _this.dstPort,
-                cipherAlgorithm: _this.cipherAlgorithm,
-                password: _this.password,
-                proxySocket: proxySocket
-            };
             function negotiateAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
+                    let negotiationOps = {
+                        cipherAlgorithm: _this.cipherAlgorithm,
+                        password: _this.password,
+                        proxySocket: proxySocket
+                    };
                     return new Promise(resolve => {
                         connect.negotiate(negotiationOps, (success, reason) => {
                             if (!success)
@@ -65,13 +63,38 @@ class Socks5Connect {
                     });
                 });
             }
+            function sendCommandAsync() {
+                return __awaiter(this, void 0, Promise, function* () {
+                    let commandOpts = {
+                        dstAddr: _this.dstAddr,
+                        dstPort: _this.dstPort,
+                        cipherAlgorithm: _this.cipherAlgorithm,
+                        password: _this.password,
+                        proxySocket: proxySocket
+                    };
+                    return new Promise(resolve => {
+                        connect.sendCommand(commandOpts, (success, reason) => {
+                            if (!success)
+                                logger.warn(reason);
+                            resolve(success);
+                        });
+                    });
+                });
+            }
             // Step 1: Negotiate with server      
             let success = yield negotiateAsync();
+            if (!success) {
+                reply[1] = consts.REPLY_CODE.CONNECTION_REFUSED;
+                yield _this.clientSocket.writeAsync(reply);
+                return disposeSockets(null, 'proxy');
+            }
+            // Step 2: Send command to Server
+            success = yield sendCommandAsync();
             reply[1] = success ? consts.REPLY_CODE.SUCCESS : consts.REPLY_CODE.CONNECTION_REFUSED;
             yield _this.clientSocket.writeAsync(reply);
             if (!success)
                 return disposeSockets(null, 'proxy');
-            // Step 2: Transport data.
+            // Step 3: Transport data.
             let transportOps = {
                 cipherAlgorithm: _this.cipherAlgorithm,
                 password: _this.password,
