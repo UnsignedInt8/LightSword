@@ -22,14 +22,3 @@ export interface ISocks5 {
   negotiate: (options: ISocks5Options, callback: (success: boolean, reason?: string) => void) => void;
   transport: (options: ISocks5Options) => void;
 }
-
-export class PluginPivot implements ISocks5 {
-  public negotiate: (options: ISocks5Options, callback: (success: boolean, reason?: string) => void) => void;
-  public transport: (options: ISocks5Options) => void;
-
-  constructor(plugin: string) {
-    let _this = this;
-    ['negotiate', 'transportStream'].forEach(n => _this[n] = require(`./${n}.${plugin}`));
-  }
-  
-}

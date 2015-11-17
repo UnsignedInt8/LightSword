@@ -13,8 +13,3 @@ export interface ISocks5 {
     negotiate: (options: ISocks5Options, callback: (success: boolean, reason?: string) => void) => void;
     transport: (options: ISocks5Options) => void;
 }
-export declare class PluginPivot implements ISocks5 {
-    negotiate: (options: ISocks5Options, callback: (success: boolean, reason?: string) => void) => void;
-    transport: (options: ISocks5Options) => void;
-    constructor(plugin: string);
-}
