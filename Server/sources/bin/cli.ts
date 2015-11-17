@@ -5,6 +5,8 @@
 
 import * as program from 'commander';
 import { App } from '../app';
+import * as fs from 'fs';
+import * as logger from 'winston';
 
 'use strict'
 
