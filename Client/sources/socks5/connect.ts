@@ -53,7 +53,7 @@ export class Socks5Connect {
     }
     
     var proxySocket = net.connect(this.serverPort, this.serverAddr, async () => {
-      logger.info(`connect: ${_this.serverAddr}`);
+      logger.info(`connect: ${_this.dstAddr}`);
       
       let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
       let connect = _this.socks5Plugin.getConnect();
