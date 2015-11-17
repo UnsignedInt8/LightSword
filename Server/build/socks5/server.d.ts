@@ -1,11 +1,11 @@
 import * as net from 'net';
-import { PluginPivot } from '../plugins/main';
+import { ISocks5 } from '../plugins/main';
 export declare class Server {
     cipherAlgorithm: string;
     password: string;
     port: number;
-    _server: net.Server;
-    _pluginPivot: PluginPivot;
+    server: net.Server;
+    plugin: ISocks5;
     constructor(options: {
         cipherAlgorithm: string;
         password: string;

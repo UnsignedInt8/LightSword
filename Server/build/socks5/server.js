@@ -17,12 +17,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var net = require('net');
 var logger = require('winston');
-var main_1 = require('../plugins/main');
 class Server {
     constructor(options) {
         let _this = this;
-        Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
-        this._pluginPivot = new main_1.PluginPivot(options.plugin);
+        ['cipherAlgorithm', 'password', 'port'].forEach(n => _this[n] = options[n]);
+        this.plugin = require(`./plugins/${options.plugin}`);
     }
     start() {
         let _this = this;
@@ -41,7 +40,7 @@ class Server {
             function negotiateAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
                     return new Promise(resolve => {
-                        _this._pluginPivot.negotiate(options, (success, reason) => {
+                        _this.plugin.negotiate(options, (success, reason) => {
                             if (!success)
                                 logger.info(reason);
                             resolve(success);
@@ -52,30 +51,20 @@ class Server {
             let negotiated = yield negotiateAsync();
             if (!negotiated)
                 return disposeSocket();
-            _this._pluginPivot.transport(options);
-            // let data = await socket.readAsync();
-            // if (!data) return socket.destroy();
-            // Step 1: Negotiate with client.
-            // let decipher = crypto.createDecipher(_this.cipherAlgorithm, _this.password);
-            // let negotiationBuf = Buffer.concat([decipher.update(data), decipher.final()]);
-            // try {
-            //   let msg = JSON.parse(negotiationBuf.toString('utf8'));
-            // } catch(ex) {
-            //   socket.end();
-            //   return socket.destroy();
-            // }
+            // Step 2: Process requests.
+            _this.plugin.transport(options);
         }));
         server.listen(this.port);
         server.on('error', (err) => logger.error(err.message));
-        this._server = server;
+        this.server = server;
     }
     stop() {
-        if (!this._server)
+        if (!this.server)
             return;
-        this._server.removeAllListeners();
-        this._server.close();
-        this._server.destroy();
-        this._server = null;
+        this.server.removeAllListeners();
+        this.server.close();
+        this.server.destroy();
+        this.server = null;
     }
 }
 exports.Server = Server;
