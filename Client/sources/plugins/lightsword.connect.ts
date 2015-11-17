@@ -6,14 +6,14 @@
 
 import * as crypto from 'crypto';
 import { ISocks5, INegotiationOptions, IStreamTransportOptions, ICommandOptions } from './main';
-import { negotiate } from './lightsword';
+import { negotiateAsync } from './lightsword';
 
 class LightSwordConnect implements ISocks5 {
   cipherKey: string;
   vNum: number = 0;
   
   async negotiate(options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) {
-    let { result, reason, cipherKey, vNum } = await negotiate(options);
+    let { result, reason, cipherKey, vNum } = await negotiateAsync(options);
     callback(result, reason);
     this.cipherKey = cipherKey;
     this.vNum = vNum;

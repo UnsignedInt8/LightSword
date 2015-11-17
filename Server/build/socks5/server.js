@@ -32,15 +32,16 @@ class Server {
                 socket.end();
                 socket.destroy();
             }
-            let negotiationOptions = {
+            let options = {
                 cipherAlgorithm: _this.cipherAlgorithm,
                 password: _this.password,
                 clientSocket: socket
             };
+            // Step 1: Negotiate with Client.
             function negotiateAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
                     return new Promise(resolve => {
-                        _this._pluginPivot.negotiate(negotiationOptions, (success, reason) => {
+                        _this._pluginPivot.negotiate(options, (success, reason) => {
                             if (!success)
                                 logger.info(reason);
                             resolve(success);
@@ -51,41 +52,7 @@ class Server {
             let negotiated = yield negotiateAsync();
             if (!negotiated)
                 return disposeSocket();
-            // Step 2: Resolving command type.
-            function resolveCommandType() {
-                return __awaiter(this, void 0, Promise, function* () {
-                    return new Promise(resolve => {
-                        _this._pluginPivot.resolveCommandType(negotiationOptions, (success, cmdType, data, reason) => {
-                            if (!success)
-                                logger.info(reason);
-                            resolve({ resolved: success, cmdType: cmdType, cmdData: data });
-                        });
-                    });
-                });
-            }
-            let { resolved, cmdType, cmdData } = yield resolveCommandType();
-            if (!resolved)
-                return disposeSocket();
-            function processCommandAsync() {
-                return __awaiter(this, void 0, Promise, function* () {
-                    let cmdOpts = {
-                        data: cmdData,
-                        cipherAlgorithm: _this.cipherAlgorithm,
-                        password: _this.password,
-                        clientSocket: socket
-                    };
-                    return new Promise(resolve => {
-                        _this._pluginPivot.processCommand(cmdOpts, (success, reason) => {
-                            if (!success)
-                                logger.info(reason);
-                            resolve(success);
-                        });
-                    });
-                });
-            }
-            let cmdProcessed = yield processCommandAsync();
-            if (!cmdProcessed)
-                return disposeSocket();
+            _this._pluginPivot.transport(options);
             // let data = await socket.readAsync();
             // if (!data) return socket.destroy();
             // Step 1: Negotiate with client.

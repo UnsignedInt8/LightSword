@@ -1,15 +1,7 @@
 import * as net from 'net';
-export interface IBasicOptions {
+export interface ISocks5Options {
     cipherAlgorithm: string;
     password: string;
-}
-export interface INegotiationOptions extends IBasicOptions {
-    clientSocket: net.Socket;
-}
-export interface ICommandOptions extends INegotiationOptions {
-    data: any;
-}
-export interface IStreamTransportOptions extends INegotiationOptions {
     clientSocket: net.Socket;
 }
 export declare enum Socks5CommandType {
@@ -17,16 +9,12 @@ export declare enum Socks5CommandType {
     bind = 2,
     udpAssociate = 3,
 }
-export interface IPluginPivot {
-    negotiate: (options: INegotiationOptions, callback: (success: boolean, reason?: string) => void) => void;
-    resolveCommandType: (options: INegotiationOptions, callback: (success: boolean, cmdType: Socks5CommandType, data: any, reason?: string) => void) => void;
-    processCommand: (options: ICommandOptions, callback: (success: boolean, reason?: string) => void) => void;
-    transportStream: (options: IStreamTransportOptions) => void;
+export interface ISocks5 {
+    negotiate: (options: ISocks5Options, callback: (success: boolean, reason?: string) => void) => void;
+    transport: (options: ISocks5Options) => void;
 }
-export declare class PluginPivot implements IPluginPivot {
-    negotiate: (options: INegotiationOptions, callback: (success: boolean, reason?: string) => void) => void;
-    resolveCommandType: (options: INegotiationOptions, callback: (success: boolean, cmdType: Socks5CommandType, data: any, reason?: string) => void) => void;
-    processCommand: (options: ICommandOptions, callback: (success: boolean, reason?: string) => void) => void;
-    transportStream: (options: IStreamTransportOptions) => void;
+export declare class PluginPivot implements ISocks5 {
+    negotiate: (options: ISocks5Options, callback: (success: boolean, reason?: string) => void) => void;
+    transport: (options: ISocks5Options) => void;
     constructor(plugin: string);
 }

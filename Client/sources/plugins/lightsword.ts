@@ -11,15 +11,16 @@ import { INegotiationOptions } from './main';
 /**
  * LightSword Negotiation Algorithm
  */
-export async function negotiate(options: INegotiationOptions): { result: boolean, reason?: string, cipherKey?: string, vNum?: number } {
+export async function negotiateAsync(options: INegotiationOptions): { result: boolean, reason?: string, cipherKey?: string, vNum?: number } {
   let cipherAlgorithm = options.cipherAlgorithm;
   let password = options.password;
   let proxySocket = options.proxySocket;
   
-  let cipherKey = crypto.createHash('sha256').update((Math.random() * Date.now()).toString()).digest().toString('hex');
+  let cipherKey = crypto.createHash('sha256').update((Math.random() * Date.now()).toString()).digest('hex');
   let vNum = Number((Math.random() * Date.now()).toFixed());
   
   let handshake = {
+    padding: cipherKey.where(c => c >= 'a' && c <= 'z').toArray(),
     cipherKey,
     cipherAlgorithm,
     vNum,
@@ -27,7 +28,10 @@ export async function negotiate(options: INegotiationOptions): { result: boolean
   };
 
   let handshakeCipher = crypto.createCipher(cipherAlgorithm, password);
-  let hello = Buffer.concat([handshakeCipher.update(new Buffer(JSON.stringify(handshake))), handshakeCipher.final()]);
+  let message = JSON.stringify(handshake);
+  let digest = crypto.createHash('md5').update(message).digest('hex');
+  // message = `${message}\n${digest}`;
+  let hello = Buffer.concat([handshakeCipher.update(new Buffer(message)), handshakeCipher.final()]);
   await proxySocket.writeAsync(hello);
   
   let data = await proxySocket.readAsync();

@@ -5,9 +5,9 @@
 'use strict'
 
 import * as crypto from 'crypto';
-import { INegotitationOptions } from './main';
+import { ISocks5Options } from './main';
 
-export async function negotiate(options: INegotitationOptions): { result: boolean, reason?: string, cipherKey?: string, okNum?: number  } {
+export async function negotiateAsync(options: ISocks5Options): { success: boolean, reason?: string, cipherKey?: string, okNum?: number, digest?: string } {
   
   let clientSocket = options.clientSocket;
   let cipherAlgorithm = options.cipherAlgorithm;
@@ -15,7 +15,7 @@ export async function negotiate(options: INegotitationOptions): { result: boolea
   
   let decipher = crypto.createDecipher(cipherAlgorithm, password);
   let data = await clientSocket.readAsync();
-  if (!data) return { result: false };
+  if (!data) return { success: false };
   
   let buf = Buffer.concat([decipher.update(data), decipher.final()]);
   
@@ -25,20 +25,22 @@ export async function negotiate(options: INegotitationOptions): { result: boolea
     let clientCipherAlgorithm = handshake.cipherAlgorithm;
     let okNum = Number(handshake.vNum);
     let fields = [cipherKey, okNum, clientCipherAlgorithm];
+    let digest = '';
     
-    if (fields.any(f => !f)) return { result: false, reason: 'Fields lost' };
-    if (typeof okNum !== 'number') return { result: false, reason: 'Not recognizable data!!!' };
-    if (cipherAlgorithm !== clientCipherAlgorithm) return { result: false, reason: 'Cipher algorithm not equal' };
+    if (fields.any(f => !f)) return { success: false, reason: 'Fields lost' };
+    if (typeof okNum !== 'number') return { success: false, reason: 'Not recognizable data!!!' };
+    if (cipherAlgorithm !== clientCipherAlgorithm) return { success: false, reason: 'Cipher algorithm not equal' };
     
     let welcome = {
-      okNum: ++okNum
+      okNum: ++okNum,
+      digest
     };
     
     let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
     await clientSocket.writeAsync(Buffer.concat([cipher.update(new Buffer(JSON.stringify(welcome))), cipher.final()]));
     
-    return { result: true, cipherKey, okNum };
+    return { success: true, cipherKey, okNum };
   } catch(ex) {
-    return { result: false, reason: ex.message };
+    return { success: false, reason: ex.message };
   }
 }

@@ -32,10 +32,8 @@ export class App implements IDispatchReceiver {
       timeout: 60
     };
     
-    if (options) 
-      Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
-    else
-      options = defaultOptions;
+    options = options || defaultOptions;
+    Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
     
     let isLocalProxy = this.isLocalProxy = ['localhost', '', undefined, null].contains(options.serverAddr.toLowerCase());
     if (isLocalProxy) options.plugin = 'local';
@@ -47,8 +45,7 @@ export class App implements IDispatchReceiver {
     
     DefaultDispatchQueue.register(consts.REQUEST_CMD.CONNECT, this);
     
-    let server = new LocalServer(options);
-    server.start();
+    new LocalServer(options).start();
   }
   
   receive(msg: any, args: any) {
@@ -65,6 +62,6 @@ export class App implements IDispatchReceiver {
 }
 
 if (!module.parent) {
-  process.title = 'LightSword Client Debug';
+  process.title = 'LightSword Client Debug Mode';
   new App();
 }
