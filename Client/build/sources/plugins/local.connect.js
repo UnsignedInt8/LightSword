@@ -22,7 +22,7 @@ class LocalConnect {
     sendCommand(options, callback) {
         process.nextTick(() => callback(true));
     }
-    transportStream(options) {
+    transport(options) {
         let proxySocket = options.proxySocket;
         let clientSocket = options.clientSocket;
         proxySocket.pipe(clientSocket);

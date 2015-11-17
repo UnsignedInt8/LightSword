@@ -54,7 +54,7 @@ class LightSwordConnect implements ISocks5 {
     }
   }
   
-  async transportStream(options: IStreamTransportOptions) {
+  async transport(options: IStreamTransportOptions) {
     let proxySocket = options.proxySocket;
     let clientSocket = options.clientSocket;
     

@@ -59,7 +59,7 @@ class LightSwordConnect {
             }
         });
     }
-    transportStream(options) {
+    transport(options) {
         return __awaiter(this, void 0, Promise, function* () {
             let proxySocket = options.proxySocket;
             let clientSocket = options.clientSocket;

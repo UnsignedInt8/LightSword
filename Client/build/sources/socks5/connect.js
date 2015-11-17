@@ -44,7 +44,7 @@ class Socks5Connect {
             _this = null;
         }
         var proxySocket = net.connect(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
-            logger.info(`connect: ${_this.dstAddr}`);
+            logger.info(`connect: ${_this.serverAddr}`);
             let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
             let connect = _this.socks5Plugin.getConnect();
             function negotiateAsync() {
@@ -101,7 +101,7 @@ class Socks5Connect {
                 clientSocket: _this.clientSocket,
                 proxySocket: proxySocket
             };
-            connect.transportStream(transportOps);
+            connect.transport(transportOps);
             proxySocket.once('end', () => disposeSockets(null, 'proxy end'));
             _this.clientSocket.once('end', () => disposeSockets(null, 'end end'));
             proxySocket.on('error', (err) => disposeSockets(err, 'proxy'));

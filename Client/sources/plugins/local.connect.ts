@@ -16,7 +16,7 @@ class LocalConnect implements ISocks5 {
     process.nextTick(() => callback(true));
   }
   
-  transportStream(options: IStreamTransportOptions) {
+  transport(options: IStreamTransportOptions) {
     let proxySocket = options.proxySocket;
     let clientSocket = options.clientSocket;
     

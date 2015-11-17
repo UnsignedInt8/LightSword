@@ -16,7 +16,7 @@ export interface IStreamTransportOptions extends INegotiationOptions {
 export interface ISocks5 {
     negotiate: (options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) => void;
     sendCommand: (options: ICommandOptions, callback: (result: boolean, reason?: string) => void) => void;
-    transportStream?: (options: IStreamTransportOptions) => void;
+    transport?: (options: IStreamTransportOptions) => void;
 }
 export interface ISocks5Plugin {
     getConnect: () => ISocks5;

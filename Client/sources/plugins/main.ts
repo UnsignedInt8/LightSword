@@ -32,7 +32,7 @@ export interface ISocks5 {
   sendCommand: (options: ICommandOptions, callback: (result: boolean, reason?: string) => void) => void;
   
   // Step 3: Transport data.
-  transportStream?: (options: IStreamTransportOptions) => void;
+  transport?: (options: IStreamTransportOptions) => void;
 }
 
 export interface ISocks5Plugin {

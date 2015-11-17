@@ -28,7 +28,6 @@ export class Server {
     let _this = this;
     
     let server = net.createServer(async (socket) => {
-      logger.info('connect: ' + socket.remoteAddress + ':' + socket.remotePort);
       
       let executor = new _this.Socks5();
       
@@ -53,8 +52,6 @@ export class Server {
           });
         });
       }
-      
-      console.log('negotiation succeed');
       
       let negotiated = await negotiateAsync();
       if (!negotiated) return disposeSocket();

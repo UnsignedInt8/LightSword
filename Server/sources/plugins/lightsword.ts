@@ -25,12 +25,18 @@ class LightSwordSocks5 implements ISocks5 {
     let buf = Buffer.concat([decipher.update(data), decipher.final()]);
     
     try {
-      let handshake = JSON.parse(buf.toString('utf8'));
+      let msgDigest = buf.toString('utf8');
+      if (1 !== msgDigest.count(c => c === '\n')) return callback(false, 'Format error');
+      
+      let n = msgDigest.indexOf('\n');
+      if (n < 0) return callback(false, 'Format error');
+      let digest = msgDigest.substr(n + 1);
+      
+      let handshake = JSON.parse(msgDigest.substr(0, n));
       let cipherKey = handshake.cipherKey;
       let clientCipherAlgorithm = handshake.cipherAlgorithm;
       let okNum = Number(handshake.vNum);
       let fields = [cipherKey, okNum, clientCipherAlgorithm];
-      let digest = '';
       
       if (fields.any(f => !f)) return callback(false, 'Fields lost.');
       if (typeof okNum !== 'number') return callback(false, 'Not recognizable data!!!');

@@ -62,6 +62,6 @@ class App {
 exports.App = App;
 if (!module.parent) {
     process.title = 'LightSword Client Debug Mode';
-    new App({ serverAddr: '::1' });
+    new App({ serverAddr: '::1', port: 2002, });
 }
 //# sourceMappingURL=app.js.map

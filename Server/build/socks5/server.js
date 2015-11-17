@@ -26,7 +26,6 @@ class Server {
     start() {
         let _this = this;
         let server = net.createServer((socket) => __awaiter(this, void 0, Promise, function* () {
-            logger.info('connect: ' + socket.remoteAddress + ':' + socket.remotePort);
             let executor = new _this.Socks5();
             function disposeSocket() {
                 socket.removeAllListeners();
@@ -50,7 +49,6 @@ class Server {
                     });
                 });
             }
-            console.log('negotiation succeed');
             let negotiated = yield negotiateAsync();
             if (!negotiated)
                 return disposeSocket();
