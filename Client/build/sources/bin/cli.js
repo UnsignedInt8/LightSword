@@ -64,7 +64,7 @@ var argsOptions = {
 if (args.fork && !process.argv.contains('isFork')) {
     logger.info('Run as daemon');
     process.argv.push('isFork');
-    child.fork(__dirname + '/cli', process.argv);
+    child.fork(process.argv[1], process.argv);
     process.exit(0);
 }
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
