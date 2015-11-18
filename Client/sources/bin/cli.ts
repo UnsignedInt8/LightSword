@@ -7,6 +7,7 @@ import * as program from 'commander';
 import { App } from '../app'
 import * as fs from 'fs';
 import * as logger from 'winston';
+import * as child from 'child_process';
 
 // Same with Shadowsocks https://shadowsocks.com/doc.html
 program
@@ -19,7 +20,7 @@ program
   .option('-c, --config <path>', 'Configuration File Path', String)
   .option('-a, --any', 'Listen Any Connection')
   .option('-t, --timeout [number]', 'Timeout (second)')
-  .option('-f, --fork', 'Run as Cluster')
+  .option('-f, --fork', 'Run as Background')
   .option('-u, --socsk5username [name]', 'Socks5 Proxy Username', String)
   .option('-w, --socks5password [password]', 'Socks5 Proxy Password', String)
   .option('-i, --plugin [name]', 'Plugin Name', String)
@@ -54,6 +55,13 @@ var argsOptions = {
   socks5Password: args.socks5password,
   timeout: args.timeout,
   plugin: args.plugin
+}
+
+if (args.fork && !process.argv.contains('isFork')) {
+  logger.info('Run as daemon');
+  process.argv.push('isFork');
+  child.fork('./build/sources/bin/cli', process.argv);
+  process.exit(0);
 }
 
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);

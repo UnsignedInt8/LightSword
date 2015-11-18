@@ -16,6 +16,7 @@ var program = require('commander');
 var app_1 = require('../app');
 var fs = require('fs');
 var logger = require('winston');
+var child = require('child_process');
 // Same with Shadowsocks https://shadowsocks.com/doc.html
 program
     .usage('[options]')
@@ -27,7 +28,7 @@ program
     .option('-c, --config <path>', 'Configuration File Path', String)
     .option('-a, --any', 'Listen Any Connection')
     .option('-t, --timeout [number]', 'Timeout (second)')
-    .option('-f, --fork', 'Run as Cluster')
+    .option('-f, --fork', 'Run as Background')
     .option('-u, --socsk5username [name]', 'Socks5 Proxy Username', String)
     .option('-w, --socks5password [password]', 'Socks5 Proxy Password', String)
     .option('-i, --plugin [name]', 'Plugin Name', String)
@@ -60,6 +61,12 @@ var argsOptions = {
     timeout: args.timeout,
     plugin: args.plugin
 };
+if (args.fork && !process.argv.contains('isFork')) {
+    logger.info('Run as daemon');
+    process.argv.push('isFork');
+    child.fork('./build/sources/bin/cli', process.argv);
+    process.exit(0);
+}
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
 process.title = 'LightSword Client';
 new app_1.App(argsOptions);
