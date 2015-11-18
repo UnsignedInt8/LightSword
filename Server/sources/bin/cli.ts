@@ -7,12 +7,14 @@ import * as program from 'commander';
 import { App } from '../app';
 import * as fs from 'fs';
 import * as logger from 'winston';
+import * as child from 'child_process';
 
 program
   .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
   .option('-k, --password [password]', 'Cipher Password', String)
   .option('-m, --method [algorithm]', 'Cipher Algorithm', String)
   .option('-c, --config <path>', 'Configuration File Path', String)
+  .option('-f, --fork', 'Run as background')
   .parse(process.argv);
   
 var args = <any>program;
@@ -42,5 +44,13 @@ var argsOptions = {
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
 
 process.title = 'LightSword Server';
+
+if (args.fork && !process.argv.contains('isFork')) {
+  logger.info('spawn process');
+  process.argv.push('isFork');
+  let p = child.spawn('./cli', process.argv);
+  p.disconnect();
+  process.exit(0);
+} 
 
 new App(argsOptions);

@@ -44,7 +44,7 @@ class Socks5Connect {
             _this = null;
         }
         var proxySocket = net.connect(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
-            logger.info(`connect: ${_this.serverAddr}`);
+            logger.info(`connect: ${_this.dstAddr}`);
             let reply = yield socks5Util.buildDefaultSocks5ReplyAsync();
             let connect = _this.socks5Plugin.getConnect();
             function negotiateAsync() {
