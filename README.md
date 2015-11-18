@@ -35,6 +35,9 @@ lsserver -p port -m aes-256-cfb -k xxx
 lslocal -s server_addr -p server_port -m aes-256-cfb -l 1080
 ```
 
+配置你的浏览器及其它需要科学上网的软件使用SOCKS5代理: localhost 1080
+
+
 0.1.4版本暂时不支持（兼容）配置文件
 
 未来计划：
