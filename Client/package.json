@@ -32,7 +32,7 @@
     "commander": "^2.9.0",
     "ipaddr.js": "^1.0.4",
     "async-node": "",
-    "kinq": "0.0.6",
+    "kinq": "",
     "winston": "^2.1.0"
   }
 }
