@@ -1,6 +1,6 @@
 {
   "name": "lightsword-client",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "LightSword Client",
   "main": "index.js",
   "bin": {
