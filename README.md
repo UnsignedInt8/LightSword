@@ -39,8 +39,12 @@ lslocal -s server_addr -p server_port -m aes-256-cfb -l 1080
 
 未来计划：
 1.支持Shadowsocks协议（插件开发，可以自己编写协议和其它扩展，如流量混淆）
+
 2.UDP支持
+
 3.多用户支持
 
-
-
+-------------------
+License
+---
+GPLv2.0
