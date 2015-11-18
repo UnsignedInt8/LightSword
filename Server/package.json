@@ -1,6 +1,6 @@
 {
   "name": "lightsword",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "LigthSword Server",
   "main": "index.js",
   "bin": {

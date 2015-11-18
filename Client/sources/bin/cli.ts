@@ -7,6 +7,7 @@ import * as program from 'commander';
 import { App } from '../app'
 import * as fs from 'fs';
 import * as logger from 'winston';
+import * as path from 'path';
 import * as child from 'child_process';
 
 // Same with Shadowsocks https://shadowsocks.com/doc.html
@@ -60,7 +61,7 @@ var argsOptions = {
 if (args.fork && !process.argv.contains('isFork')) {
   logger.info('Run as daemon');
   process.argv.push('isFork');
-  child.fork('./build/sources/bin/cli', process.argv);
+  child.fork(__dirname + '/cli', process.argv);
   process.exit(0);
 }
 
