@@ -23,7 +23,7 @@ program
     .option('-k, --password [password]', 'Cipher Password', String)
     .option('-m, --method [algorithm]', 'Cipher Algorithm', String)
     .option('-c, --config <path>', 'Configuration File Path', String)
-    .option('-f, --fork', 'Run as background')
+    .option('-f, --fork', 'Run as Daemon')
     .parse(process.argv);
 var args = program;
 function parseFile(path) {

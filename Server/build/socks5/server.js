@@ -32,6 +32,7 @@ class Server {
                 socket.end();
                 socket.destroy();
             }
+            socket.on('error', () => disposeSocket());
             let options = {
                 cipherAlgorithm: _this.cipherAlgorithm,
                 password: _this.password,

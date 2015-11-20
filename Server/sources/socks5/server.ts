@@ -36,6 +36,8 @@ export class Server {
         socket.destroy();
       }
       
+      socket.on('error', () => disposeSocket());
+      
       let options: ISocks5Options = {
         cipherAlgorithm: _this.cipherAlgorithm,
         password: _this.password,

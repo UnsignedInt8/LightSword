@@ -21,7 +21,7 @@ program
   .option('-c, --config <path>', 'Configuration File Path', String)
   .option('-a, --any', 'Listen Any Connection')
   .option('-t, --timeout [number]', 'Timeout (second)')
-  .option('-f, --fork', 'Run as Background')
+  .option('-f, --fork', 'Run as Daemon')
   .option('-u, --socsk5username [name]', 'Socks5 Proxy Username', String)
   .option('-w, --socks5password [password]', 'Socks5 Proxy Password', String)
   .option('-i, --plugin [name]', 'Plugin Name', String)
@@ -58,10 +58,8 @@ var argsOptions = {
   plugin: args.plugin
 }
 
-console.log(JSON.stringify(process.argv));
 if (args.fork && !process.env.__daemon) {
   logger.info('Run as daemon');
-  console.log(process.argv[1], process.execPath);
   process.env.__daemon = true;
   var cp = child.spawn(process.argv[1], process.argv.skip(2).toArray(), { detached: true, stdio: 'ignore', env: process.env, cwd: process.cwd() });
   cp.unref();

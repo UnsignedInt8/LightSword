@@ -17,6 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 require('kinq').enable();
 require('async-node');
+var fs = require('fs');
 var server_1 = require('./socks5/server');
 class App {
     constructor(options) {
@@ -29,6 +30,7 @@ class App {
         options = options || defaultOptions;
         Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
         new server_1.Server(options).start();
+        process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));
     }
 }
 exports.App = App;

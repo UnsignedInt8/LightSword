@@ -15,7 +15,7 @@ program
   .option('-k, --password [password]', 'Cipher Password', String)
   .option('-m, --method [algorithm]', 'Cipher Algorithm', String)
   .option('-c, --config <path>', 'Configuration File Path', String)
-  .option('-f, --fork', 'Run as background')
+  .option('-f, --fork', 'Run as Daemon')
   .parse(process.argv);
   
 var args = <any>program;
@@ -54,6 +54,5 @@ if (args.fork && !process.env.__daemon) {
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
 
 process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
-
 
 new App(argsOptions);
