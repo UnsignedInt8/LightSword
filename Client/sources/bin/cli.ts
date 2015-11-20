@@ -58,15 +58,19 @@ var argsOptions = {
   plugin: args.plugin
 }
 
-if (args.fork && !process.argv.contains('isFork')) {
+console.log(JSON.stringify(process.argv));
+if (args.fork && !process.env.__daemon) {
   logger.info('Run as daemon');
-  process.argv.push('isFork');
-  child.fork(process.argv[1], process.argv);
+  console.log(process.argv[1], process.execPath);
+  process.env.__daemon = true;
+  var cp = child.spawn(process.argv[1], process.argv.skip(2).toArray(), { detached: true, stdio: 'ignore', env: process.env, cwd: process.cwd() });
+  cp.unref();
+  console.log('Child PID: ', cp.pid);
   process.exit(0);
 }
 
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
 
-process.title = 'LightSword Client';
+process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Client';
 
 new App(argsOptions);

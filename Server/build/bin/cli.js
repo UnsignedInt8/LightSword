@@ -16,6 +16,7 @@ var program = require('commander');
 var app_1 = require('../app');
 var fs = require('fs');
 var logger = require('winston');
+var path = require('path');
 var child = require('child_process');
 program
     .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
@@ -45,13 +46,15 @@ var argsOptions = {
     password: args.password,
     cipherAlgorithm: args.method
 };
-if (args.fork && !process.argv.contains('isFork')) {
+if (args.fork && !process.env.__daemon) {
     logger.info('Run as daemon');
-    process.argv.push('isFork');
-    child.fork(process.argv[1], process.argv);
+    process.env.__daemon = true;
+    var cp = child.spawn(process.argv[1], process.argv.skip(2).toArray(), { cwd: process.cwd(), stdio: 'ignore', env: process.env, detached: true });
+    cp.unref();
+    logger.info('Child PID: ' + cp.pid);
     process.exit(0);
 }
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
-process.title = 'LightSword Server';
+process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
 new app_1.App(argsOptions);
 //# sourceMappingURL=cli.js.map

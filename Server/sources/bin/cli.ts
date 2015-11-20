@@ -7,6 +7,7 @@ import * as program from 'commander';
 import { App } from '../app';
 import * as fs from 'fs';
 import * as logger from 'winston';
+import * as path from 'path';
 import * as child from 'child_process';
 
 program
@@ -41,16 +42,18 @@ var argsOptions = {
   cipherAlgorithm: args.method
 }
 
-if (args.fork && !process.argv.contains('isFork')) {
+if (args.fork && !process.env.__daemon) {
   logger.info('Run as daemon');
-  process.argv.push('isFork');
-  child.fork(process.argv[1], process.argv);
+  process.env.__daemon = true;
+  var cp = child.spawn(process.argv[1], process.argv.skip(2).toArray(), { cwd: process.cwd(), stdio: 'ignore', env: process.env, detached: true });
+  cp.unref();
+  logger.info('Child PID: ' + cp.pid);
   process.exit(0);
 }
 
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
 
-process.title = 'LightSword Server';
+process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
 
 
 new App(argsOptions);

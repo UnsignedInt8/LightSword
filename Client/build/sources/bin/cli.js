@@ -16,6 +16,7 @@ var program = require('commander');
 var app_1 = require('../app');
 var fs = require('fs');
 var logger = require('winston');
+var path = require('path');
 var child = require('child_process');
 // Same with Shadowsocks https://shadowsocks.com/doc.html
 program
@@ -61,13 +62,17 @@ var argsOptions = {
     timeout: args.timeout,
     plugin: args.plugin
 };
-if (args.fork && !process.argv.contains('isFork')) {
+console.log(JSON.stringify(process.argv));
+if (args.fork && !process.env.__daemon) {
     logger.info('Run as daemon');
-    process.argv.push('isFork');
-    child.fork(process.argv[1], process.argv);
+    console.log(process.argv[1], process.execPath);
+    process.env.__daemon = true;
+    var cp = child.spawn(process.argv[1], process.argv.skip(2).toArray(), { detached: true, stdio: 'ignore', env: process.env, cwd: process.cwd() });
+    cp.unref();
+    console.log('Child PID: ', cp.pid);
     process.exit(0);
 }
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
-process.title = 'LightSword Client';
+process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Client';
 new app_1.App(argsOptions);
 //# sourceMappingURL=cli.js.map
