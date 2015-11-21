@@ -22,11 +22,13 @@ program
     .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
     .option('-k, --password [password]', 'Cipher Password', String)
     .option('-m, --method [algorithm]', 'Cipher Algorithm', String)
+    .option('-i, --plugin [name]', 'Plugin Name', String)
     .option('-c, --config <path>', 'Configuration File Path', String)
+    .option('-u, --users <path>', 'Mutli-users File Path', String)
     .option('-f, --fork', 'Run as Daemon')
     .parse(process.argv);
 var args = program;
-function parseFile(path) {
+function parseOptions(path) {
     if (!path)
         return;
     if (!fs.existsSync(path))
@@ -40,12 +42,27 @@ function parseFile(path) {
         logger.warn(ex.message);
     }
 }
-var fileOptions = parseFile(args.config) || {};
+var fileOptions = parseOptions(args.config) || {};
+function parseUsers(path) {
+    if (!path)
+        return [];
+    if (!fs.existsSync(path))
+        return [];
+    var content = fs.readFileSync(path).toString();
+    return content.split('\n').select(l => {
+        var info = l.split(' ');
+        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], plugin: info[3] };
+    }).toArray();
+}
+var users = parseUsers(args.users);
 var argsOptions = {
     port: args.port,
     password: args.password,
-    cipherAlgorithm: args.method
+    cipherAlgorithm: args.method,
+    plugin: args.plugin
 };
+if (!users.length)
+    users.push(argsOptions);
 if (args.fork && !process.env.__daemon) {
     logger.info('Run as daemon');
     process.env.__daemon = true;
@@ -56,5 +73,6 @@ if (args.fork && !process.env.__daemon) {
 }
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
 process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
-new app_1.App(argsOptions);
+process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));
+users.forEach(u => new app_1.App(u));
 //# sourceMappingURL=cli.js.map

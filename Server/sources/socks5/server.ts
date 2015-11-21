@@ -20,7 +20,7 @@ export class Server {
   constructor(options: { cipherAlgorithm: string, password: string, port: number, plugin: string }) {
     let _this = this;
     ['cipherAlgorithm', 'password', 'port'].forEach(n => _this[n] = options[n]);
-    this.Socks5 = require(`../plugins/${options.plugin}`);
+    this.Socks5 = require(`../plugins/${options.plugin}`);  
   }
   
   start() {

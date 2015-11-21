@@ -7,6 +7,7 @@
 require('kinq').enable();
 require('async-node');
 import * as fs from 'fs';
+import * as logger from 'winston';
 import { Server } from './socks5/server'
 
 export class App {
@@ -21,9 +22,11 @@ export class App {
     options = options || defaultOptions;
     Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
     
-    new Server(options).start();
-    
-    process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));
+    try {
+      new Server(options).start();
+    } catch(ex) {
+      logger.error(ex.message);
+    }    
   }
 }
 
