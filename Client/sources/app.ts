@@ -43,19 +43,13 @@ export class App implements IDispatchReceiver {
     let isLocalProxy = this.isLocalProxy = ['localhost', '127.0.0.1', '', undefined, null].contains(options.serverAddr.toLowerCase());
     if (isLocalProxy) options.plugin = 'local';
     this.pluginPivot = new PluginPivot(options.plugin);
-    
-    let msgMapper = new Map();
-    msgMapper.set(consts.REQUEST_CMD.CONNECT, Socks5Connect);
-    this.msgMapper = msgMapper;
-    
+
     DefaultDispatchQueue.register(consts.REQUEST_CMD.CONNECT, this);
     
     new LocalServer(options).start();
   }
   
   receive(msg: any, args: any) {
-    let compoent = this.msgMapper.get(msg);
-    if (!compoent) return;
     
     let isLocalProxy = this.isLocalProxy;
     let plugin = this.pluginPivot;
@@ -72,7 +66,7 @@ export class App implements IDispatchReceiver {
       args.serverPort = args.dstPort;
     }
     
-    new compoent(plugin, args);
+    new Socks5Connect(plugin, msg, args);
   }
 }
 

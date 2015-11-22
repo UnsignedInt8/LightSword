@@ -5,6 +5,7 @@
 'use strict'
 
 import * as net from 'net';
+import { REQUEST_CMD } from '../socks5/consts';
 
 export interface IBasicOptions {
   cipherAlgorithm: string;
@@ -31,33 +32,32 @@ export interface ISocks5 {
   // Step 2: Send SOCKS5 Command to Server.
   sendCommand: (options: ICommandOptions, callback: (result: boolean, reason?: string) => void) => void;
   
+  // Step 3: Fill socks5 reply structure.
+  fillReply?: (reply: Buffer) => Buffer;
+  
   // Step 3: Transport data.
   transport?: (options: IStreamTransportOptions) => void;
 }
 
 export interface ISocks5Plugin {
-  getConnect: () => ISocks5;
-  getBind: () => ISocks5;
-  getUdpAssociate: () => ISocks5;
+  getSocks5: (cmd: REQUEST_CMD) => ISocks5;
 }
 
 export class PluginPivot implements ISocks5Plugin {
   components = new Map<string, any>();
+  cmdMap = new Map<REQUEST_CMD, string>();
   
   constructor(plugin: string) {
     let _this = this;
+    this.cmdMap.set(REQUEST_CMD.BIND, 'bind');
+    this.cmdMap.set(REQUEST_CMD.CONNECT, 'connect');
+    this.cmdMap.set(REQUEST_CMD.UDP_ASSOCIATE, 'udpAssociate');
+    
     ['connect' /* , 'bind', 'udpAssociate' */].forEach(c => _this.components.set(c, require(`./${plugin}.${c}`)));
   }
   
-  getConnect(): ISocks5 {
-    return new (this.components.get('connect'))();
+  getSocks5(cmd: REQUEST_CMD): ISocks5 {
+    return new (this.components.get(this.cmdMap.get(cmd)))();
   }
   
-  getBind(): ISocks5 {
-    return null;
-  }
-  
-  getUdpAssociate(): ISocks5 {
-    return null;
-  }
 }

@@ -45,16 +45,10 @@ class App {
         if (isLocalProxy)
             options.plugin = 'local';
         this.pluginPivot = new main_1.PluginPivot(options.plugin);
-        let msgMapper = new Map();
-        msgMapper.set(consts.REQUEST_CMD.CONNECT, connect_1.Socks5Connect);
-        this.msgMapper = msgMapper;
         dispatchQueue_1.defaultQueue.register(consts.REQUEST_CMD.CONNECT, this);
         new localServer_1.LocalServer(options).start();
     }
     receive(msg, args) {
-        let compoent = this.msgMapper.get(msg);
-        if (!compoent)
-            return;
         let isLocalProxy = this.isLocalProxy;
         let plugin = this.pluginPivot;
         // If dstAddr is local area address, bypass it.
@@ -68,7 +62,7 @@ class App {
             args.serverAddr = args.dstAddr;
             args.serverPort = args.dstPort;
         }
-        new compoent(plugin, args);
+        new connect_1.Socks5Connect(plugin, msg, args);
     }
 }
 exports.App = App;

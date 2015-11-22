@@ -5,7 +5,7 @@
 'use strict'
 
 import * as net from 'net';
-import * as consts from './consts';
+import { ATYP, AUTHENTICATION, REPLY_CODE, REQUEST_CMD } from './consts';
 import * as socks5Util from './util';
 import * as logger from 'winston';
 import { RequestOptions } from './localServer';
@@ -22,9 +22,11 @@ export class Socks5Connect {
   timeout: number;
   
   socks5Plugin: ISocks5Plugin;
+  cmdType: REQUEST_CMD;
   
-  constructor(plugin: ISocks5Plugin, args: RequestOptions) {
+  constructor(plugin: ISocks5Plugin, cmdType: REQUEST_CMD, args: RequestOptions) {
     this.socks5Plugin = plugin;
+    this.cmdType = cmdType;
     
     let _this = this;
     Object.getOwnPropertyNames(args).forEach(n => _this[n] = args[n]);
@@ -55,7 +57,7 @@ export class Socks5Connect {
       logger.info(`connect: ${_this.dstAddr}`);
       
       let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
-      let connect = _this.socks5Plugin.getConnect();
+      let connect = _this.socks5Plugin.getSocks5(this.cmdType);
       
       
       async function negotiateAsync(): Promise<boolean> {
@@ -92,19 +94,22 @@ export class Socks5Connect {
       let success = await negotiateAsync();
       
       if (!success) {
-        reply[1] = consts.REPLY_CODE.CONNECTION_REFUSED;
+        reply[1] = REPLY_CODE.CONNECTION_REFUSED;
         await _this.clientSocket.writeAsync(reply);
         return disposeSockets(null, 'proxy');
       }
       
       // Step 2: Send command to Server
       success = await sendCommandAsync();
+      reply[1] = success ? REPLY_CODE.SUCCESS : REPLY_CODE.CONNECTION_REFUSED;
       
-      reply[1] = success ? consts.REPLY_CODE.SUCCESS : consts.REPLY_CODE.CONNECTION_REFUSED;
+      // Step 3: Fill reply structure.
+      if (connect.fillReply) reply = connect.fillReply(reply);
+      
       await _this.clientSocket.writeAsync(reply);
       if (!success) return disposeSockets(null, 'proxy');
       
-      // Step 3: Transport data.
+      // Step 4: Transport data.
       let transportOps: IStreamTransportOptions = {
         cipherAlgorithm: _this.cipherAlgorithm,
         password: _this.password,

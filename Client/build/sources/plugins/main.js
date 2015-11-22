@@ -15,20 +15,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var consts_1 = require('../socks5/consts');
 class PluginPivot {
     constructor(plugin) {
         this.components = new Map();
+        this.cmdMap = new Map();
         let _this = this;
+        this.cmdMap.set(consts_1.REQUEST_CMD.BIND, 'bind');
+        this.cmdMap.set(consts_1.REQUEST_CMD.CONNECT, 'connect');
+        this.cmdMap.set(consts_1.REQUEST_CMD.UDP_ASSOCIATE, 'udpAssociate');
         ['connect' /* , 'bind', 'udpAssociate' */].forEach(c => _this.components.set(c, require(`./${plugin}.${c}`)));
     }
-    getConnect() {
-        return new (this.components.get('connect'))();
-    }
-    getBind() {
-        return null;
-    }
-    getUdpAssociate() {
-        return null;
+    getSocks5(cmd) {
+        return new (this.components.get(this.cmdMap.get(cmd)))();
     }
 }
 exports.PluginPivot = PluginPivot;

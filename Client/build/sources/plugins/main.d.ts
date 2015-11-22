@@ -1,4 +1,5 @@
 import * as net from 'net';
+import { REQUEST_CMD } from '../socks5/consts';
 export interface IBasicOptions {
     cipherAlgorithm: string;
     password: string;
@@ -16,17 +17,15 @@ export interface IStreamTransportOptions extends INegotiationOptions {
 export interface ISocks5 {
     negotiate: (options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) => void;
     sendCommand: (options: ICommandOptions, callback: (result: boolean, reason?: string) => void) => void;
+    fillReply?: (reply: Buffer) => Buffer;
     transport?: (options: IStreamTransportOptions) => void;
 }
 export interface ISocks5Plugin {
-    getConnect: () => ISocks5;
-    getBind: () => ISocks5;
-    getUdpAssociate: () => ISocks5;
+    getSocks5: (cmd: REQUEST_CMD) => ISocks5;
 }
 export declare class PluginPivot implements ISocks5Plugin {
     components: Map<string, any>;
+    cmdMap: Map<REQUEST_CMD, string>;
     constructor(plugin: string);
-    getConnect(): ISocks5;
-    getBind(): ISocks5;
-    getUdpAssociate(): ISocks5;
+    getSocks5(cmd: REQUEST_CMD): ISocks5;
 }
