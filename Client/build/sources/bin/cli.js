@@ -29,7 +29,7 @@ program
     .option('-a, --any', 'Listen Any Connection')
     .option('-t, --timeout [number]', 'Timeout (second)')
     .option('-f, --fork', 'Run as Daemon')
-    .option('-b, --bypasslocal', 'Bypass Local Address')
+    .option('-b, --dontbypasslocal', "DON'T Bypass Local Address")
     .option('-u, --socsk5username [name]', 'Socks5 Proxy Username', String)
     .option('-w, --socks5password [password]', 'Socks5 Proxy Password', String)
     .option('-i, --plugin [name]', 'Plugin Name', String)
@@ -61,7 +61,7 @@ var argsOptions = {
     socks5Password: args.socks5password,
     timeout: args.timeout,
     plugin: args.plugin,
-    bypassLocal: args.bypasslocal
+    bypassLocal: args.dontbypasslocal ? false : true
 };
 if (args.fork && !process.env.__daemon) {
     logger.info('Run as daemon');
@@ -71,7 +71,7 @@ if (args.fork && !process.env.__daemon) {
     console.log('Child PID: ', cp.pid);
     process.exit(0);
 }
-Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
+Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);
 new app_1.App(argsOptions);
 process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Client';
 //# sourceMappingURL=cli.js.map

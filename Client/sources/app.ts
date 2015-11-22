@@ -38,7 +38,7 @@ export class App implements IDispatchReceiver {
     
     options = options || defaultOptions;
     Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
-    this.bypassLocal = options.bypassLocal || true;
+    this.bypassLocal = options.bypassLocal === undefined ? true : options.bypassLocal;
     
     let isLocalProxy = this.isLocalProxy = ['localhost', '127.0.0.1', '', undefined, null].contains(options.serverAddr.toLowerCase());
     if (isLocalProxy) options.plugin = 'local';

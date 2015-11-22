@@ -56,7 +56,7 @@ var argsOptions = {
   socks5Password: args.socks5password,
   timeout: args.timeout,
   plugin: args.plugin,
-  bypassLocal: !args.dontbypasslocal
+  bypassLocal: args.dontbypasslocal ? false : true
 }
 
 if (args.fork && !process.env.__daemon) {
@@ -68,7 +68,7 @@ if (args.fork && !process.env.__daemon) {
   process.exit(0);
 }
 
-Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
+Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);
 new App(argsOptions);
 
 process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Client';
