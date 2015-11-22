@@ -1,7 +1,7 @@
 import * as net from 'net';
 import { REQUEST_CMD } from './consts';
 import { RequestOptions } from './localServer';
-import { ISocks5Plugin } from '../plugins/main';
+import { ISocks5Plugin } from './plugin';
 export declare class Socks5Connect {
     cipherAlgorithm: string;
     password: string;

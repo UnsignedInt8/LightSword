@@ -1,6 +1,6 @@
 import { IDispatchReceiver } from './lib/dispatchQueue';
 import * as consts from './socks5/consts';
-import { PluginPivot } from './plugins/main';
+import { PluginPivot } from './socks5/plugin';
 export declare class App implements IDispatchReceiver {
     pluginPivot: PluginPivot;
     localPlugin: PluginPivot;

@@ -22,7 +22,7 @@ var connect_1 = require('./socks5/connect');
 var dispatchQueue_1 = require('./lib/dispatchQueue');
 var consts = require('./socks5/consts');
 var ipHelper_1 = require('./lib/ipHelper');
-var main_1 = require('./plugins/main');
+var plugin_1 = require('./socks5/plugin');
 class App {
     constructor(options) {
         this.localPlugin = null;
@@ -44,7 +44,7 @@ class App {
         let isLocalProxy = this.isLocalProxy = ['localhost', '127.0.0.1', '', undefined, null].contains(options.serverAddr.toLowerCase());
         if (isLocalProxy)
             options.plugin = 'local';
-        this.pluginPivot = new main_1.PluginPivot(options.plugin);
+        this.pluginPivot = new plugin_1.PluginPivot(options.plugin);
         dispatchQueue_1.defaultQueue.register(consts.REQUEST_CMD.CONNECT, this);
         new localServer_1.LocalServer(options).start();
     }
@@ -54,7 +54,7 @@ class App {
         // If dstAddr is local area address, bypass it.
         if (ipHelper_1.IpHelper.isLocalAddress(args.dstAddr) && this.bypassLocal && !this.isLocalProxy) {
             if (!this.localPlugin)
-                this.localPlugin = new main_1.PluginPivot('local');
+                this.localPlugin = new plugin_1.PluginPivot('local');
             plugin = this.localPlugin;
             isLocalProxy = true;
         }

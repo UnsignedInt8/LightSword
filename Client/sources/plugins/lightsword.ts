@@ -6,7 +6,7 @@
 
 import * as crypto from 'crypto';
 import * as logger from 'winston';
-import { INegotiationOptions } from './main';
+import { INegotiationOptions } from '../socks5/plugin';
 
 /**
  * LightSword Negotiation Algorithm

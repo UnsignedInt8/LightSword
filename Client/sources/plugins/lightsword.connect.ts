@@ -5,7 +5,7 @@
 'use strict'
 
 import * as crypto from 'crypto';
-import { ISocks5, INegotiationOptions, IStreamTransportOptions, ICommandOptions } from './main';
+import { ISocks5, INegotiationOptions, IStreamTransportOptions, ICommandOptions } from '../socks5/plugin';
 import { negotiateAsync } from './lightsword';
 
 class LightSwordConnect implements ISocks5 {

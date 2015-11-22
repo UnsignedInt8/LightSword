@@ -9,7 +9,7 @@ import { ATYP, AUTHENTICATION, REPLY_CODE, REQUEST_CMD } from './consts';
 import * as socks5Util from './util';
 import * as logger from 'winston';
 import { RequestOptions } from './localServer';
-import { ISocks5Plugin, INegotiationOptions, ICommandOptions, IStreamTransportOptions } from '../plugins/main';
+import { ISocks5Plugin, INegotiationOptions, ICommandOptions, IStreamTransportOptions } from './plugin';
 
 export class Socks5Connect {
   cipherAlgorithm: string;

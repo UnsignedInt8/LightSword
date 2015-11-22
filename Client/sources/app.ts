@@ -13,7 +13,7 @@ import { IDispatchReceiver, defaultQueue as DefaultDispatchQueue } from './lib/d
 import * as consts from './socks5/consts';
 import * as logger from 'winston';
 import { IpHelper } from './lib/ipHelper';
-import { PluginPivot } from './plugins/main';
+import { PluginPivot } from './socks5/plugin';
 
 export class App implements IDispatchReceiver {
   pluginPivot: PluginPivot;

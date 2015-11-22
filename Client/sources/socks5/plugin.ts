@@ -5,7 +5,7 @@
 'use strict'
 
 import * as net from 'net';
-import { REQUEST_CMD } from '../socks5/consts';
+import { REQUEST_CMD } from './consts';
 
 export interface IBasicOptions {
   cipherAlgorithm: string;
@@ -53,7 +53,7 @@ export class PluginPivot implements ISocks5Plugin {
     this.cmdMap.set(REQUEST_CMD.CONNECT, 'connect');
     this.cmdMap.set(REQUEST_CMD.UDP_ASSOCIATE, 'udpAssociate');
     
-    ['connect' /* , 'bind', 'udpAssociate' */].forEach(c => _this.components.set(c, require(`./${plugin}.${c}`)));
+    ['connect' /* , 'bind', 'udpAssociate' */].forEach(c => _this.components.set(c, require(`../plugins/${plugin}.${c}`)));
   }
   
   getSocks5(cmd: REQUEST_CMD): ISocks5 {

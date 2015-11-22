@@ -15,4 +15,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-//# sourceMappingURL=interfaces.js.map
+var consts_1 = require('./consts');
+class PluginPivot {
+    constructor(plugin) {
+        this.components = new Map();
+        this.cmdMap = new Map();
+        let _this = this;
+        this.cmdMap.set(consts_1.REQUEST_CMD.BIND, 'bind');
+        this.cmdMap.set(consts_1.REQUEST_CMD.CONNECT, 'connect');
+        this.cmdMap.set(consts_1.REQUEST_CMD.UDP_ASSOCIATE, 'udpAssociate');
+        ['connect' /* , 'bind', 'udpAssociate' */].forEach(c => _this.components.set(c, require(`../plugins/${plugin}.${c}`)));
+    }
+    getSocks5(cmd) {
+        return new (this.components.get(this.cmdMap.get(cmd)))();
+    }
+}
+exports.PluginPivot = PluginPivot;
+//# sourceMappingURL=plugin.js.map

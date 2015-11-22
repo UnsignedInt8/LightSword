@@ -1,5 +1,5 @@
 import * as net from 'net';
-import { REQUEST_CMD } from '../socks5/consts';
+import { REQUEST_CMD } from './consts';
 export interface IBasicOptions {
     cipherAlgorithm: string;
     password: string;

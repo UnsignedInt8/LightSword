@@ -4,7 +4,7 @@
 
 'use strict'
 
-import { ISocks5, INegotiationOptions, IStreamTransportOptions, ICommandOptions } from './main';
+import { ISocks5, INegotiationOptions, IStreamTransportOptions, ICommandOptions } from '../socks5/plugin';
 
 class LocalConnect implements ISocks5 {
   

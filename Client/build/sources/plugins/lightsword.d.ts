@@ -1,4 +1,4 @@
-import { INegotiationOptions } from './main';
+import { INegotiationOptions } from '../socks5/plugin';
 /**
  * LightSword Negotiation Algorithm
  */
