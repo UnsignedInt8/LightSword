@@ -32,7 +32,6 @@ class Socks5Connect {
         function disposeSockets(error, from) {
             if (!_this || !_this || !proxySocket)
                 return;
-            logger.info(from + ': ' + (error ? error.message : 'close'));
             _this.clientSocket.removeAllListeners();
             _this.clientSocket.end();
             _this.clientSocket.destroy();

@@ -37,7 +37,7 @@ export class LocalServer {
   
   public constructor(options) {
     let _this = this;
-    Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
+    if (options) Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
   }
   
   public start(): boolean {

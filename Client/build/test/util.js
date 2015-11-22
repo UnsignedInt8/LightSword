@@ -14,6 +14,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var assert = require('assert');
 var util = require('../sources/socks5/util');
+var ipHelper_1 = require('../sources/lib/ipHelper');
 describe('test util', () => {
     it('lookup host ip', (done) => __awaiter(this, void 0, Promise, function* () {
         let ip = yield util.lookupHostIPAsync();
@@ -27,5 +28,14 @@ describe('test util', () => {
         assert(buf[0] === 0x05);
         done();
     }));
+    it('should be local ip', () => {
+        assert(ipHelper_1.IpHelper.isLocalAddress('127.0.0.1'));
+        assert(ipHelper_1.IpHelper.isLocalAddress('localhosT'));
+        assert(ipHelper_1.IpHelper.isLocalAddress('192.168.0.1'));
+        assert(ipHelper_1.IpHelper.isLocalAddress('10.0.1.0'));
+        assert(ipHelper_1.IpHelper.isLocalAddress('::1'));
+        assert(ipHelper_1.IpHelper.isLocalAddress('172.168.0.1') === false);
+        assert(ipHelper_1.IpHelper.isLocalAddress('172.16.2.23'));
+    });
 });
 //# sourceMappingURL=util.js.map

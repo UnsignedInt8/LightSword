@@ -21,9 +21,11 @@ var localServer_1 = require('./socks5/localServer');
 var connect_1 = require('./socks5/connect');
 var dispatchQueue_1 = require('./lib/dispatchQueue');
 var consts = require('./socks5/consts');
+var ipHelper_1 = require('./lib/ipHelper');
 var main_1 = require('./plugins/main');
 class App {
     constructor(options) {
+        this.localPlugin = null;
         let defaultOptions = {
             addr: 'localhost',
             port: 1080,
@@ -38,7 +40,8 @@ class App {
         };
         options = options || defaultOptions;
         Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
-        let isLocalProxy = this.isLocalProxy = ['localhost', '', undefined, null].contains(options.serverAddr.toLowerCase());
+        this.bypassLocal = options.bypassLocal || true;
+        let isLocalProxy = this.isLocalProxy = ['localhost', '127.0.0.1', '', undefined, null].contains(options.serverAddr.toLowerCase());
         if (isLocalProxy)
             options.plugin = 'local';
         this.pluginPivot = new main_1.PluginPivot(options.plugin);
@@ -52,11 +55,20 @@ class App {
         let compoent = this.msgMapper.get(msg);
         if (!compoent)
             return;
-        if (this.isLocalProxy) {
+        let isLocalProxy = this.isLocalProxy;
+        let plugin = this.pluginPivot;
+        // If dstAddr is local area address, bypass it.
+        if (ipHelper_1.IpHelper.isLocalAddress(args.dstAddr) && this.bypassLocal && !this.isLocalProxy) {
+            if (!this.localPlugin)
+                this.localPlugin = new main_1.PluginPivot('local');
+            plugin = this.localPlugin;
+            isLocalProxy = true;
+        }
+        if (isLocalProxy) {
             args.serverAddr = args.dstAddr;
             args.serverPort = args.dstPort;
         }
-        new compoent(this.pluginPivot, args, this.isLocalProxy);
+        new compoent(plugin, args);
     }
 }
 exports.App = App;

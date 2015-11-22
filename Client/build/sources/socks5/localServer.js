@@ -23,7 +23,8 @@ var dispatchQueue_1 = require('../lib/dispatchQueue');
 class LocalServer {
     constructor(options) {
         let _this = this;
-        Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
+        if (options)
+            Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
     }
     start() {
         let _this = this;

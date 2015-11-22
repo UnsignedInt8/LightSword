@@ -10,7 +10,6 @@ import * as logger from 'winston';
 import * as path from 'path';
 import * as child from 'child_process';
 
-// Same with Shadowsocks https://shadowsocks.com/doc.html
 program
   .usage('[options]')
   .option('-s, --server <addr|domain>', 'Server Address', String)
@@ -22,6 +21,7 @@ program
   .option('-a, --any', 'Listen Any Connection')
   .option('-t, --timeout [number]', 'Timeout (second)')
   .option('-f, --fork', 'Run as Daemon')
+  .option('-b, --bypasslocal', 'Bypass Local Address')
   .option('-u, --socsk5username [name]', 'Socks5 Proxy Username', String)
   .option('-w, --socks5password [password]', 'Socks5 Proxy Password', String)
   .option('-i, --plugin [name]', 'Plugin Name', String)
@@ -55,7 +55,8 @@ var argsOptions = {
   socks5Username: args.socks5username,
   socks5Password: args.socks5password,
   timeout: args.timeout,
-  plugin: args.plugin
+  plugin: args.plugin,
+  bypassLocal: args.bypasslocal
 }
 
 if (args.fork && !process.env.__daemon) {
@@ -68,7 +69,6 @@ if (args.fork && !process.env.__daemon) {
 }
 
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
+new App(argsOptions);
 
 process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Client';
-
-new App(argsOptions);

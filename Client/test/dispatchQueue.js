@@ -4,7 +4,7 @@
 
 'use strict'
 
-const DispatchQueue = require('../build/lib/dispatchQueue.js').DispatchQueue;
+const DispatchQueue = require('../build/sources/lib/dispatchQueue').DispatchQueue;
 const assert = require('assert');
 const kinq = require('kinq');
 kinq.enable();
