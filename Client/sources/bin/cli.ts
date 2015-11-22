@@ -21,7 +21,7 @@ program
   .option('-a, --any', 'Listen Any Connection')
   .option('-t, --timeout [number]', 'Timeout (second)')
   .option('-f, --fork', 'Run as Daemon')
-  .option('-b, --bypasslocal', 'Bypass Local Address')
+  .option('-b, --dontbypasslocal', "DON'T Bypass Local Address")
   .option('-u, --socsk5username [name]', 'Socks5 Proxy Username', String)
   .option('-w, --socks5password [password]', 'Socks5 Proxy Password', String)
   .option('-i, --plugin [name]', 'Plugin Name', String)
@@ -56,7 +56,7 @@ var argsOptions = {
   socks5Password: args.socks5password,
   timeout: args.timeout,
   plugin: args.plugin,
-  bypassLocal: args.bypasslocal
+  bypassLocal: !args.dontbypasslocal
 }
 
 if (args.fork && !process.env.__daemon) {
