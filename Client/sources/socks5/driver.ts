@@ -5,10 +5,10 @@
 'use strict'
 
 import * as net from 'net';
-import { ATYP, AUTHENTICATION, REPLY_CODE, REQUEST_CMD } from './consts';
-import * as socks5Util from './util';
 import * as logger from 'winston';
+import * as socks5Util from './util';
 import { RequestOptions } from './localServer';
+import { ATYP, AUTHENTICATION, REPLY_CODE, REQUEST_CMD } from './consts';
 import { ISocks5, ISocks5Options, IStreamTransportOptions } from './plugin';
 
 export class Socks5Driver {
@@ -37,15 +37,12 @@ export class Socks5Driver {
     
     // Handling errors, disposing resources.
     function disposeSocket(error?: Error, from?: string) {
-      _this.clientSocket.removeAllListeners();
-      _this.clientSocket.end();
-      _this.clientSocket.destroy();
-      
+      _this.clientSocket.dispose();
       _this.clientSocket = null;
       _this = null;
     }
     
-    let connect = _this.executor;
+    let executor = _this.executor;
     
     let socks5Opts: ISocks5Options = {
       cipherAlgorithm: _this.cipherAlgorithm,
@@ -58,7 +55,7 @@ export class Socks5Driver {
     
     async function negotiateAsync(): Promise<boolean> {
       return new Promise<boolean>(resolve => {
-        connect.negotiate(socks5Opts, (success, reason) => {
+        executor.negotiate(socks5Opts, (success, reason) => {
           if (!success) logger.warn(reason);
           resolve(success);
         });
@@ -67,7 +64,7 @@ export class Socks5Driver {
     
     async function sendCommandAsync(): Promise<boolean> {
       return new Promise<boolean>(resolve => {
-        connect.sendCommand(socks5Opts, (success, reason) => {
+        executor.sendCommand(socks5Opts, (success, reason) => {
           if (!success) logger.warn(reason);
           resolve(success);
         });
@@ -90,7 +87,7 @@ export class Socks5Driver {
     reply[1] = success ? REPLY_CODE.SUCCESS : REPLY_CODE.CONNECTION_REFUSED;
     
     // Step 3: Fill reply structure, reply client socket.
-    if (connect.fillReply) reply = connect.fillReply(reply);
+    if (executor.fillReply) reply = executor.fillReply(reply);
     
     await _this.clientSocket.writeAsync(reply);
     if (!success) return disposeSocket(null, 'proxy');
@@ -106,7 +103,7 @@ export class Socks5Driver {
       clientSocket: _this.clientSocket,
     };
     
-    connect.transport(transportOps);
+    executor.transport(transportOps);
   }
   
 }

@@ -15,9 +15,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-var consts_1 = require('./consts');
-var socks5Util = require('./util');
 var logger = require('winston');
+var socks5Util = require('./util');
+var consts_1 = require('./consts');
 class Socks5Driver {
     constructor(executor, args) {
         this.executor = executor;
@@ -30,13 +30,11 @@ class Socks5Driver {
             let _this = this;
             // Handling errors, disposing resources.
             function disposeSocket(error, from) {
-                _this.clientSocket.removeAllListeners();
-                _this.clientSocket.end();
-                _this.clientSocket.destroy();
+                _this.clientSocket.dispose();
                 _this.clientSocket = null;
                 _this = null;
             }
-            let connect = _this.executor;
+            let executor = _this.executor;
             let socks5Opts = {
                 cipherAlgorithm: _this.cipherAlgorithm,
                 password: _this.password,
@@ -48,7 +46,7 @@ class Socks5Driver {
             function negotiateAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
                     return new Promise(resolve => {
-                        connect.negotiate(socks5Opts, (success, reason) => {
+                        executor.negotiate(socks5Opts, (success, reason) => {
                             if (!success)
                                 logger.warn(reason);
                             resolve(success);
@@ -59,7 +57,7 @@ class Socks5Driver {
             function sendCommandAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
                     return new Promise(resolve => {
-                        connect.sendCommand(socks5Opts, (success, reason) => {
+                        executor.sendCommand(socks5Opts, (success, reason) => {
                             if (!success)
                                 logger.warn(reason);
                             resolve(success);
@@ -79,8 +77,8 @@ class Socks5Driver {
             success = yield sendCommandAsync();
             reply[1] = success ? consts_1.REPLY_CODE.SUCCESS : consts_1.REPLY_CODE.CONNECTION_REFUSED;
             // Step 3: Fill reply structure, reply client socket.
-            if (connect.fillReply)
-                reply = connect.fillReply(reply);
+            if (executor.fillReply)
+                reply = executor.fillReply(reply);
             yield _this.clientSocket.writeAsync(reply);
             if (!success)
                 return disposeSocket(null, 'proxy');
@@ -94,7 +92,7 @@ class Socks5Driver {
                 serverPort: _this.serverPort,
                 clientSocket: _this.clientSocket,
             };
-            connect.transport(transportOps);
+            executor.transport(transportOps);
         });
     }
 }
