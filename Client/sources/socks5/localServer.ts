@@ -46,7 +46,7 @@ export class LocalServer {
     let server = net.createServer(async (socket) => {
       let data = await socket.readAsync();
       if (!data) return socket.destroy();
-      
+
       // Step1: Negotitate with client.
       let res = <number[]>[consts.SOCKS_VER.V5];
       res.push(_this.handleHandshake(data));

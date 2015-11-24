@@ -91,7 +91,7 @@ export class Socks5Driver {
     
     await _this.clientSocket.writeAsync(reply);
     if (!success) return disposeSocket(null, 'proxy');
-  
+
     // Step 4: Transport data.
     let transportOps: ISocks5TransportOptions = {
       cipherAlgorithm: _this.cipherAlgorithm,

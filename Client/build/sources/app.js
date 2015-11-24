@@ -47,6 +47,7 @@ class App {
             options.plugin = 'local';
         this.pluginPivot = new plugin_1.PluginPivot(options.plugin);
         dispatchQueue_1.defaultQueue.register(consts.REQUEST_CMD.CONNECT, this);
+        dispatchQueue_1.defaultQueue.register(consts.REQUEST_CMD.UDP_ASSOCIATE, this);
         new localServer_1.LocalServer(options).start();
     }
     receive(msg, args) {
@@ -70,6 +71,6 @@ class App {
 exports.App = App;
 if (!module.parent) {
     process.title = 'LightSword Client Debug Mode';
-    new App({ serverAddr: '::1', port: 2002, });
+    new App({ serverAddr: 'localhost', port: 2002, });
 }
 //# sourceMappingURL=app.js.map

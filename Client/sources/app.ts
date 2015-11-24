@@ -46,12 +46,13 @@ export class App implements IDispatchReceiver {
     this.pluginPivot = new PluginPivot(options.plugin);
 
     DefaultDispatchQueue.register(consts.REQUEST_CMD.CONNECT, this);
+    DefaultDispatchQueue.register(consts.REQUEST_CMD.UDP_ASSOCIATE, this);
     
     new LocalServer(options).start();
   }
   
   receive(msg: any, args: any) {
-    
+
     let isLocalProxy = this.isLocalProxy;
     let plugin = this.pluginPivot;
     
@@ -74,5 +75,5 @@ export class App implements IDispatchReceiver {
 
 if (!module.parent) {
   process.title = 'LightSword Client Debug Mode';
-  new App({ serverAddr: '::1', port: 2002, });
+  new App({ serverAddr: 'localhost', port: 2002, });
 }

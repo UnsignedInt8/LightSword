@@ -17,16 +17,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var net = require('net');
 var dgram = require('dgram');
+var logger = require('winston');
+var socks5Consts = require('../socks5/consts');
 var socks5Util = require('../socks5/util');
+var ipaddr = require('ipaddr.js');
 class LocalUdpAssociate {
     negotiate(options, callback) {
-        this.udpType = 'udp' + net.isIP(options.dstAddr);
+        this.udpType = 'udp' + (net.isIP(options.dstAddr) || 4);
         process.nextTick(() => callback(true));
     }
     sendCommand(options, callback) {
         let _this = this;
         let socket = dgram.createSocket(_this.udpType);
-        let t = setTimeout(callback(false, 'timeout'), 10 * 1000);
         let errorHandler = (err) => {
             socket.removeAllListeners();
             socket.close();
@@ -35,30 +37,79 @@ class LocalUdpAssociate {
             callback(false, err.message);
         };
         socket.once('error', errorHandler);
-        socket.once('listening', () => {
-            _this.transitUdp = socket;
+        socket.on('listening', () => {
             socket.removeListener('error', errorHandler);
-            clearTimeout(t);
+            _this.transitUdp = socket;
             callback(true);
         });
         socket.bind();
-        this.transitUdp = socket;
     }
     fillReply(reply) {
         let addr = this.transitUdp.address();
         reply.writeUInt16BE(addr.port, reply.length - 2);
+        logger.info(`UDP listening on: ${addr.address}:${addr.port}`);
         return reply;
     }
     transport(options) {
         let _this = this;
         let clientSocket = options.clientSocket;
-        this.transitUdp.on('message', (msg, rinfo) => {
+        let dataSocket = dgram.createSocket(_this.udpType);
+        let udpReplyHeader;
+        let udpReplyAddr;
+        let udpReplyPort;
+        dataSocket.on('message', (msg, rinfo) => {
+            let reply = Buffer.concat([udpReplyHeader, msg]);
+            _this.transitUdp.send(reply, 0, reply.length, udpReplyPort, udpReplyAddr);
+        });
+        dataSocket.on('error', (err) => dispose());
+        _this.transitUdp.on('message', (msg, rinfo) => {
+            console.log('proxy send data: ' + msg.length);
             if (msg[2] !== 0)
                 return;
+            udpReplyAddr = rinfo.address;
+            udpReplyPort = rinfo.port;
+            // ----------------------Build Reply Header----------------------
+            let replyAtyp = 0;
+            let addrBuf = ipaddr.parse(rinfo.address).toByteArray();
+            switch (net.isIP(udpReplyAddr)) {
+                case 0:
+                    replyAtyp = socks5Consts.ATYP.DN;
+                    addrBuf = new Buffer(rinfo.address).toArray();
+                    break;
+                case 4:
+                    replyAtyp = socks5Consts.ATYP.IPV4;
+                    break;
+                case 6:
+                    replyAtyp = socks5Consts.ATYP.IPV6;
+                    break;
+            }
+            let header = [0x0, 0x0, 0x0, replyAtyp];
+            if (replyAtyp === socks5Consts.ATYP.DN)
+                header.push(addrBuf.length);
+            header = header.concat(addrBuf).concat([0x0, 0x0]);
+            udpReplyHeader = new Buffer(header);
+            udpReplyHeader.writeUInt16BE(rinfo.port, udpReplyHeader.length - 2);
+            // -------------------------------End-------------------------------
             let tuple = socks5Util.refineATYP(msg);
-            let dataSocket = dgram.createSocket(_this.udpType);
+            console.log(tuple);
             dataSocket.send(msg, tuple.headerLength, msg.length - tuple.headerLength, tuple.port, tuple.addr);
         });
+        function dispose() {
+            console.log('udp dispose');
+            _this.transitUdp.removeAllListeners();
+            _this.transitUdp.unref();
+            _this.transitUdp.close();
+            _this.transitUdp = null;
+            dataSocket.removeAllListeners();
+            dataSocket.unref();
+            dataSocket.close();
+            dataSocket = null;
+            clientSocket.dispose();
+            clientSocket = null;
+        }
+        clientSocket.on('end', () => dispose());
+        clientSocket.on('error', () => dispose());
+        clientSocket.on('close', () => dispose());
     }
 }
 module.exports = LocalUdpAssociate;

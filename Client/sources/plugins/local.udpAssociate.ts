@@ -6,8 +6,10 @@
 
 import * as net from 'net';
 import * as dgram from 'dgram';
+import * as logger from 'winston';
 import * as socks5Consts from '../socks5/consts';
 import * as socks5Util from '../socks5/util';
+import * as ipaddr from 'ipaddr.js';
 import { ISocks5, ISocks5Options, ISocks5TransportOptions } from '../socks5/plugin';
 
 class LocalUdpAssociate implements ISocks5 {
@@ -15,15 +17,13 @@ class LocalUdpAssociate implements ISocks5 {
   udpType: string;
   
   negotiate(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
-    this.udpType = 'udp' + net.isIP(options.dstAddr);
+    this.udpType = 'udp' + (net.isIP(options.dstAddr) || 4);
     process.nextTick(() => callback(true));
   }
   
   sendCommand(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
     let _this = this;
     let socket = dgram.createSocket(_this.udpType);
-    
-    let t = setTimeout(callback(false, 'timeout'), 10 * 1000);
     
     let errorHandler = (err) => {
       socket.removeAllListeners();
@@ -34,20 +34,20 @@ class LocalUdpAssociate implements ISocks5 {
     };
     
     socket.once('error', errorHandler);
-    socket.once('listening', () => {
-      _this.transitUdp = socket;
+    socket.on('listening', () => {
       socket.removeListener('error', errorHandler);
-      clearTimeout(t);
+      _this.transitUdp = socket;
       callback(true);
     });
     
     socket.bind();
-    this.transitUdp = socket;
   }
   
   fillReply(reply: Buffer) {
     let addr = this.transitUdp.address();
     reply.writeUInt16BE(addr.port, reply.length - 2);
+    
+    logger.info(`UDP listening on: ${addr.address}:${addr.port}`);
     return reply;
   }
   
@@ -67,17 +67,19 @@ class LocalUdpAssociate implements ISocks5 {
     
     dataSocket.on('error', (err) => dispose());
     
-    this.transitUdp.on('message', (msg: Buffer, rinfo: dgram.RemoteInfo) => {
-      if (msg[2] !== 0) return;
+    _this.transitUdp.on('message', (msg: Buffer, rinfo: dgram.RemoteInfo) => {
+      if (msg[2] !== 0) return dispose();
       
       udpReplyAddr = rinfo.address;
       udpReplyPort = rinfo.port;
       
       // ----------------------Build Reply Header----------------------
       let replyAtyp = 0;
+      let addrBuf = ipaddr.parse(rinfo.address).toByteArray();
       switch (net.isIP(udpReplyAddr)) {
         case 0:
           replyAtyp = socks5Consts.ATYP.DN; 
+          addrBuf = new Buffer(rinfo.address).toArray();
           break;
         case 4:
           replyAtyp = socks5Consts.ATYP.IPV4;
@@ -88,9 +90,8 @@ class LocalUdpAssociate implements ISocks5 {
       }
       
       let header = [0x0, 0x0, 0x0, replyAtyp];
-      let addrBuf = new Buffer(rinfo.address);
       if (replyAtyp === socks5Consts.ATYP.DN) header.push(addrBuf.length);
-      header = header.concat(addrBuf.toArray()).concat([0x0, 0x0]);
+      header = header.concat(addrBuf).concat([0x0, 0x0]);
       udpReplyHeader = new Buffer(header);
       udpReplyHeader.writeUInt16BE(rinfo.port, udpReplyHeader.length - 2);
       // -------------------------------End-------------------------------
@@ -101,6 +102,7 @@ class LocalUdpAssociate implements ISocks5 {
     });
     
     function dispose() {
+      console.log('udp dispose');
       _this.transitUdp.removeAllListeners();
       _this.transitUdp.unref();
       _this.transitUdp.close();

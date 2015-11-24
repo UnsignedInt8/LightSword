@@ -110,7 +110,6 @@ class LocalServer {
         let addr = tuple.addr;
         if (port !== tuple.port)
             throw new Error('Port not equals');
-        console.log(tuple);
         return { cmd: cmd, addr: addr, port: port };
     }
 }
