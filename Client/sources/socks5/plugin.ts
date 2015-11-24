@@ -33,6 +33,11 @@ export interface ISocks5 {
   sendCommand: (options: ICommandOptions, callback: (result: boolean, reason?: string) => void) => void;
   
   // Step 3: Fill socks5 reply structure.
+  // +----+-----+-------+------+----------+----------+
+  // |VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
+  // +----+-----+-------+------+----------+----------+
+  // | 1  |  1  | X'00' |  1   | Variable |    2     |
+  // +----+-----+-------+------+----------+----------+
   fillReply?: (reply: Buffer) => Buffer;
   
   // Step 3: Transport data.
@@ -53,7 +58,7 @@ export class PluginPivot implements ISocks5Plugin {
     this.cmdMap.set(REQUEST_CMD.CONNECT, 'connect');
     this.cmdMap.set(REQUEST_CMD.UDP_ASSOCIATE, 'udpAssociate');
     
-    ['connect' /* , 'bind', 'udpAssociate' */].forEach(c => _this.components.set(c, require(`../plugins/${plugin}.${c}`)));
+    ['connect' /* , 'bind' */, 'udpAssociate'].forEach(c => _this.components.set(c, require(`../plugins/${plugin}.${c}`)));
   }
   
   getSocks5(cmd: REQUEST_CMD): ISocks5 {

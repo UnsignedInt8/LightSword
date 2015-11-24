@@ -33,3 +33,5 @@ class LightSwordUdpAssociate implements ISocks5 {
     
   }
 }
+
+module.exports = LightSwordUdpAssociate;

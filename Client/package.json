@@ -1,8 +1,8 @@
 {
   "name": "lightsword-client",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "description": "LightSword Client",
-  "main": "index.js",
+  "main": "./build/sources/app.js",
   "bin": {
     "lslocal": "./build/sources/bin/cli.js",
     "lightsword-client": "./build/sources/bin/cli.js"
