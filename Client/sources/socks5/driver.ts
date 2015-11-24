@@ -11,7 +11,7 @@ import * as logger from 'winston';
 import { RequestOptions } from './localServer';
 import { ISocks5Plugin, INegotiationOptions, ICommandOptions, IStreamTransportOptions } from './plugin';
 
-export class Socks5Connect {
+export class Socks5Driver {
   cipherAlgorithm: string;
   password: string;
   dstAddr: string;

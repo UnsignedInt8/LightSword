@@ -8,7 +8,7 @@ require('kinq').enable();
 require('async-node');
 
 import { LocalServer } from './socks5/localServer';
-import { Socks5Connect } from './socks5/connect';
+import { Socks5Driver } from './socks5/driver';
 import { IDispatchReceiver, defaultQueue as DefaultDispatchQueue } from './lib/dispatchQueue';
 import * as consts from './socks5/consts';
 import * as logger from 'winston';
@@ -66,7 +66,7 @@ export class App implements IDispatchReceiver {
       args.serverPort = args.dstPort;
     }
     
-    new Socks5Connect(plugin, msg, args);
+    new Socks5Driver(plugin, msg, args);
   }
 }
 
