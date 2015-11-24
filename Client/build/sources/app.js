@@ -62,8 +62,8 @@ class App {
             args.serverAddr = args.dstAddr;
             args.serverPort = args.dstPort;
         }
-        let connect = this.pluginPivot.getSocks5(msg);
-        new driver_1.Socks5Driver(plugin, msg, args);
+        let executor = this.pluginPivot.getSocks5(msg);
+        new driver_1.Socks5Driver(executor, args);
     }
 }
 exports.App = App;
