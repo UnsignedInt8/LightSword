@@ -120,9 +120,9 @@ class LocalUdpAssociate implements ISocks5 {
       clientSocket = null;
     }
     
-    clientSocket.on('end', () => dispose());
-    clientSocket.on('error', () => dispose());
-    clientSocket.on('close', () => dispose());
+    clientSocket.on('end', dispose);
+    clientSocket.on('error', dispose);
+    clientSocket.on('close', dispose);
   }
  
 }
