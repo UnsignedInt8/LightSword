@@ -65,7 +65,7 @@ class LocalUdpAssociate implements ISocks5 {
       _this.transitUdp.send(reply, 0, reply.length, udpReplyPort, udpReplyAddr);
     });
     
-    dataSocket.on('error', (err) => dispose());
+    dataSocket.on('error', dispose);
     
     _this.transitUdp.on('message', (msg: Buffer, rinfo: dgram.RemoteInfo) => {
       if (msg[2] !== 0) return dispose();
@@ -75,7 +75,7 @@ class LocalUdpAssociate implements ISocks5 {
       
       // ----------------------Build Reply Header----------------------
       let replyAtyp = 0;
-      let addrBuf = ipaddr.parse(rinfo.address).toByteArray();
+      let addrBuf;
       switch (net.isIP(udpReplyAddr)) {
         case 0:
           replyAtyp = socks5Consts.ATYP.DN; 
@@ -89,6 +89,8 @@ class LocalUdpAssociate implements ISocks5 {
           break;
       }
       
+      if (!addrBuf) addrBuf = ipaddr.parse(rinfo.address).toByteArray();
+      
       let header = [0x0, 0x0, 0x0, replyAtyp];
       if (replyAtyp === socks5Consts.ATYP.DN) header.push(addrBuf.length);
       header = header.concat(addrBuf).concat([0x0, 0x0]);
@@ -101,8 +103,9 @@ class LocalUdpAssociate implements ISocks5 {
       
     });
     
+    _this.transitUdp.on('error', dispose);
+    
     function dispose() {
-      console.log('udp dispose');
       _this.transitUdp.removeAllListeners();
       _this.transitUdp.unref();
       _this.transitUdp.close();

@@ -61,7 +61,7 @@ class LocalUdpAssociate {
             let reply = Buffer.concat([udpReplyHeader, msg]);
             _this.transitUdp.send(reply, 0, reply.length, udpReplyPort, udpReplyAddr);
         });
-        dataSocket.on('error', (err) => dispose());
+        dataSocket.on('error', dispose);
         _this.transitUdp.on('message', (msg, rinfo) => {
             if (msg[2] !== 0)
                 return dispose();
@@ -69,7 +69,7 @@ class LocalUdpAssociate {
             udpReplyPort = rinfo.port;
             // ----------------------Build Reply Header----------------------
             let replyAtyp = 0;
-            let addrBuf = ipaddr.parse(rinfo.address).toByteArray();
+            let addrBuf;
             switch (net.isIP(udpReplyAddr)) {
                 case 0:
                     replyAtyp = socks5Consts.ATYP.DN;
@@ -82,6 +82,8 @@ class LocalUdpAssociate {
                     replyAtyp = socks5Consts.ATYP.IPV6;
                     break;
             }
+            if (!addrBuf)
+                addrBuf = ipaddr.parse(rinfo.address).toByteArray();
             let header = [0x0, 0x0, 0x0, replyAtyp];
             if (replyAtyp === socks5Consts.ATYP.DN)
                 header.push(addrBuf.length);
@@ -92,8 +94,8 @@ class LocalUdpAssociate {
             let tuple = socks5Util.refineATYP(msg);
             dataSocket.send(msg, tuple.headerLength, msg.length - tuple.headerLength, tuple.port, tuple.addr);
         });
+        _this.transitUdp.on('error', dispose);
         function dispose() {
-            console.log('udp dispose');
             _this.transitUdp.removeAllListeners();
             _this.transitUdp.unref();
             _this.transitUdp.close();
