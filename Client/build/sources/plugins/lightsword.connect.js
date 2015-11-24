@@ -34,16 +34,20 @@ class LightSwordConnect {
             let _this = this;
             this.proxySocket = net.createConnection(options.dstPort, options.dstAddr, () => __awaiter(this, void 0, Promise, function* () {
                 logger.info(`connect: ${options.dstAddr}`);
+                _this.proxySocket.removeAllListeners('error');
                 let result = yield lightsword_1.negotiateAsync(_this.proxySocket, options);
                 let success = result.success;
                 let reason = result.reason;
-                _this.proxySocket.removeAllListeners('error');
                 _this.cipherKey = result.cipherKey;
                 _this.vNum = result.vNum;
                 _this = null;
                 callback(success, reason);
             }));
-            this.proxySocket.on('error', (error) => _this.disposeSocket(error, 'connect'));
+            this.proxySocket.on('error', (error) => {
+                _this.disposeSocket(error, 'connect');
+                _this = null;
+                callback(false, error.message);
+            });
             if (!options.timeout)
                 return;
             this.proxySocket.setTimeout(options.timeout * 1000);
@@ -52,11 +56,12 @@ class LightSwordConnect {
     sendCommand(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
             let proxySocket = this.proxySocket;
+            let vNum = this.vNum;
             let connect = {
                 dstAddr: options.dstAddr,
                 dstPort: options.dstPort,
-                vNum: this.vNum,
-                type: 'connect'
+                type: 'connect',
+                vNum: vNum
             };
             let cipher = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
             let connectBuffer = cipher.update(new Buffer(JSON.stringify(connect)));

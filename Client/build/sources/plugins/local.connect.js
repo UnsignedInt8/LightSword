@@ -32,7 +32,11 @@ class LocalConnect {
             _this = null;
             process.nextTick(() => callback(true));
         });
-        this.proxySocket.on('error', (err) => callback(false, err.message));
+        this.proxySocket.on('error', (err) => {
+            _this.disposeSocket(err, 'connect');
+            _this = null;
+            callback(false, err.message);
+        });
     }
     sendCommand(options, callback) {
         process.nextTick(() => callback(true));

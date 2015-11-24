@@ -27,19 +27,23 @@ class LightSwordConnect implements ISocks5 {
     
     this.proxySocket = net.createConnection(options.dstPort, options.dstAddr, async () => {
       logger.info(`connect: ${options.dstAddr}`);
+      _this.proxySocket.removeAllListeners('error');
 
       let result = await negotiateAsync(_this.proxySocket, options);
       let success = result.success;
       let reason = result.reason;
       
-      _this.proxySocket.removeAllListeners('error');
       _this.cipherKey = result.cipherKey;
       _this.vNum = result.vNum;
       _this = null;
       callback(success, reason);
     });
 
-    this.proxySocket.on('error', (error) => _this.disposeSocket(error, 'connect'));
+    this.proxySocket.on('error', (error) => {
+      _this.disposeSocket(error, 'connect');
+      _this = null;
+      callback(false, error.message);
+    });
     
     if (!options.timeout) return;
     this.proxySocket.setTimeout(options.timeout * 1000);
@@ -47,11 +51,12 @@ class LightSwordConnect implements ISocks5 {
   
   async sendCommand(options: ISocks5Options, callback: (success: boolean, reason?: string) => void) {
     let proxySocket = this.proxySocket;
+    let vNum = this.vNum;
     let connect = {
       dstAddr: options.dstAddr,
       dstPort: options.dstPort,
-      vNum: this.vNum,
-      type: 'connect'
+      type: 'connect',
+      vNum
     };
     
     let cipher = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);  

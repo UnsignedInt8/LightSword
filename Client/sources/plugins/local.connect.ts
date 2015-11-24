@@ -29,7 +29,11 @@ class LocalConnect implements ISocks5 {
       process.nextTick(() => callback(true));
     });
     
-    this.proxySocket.on('error', (err) => callback(false, err.message));
+    this.proxySocket.on('error', (err) => {
+      _this.disposeSocket(err, 'connect');
+      _this = null;
+      callback(false, err.message)
+    });
   }
   
   sendCommand(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
