@@ -6,7 +6,7 @@
 
 import * as net from 'net';
 import * as logger from 'winston';
-import { ISocks5, ISocks5Options, IStreamTransportOptions } from '../socks5/plugin';
+import { ISocks5, ISocks5Options, ISocks5TransportOptions } from '../socks5/plugin';
 
 class LocalConnect implements ISocks5 {
   proxySocket: net.Socket;
@@ -33,7 +33,7 @@ class LocalConnect implements ISocks5 {
     process.nextTick(() => callback(true));
   }
   
-  transport(options: IStreamTransportOptions) {
+  transport(options: ISocks5TransportOptions) {
     let _this = this;
     
     let proxySocket = this.proxySocket;

@@ -6,6 +6,7 @@
 
 import * as os from 'os';
 import * as dns from 'dns';
+import * as util from 'util';
 import * as ipaddr from 'ipaddr.js';
 import * as consts from './consts';
 
@@ -47,4 +48,42 @@ export async function buildDefaultSocks5ReplyAsync(): Promise<Buffer> {
   let duplicate = new Buffer(bytes.length);
   socks5Buf.copy(duplicate);
   return duplicate;
+}
+
+export function refineATYP(rawData: Buffer): { addr: string, port: number, addrByteLength: number, headerLength: number } {
+  
+  let addr = '';
+  let atyp = rawData[3];
+  let addrByteLength = 0;
+  
+  switch(atyp) {
+    case consts.ATYP.DN:
+      let dnLength = rawData[4];
+      addrByteLength = dnLength;
+      addr = rawData.toString('utf8', 5, 5 + dnLength);
+      break;
+      
+    case consts.ATYP.IPV4:
+      addrByteLength = 4;
+      addr = rawData.skip(4).take(4).aggregate((c: string, n) => c.length > 1 ? c + util.format('.%d', n) : util.format('%d.%d', c, n));
+      break;
+      
+    case consts.ATYP.IPV6: 
+      addrByteLength = 16;
+      let bytes = rawData.skip(4).take(16).toArray();
+      for (let i = 0; i < 8; i++) {
+        addr += (new Buffer(bytes.skip(i * 2).take(2).toArray()).toString('hex') + (i < 7 ? ':' : ''));
+      }
+      break;
+      
+    default:
+      console.log('break default null');
+      return null;
+  }
+  
+  let portOffest = atyp === consts.ATYP.DN ? addrByteLength + 1 : addrByteLength;
+  let port = rawData.readUInt16BE(4 + portOffest);
+  let headerLength = 4 + portOffest + 2;
+  
+  return { addr, port, addrByteLength, headerLength };
 }

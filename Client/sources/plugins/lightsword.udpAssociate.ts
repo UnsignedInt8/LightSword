@@ -7,7 +7,7 @@
 import * as net from 'net';
 import * as dgram from 'dgram';
 import * as crypto from 'crypto';
-import { ISocks5, ISocks5Options, IStreamTransportOptions } from '../socks5/plugin';
+import { ISocks5, ISocks5Options, ISocks5TransportOptions } from '../socks5/plugin';
 import { negotiateAsync } from './lightsword';
 
 class LightSwordUdpAssociate implements ISocks5 {
@@ -41,7 +41,7 @@ class LightSwordUdpAssociate implements ISocks5 {
     
   }
   
-  async transport(options: IStreamTransportOptions) {
+  async transport(options: ISocks5TransportOptions) {
     
   }
 }

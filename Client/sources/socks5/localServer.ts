@@ -8,6 +8,7 @@ import * as net from 'net';
 import * as util from 'util';
 import * as logger from 'winston';
 import * as consts from './consts';
+import * as socks5Util from './util';
 import { defaultQueue } from '../lib/dispatchQueue';
 
 export type RequestOptions = {
@@ -128,31 +129,11 @@ export class LocalServer {
     if (!data || data[0] !== consts.SOCKS_VER.V5) return null;
     
     let cmd = data[1];
-    let atyp = data[3];
-    let addr = '';
     let port = data.readUInt16BE(data.length - 2);
     
-    switch(atyp) {
-      case consts.ATYP.DN:
-        let dnLength = data[4];
-        addr = data.toString('utf8', 5, 5 + dnLength);
-        break;
-        
-      case consts.ATYP.IPV4:
-        addr = data.skip(4).take(4).aggregate((c: string, n) => c.length > 1 ? c + util.format('.%d', n) : util.format('%d.%d', c, n));
-        break;
-        
-      case consts.ATYP.IPV6: 
-        let bytes = data.skip(4).take(16).toArray();
-        for (let i = 0; i < 8; i++) {
-          addr += (new Buffer(bytes.skip(i * 2).take(2).toArray()).toString('hex') + (i < 7 ? ':' : ''));
-        }
-        break;
-        
-      default:
-      console.log('break default null');
-        return null;
-    }
+    let tuple = socks5Util.refineATYP(data);
+    let addr = tuple.addr;
+    if (port !== tuple.port) throw new Error('Port not equals');
     
     return { cmd, addr, port };
   }

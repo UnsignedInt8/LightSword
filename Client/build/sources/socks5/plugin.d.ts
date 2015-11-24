@@ -9,14 +9,14 @@ export interface ISocks5Options {
     serverPort: number;
     timeout?: number;
 }
-export interface IStreamTransportOptions extends ISocks5Options {
+export interface ISocks5TransportOptions extends ISocks5Options {
     clientSocket: net.Socket;
 }
 export interface ISocks5 {
     negotiate: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
     sendCommand: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
     fillReply?: (reply: Buffer) => Buffer;
-    transport?: (options: IStreamTransportOptions) => void;
+    transport?: (options: ISocks5TransportOptions) => void;
 }
 export interface ISocks5Plugin {
     getSocks5: (cmd: REQUEST_CMD) => ISocks5;

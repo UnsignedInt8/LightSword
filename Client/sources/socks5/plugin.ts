@@ -17,7 +17,7 @@ export interface ISocks5Options {
   timeout?: number;
 }
 
-export interface IStreamTransportOptions extends ISocks5Options {
+export interface ISocks5TransportOptions extends ISocks5Options {
   clientSocket: net.Socket;
 }
 
@@ -37,7 +37,7 @@ export interface ISocks5 {
   fillReply?: (reply: Buffer) => Buffer;
   
   // Step 3: Transport data.
-  transport?: (options: IStreamTransportOptions) => void;
+  transport?: (options: ISocks5TransportOptions) => void;
 }
 
 export interface ISocks5Plugin {

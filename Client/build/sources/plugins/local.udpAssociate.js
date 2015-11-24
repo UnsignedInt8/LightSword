@@ -17,13 +17,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var net = require('net');
 var dgram = require('dgram');
+var socks5Util = require('../socks5/util');
 class LocalUdpAssociate {
     negotiate(options, callback) {
+        this.udpType = 'udp' + net.isIP(options.dstAddr);
         process.nextTick(() => callback(true));
     }
     sendCommand(options, callback) {
         let _this = this;
-        let socket = dgram.createSocket('udp' + net.isIP(options.dstAddr));
+        let socket = dgram.createSocket(_this.udpType);
         let t = setTimeout(callback(false, 'timeout'), 10 * 1000);
         let errorHandler = (err) => {
             socket.removeAllListeners();
@@ -34,21 +36,28 @@ class LocalUdpAssociate {
         };
         socket.once('error', errorHandler);
         socket.once('listening', () => {
-            _this.proxyUdp = socket;
+            _this.transitUdp = socket;
             socket.removeListener('error', errorHandler);
             clearTimeout(t);
             callback(true);
         });
         socket.bind();
+        this.transitUdp = socket;
     }
     fillReply(reply) {
-        let addr = this.proxyUdp.address();
+        let addr = this.transitUdp.address();
         reply.writeUInt16BE(addr.port, reply.length - 2);
         return reply;
     }
     transport(options) {
+        let _this = this;
         let clientSocket = options.clientSocket;
-        this.proxyUdp.on('message', (msg, rinfo) => {
+        this.transitUdp.on('message', (msg, rinfo) => {
+            if (msg[2] !== 0)
+                return;
+            let tuple = socks5Util.refineATYP(msg);
+            let dataSocket = dgram.createSocket(_this.udpType);
+            dataSocket.send(msg, tuple.headerLength, msg.length - tuple.headerLength, tuple.port, tuple.addr);
         });
     }
 }

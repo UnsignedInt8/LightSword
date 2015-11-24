@@ -16,9 +16,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var net = require('net');
-var util = require('util');
 var logger = require('winston');
 var consts = require('./consts');
+var socks5Util = require('./util');
 var dispatchQueue_1 = require('../lib/dispatchQueue');
 class LocalServer {
     constructor(options) {
@@ -105,27 +105,12 @@ class LocalServer {
         if (!data || data[0] !== consts.SOCKS_VER.V5)
             return null;
         let cmd = data[1];
-        let atyp = data[3];
-        let addr = '';
         let port = data.readUInt16BE(data.length - 2);
-        switch (atyp) {
-            case consts.ATYP.DN:
-                let dnLength = data[4];
-                addr = data.toString('utf8', 5, 5 + dnLength);
-                break;
-            case consts.ATYP.IPV4:
-                addr = data.skip(4).take(4).aggregate((c, n) => c.length > 1 ? c + util.format('.%d', n) : util.format('%d.%d', c, n));
-                break;
-            case consts.ATYP.IPV6:
-                let bytes = data.skip(4).take(16).toArray();
-                for (let i = 0; i < 8; i++) {
-                    addr += (new Buffer(bytes.skip(i * 2).take(2).toArray()).toString('hex') + (i < 7 ? ':' : ''));
-                }
-                break;
-            default:
-                console.log('break default null');
-                return null;
-        }
+        let tuple = socks5Util.refineATYP(data);
+        let addr = tuple.addr;
+        if (port !== tuple.port)
+            throw new Error('Port not equals');
+        console.log(tuple);
         return { cmd: cmd, addr: addr, port: port };
     }
 }

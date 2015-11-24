@@ -7,7 +7,7 @@
 import * as net from 'net';
 import * as crypto from 'crypto';
 import * as logger from 'winston';
-import { ISocks5, ISocks5Options, IStreamTransportOptions } from '../socks5/plugin';
+import { ISocks5, ISocks5Options, ISocks5TransportOptions } from '../socks5/plugin';
 import { negotiateAsync } from './lightsword';
 
 class LightSwordConnect implements ISocks5 {
@@ -74,7 +74,7 @@ class LightSwordConnect implements ISocks5 {
     }
   }
   
-  async transport(options: IStreamTransportOptions) {
+  async transport(options: ISocks5TransportOptions) {
     let _this = this;
     let proxySocket = this.proxySocket;
     let clientSocket = options.clientSocket;

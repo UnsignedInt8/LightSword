@@ -9,7 +9,7 @@ import * as logger from 'winston';
 import * as socks5Util from './util';
 import { RequestOptions } from './localServer';
 import { ATYP, AUTHENTICATION, REPLY_CODE, REQUEST_CMD } from './consts';
-import { ISocks5, ISocks5Options, IStreamTransportOptions } from './plugin';
+import { ISocks5, ISocks5Options, ISocks5TransportOptions } from './plugin';
 
 export class Socks5Driver {
   cipherAlgorithm: string;
@@ -93,7 +93,7 @@ export class Socks5Driver {
     if (!success) return disposeSocket(null, 'proxy');
   
     // Step 4: Transport data.
-    let transportOps: IStreamTransportOptions = {
+    let transportOps: ISocks5TransportOptions = {
       cipherAlgorithm: _this.cipherAlgorithm,
       password: _this.password,
       dstAddr: _this.dstAddr,
