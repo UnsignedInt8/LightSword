@@ -32,7 +32,7 @@ class LightSwordConnect {
     negotiate(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
             let _this = this;
-            this.proxySocket = net.createConnection(options.dstPort, options.dstAddr, () => __awaiter(this, void 0, Promise, function* () {
+            this.proxySocket = net.createConnection(options.serverPort, options.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
                 logger.info(`connect: ${options.dstAddr}`);
                 _this.proxySocket.removeAllListeners('error');
                 let result = yield lightsword_1.negotiateAsync(_this.proxySocket, options);

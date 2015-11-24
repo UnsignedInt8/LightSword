@@ -33,10 +33,15 @@ class LightSwordUdpAssociate implements ISocks5 {
       _this.transitSocket.removeAllListeners('error');
       _this.cipherKey = result.cipherKey;
       _this.vNum = result.vNum;
+      _this = null;
       callback(success, reason);  
     });
     
-    this.transitSocket.on('error', (err) => _this.disposeSocket(err, 'connect'));
+    this.transitSocket.on('error', (err) => {
+      _this.disposeSocket(err, 'connect');
+      _this = null;
+      callback(false, err.message);
+    });
   }
   
   async sendCommand(options: ISocks5Options, callback: (success: boolean, reason?: string) => void) {

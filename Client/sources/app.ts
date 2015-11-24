@@ -66,7 +66,8 @@ export class App implements IDispatchReceiver {
       args.serverPort = args.dstPort;
     }
     
-    new Socks5Driver(plugin, msg, args);
+    let executor = this.pluginPivot.getSocks5(msg);
+    new Socks5Driver(executor, args);
   }
 }
 

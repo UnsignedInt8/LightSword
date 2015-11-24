@@ -9,7 +9,7 @@ import { ATYP, AUTHENTICATION, REPLY_CODE, REQUEST_CMD } from './consts';
 import * as socks5Util from './util';
 import * as logger from 'winston';
 import { RequestOptions } from './localServer';
-import { ISocks5Plugin, ISocks5Options, IStreamTransportOptions } from './plugin';
+import { ISocks5, ISocks5Options, IStreamTransportOptions } from './plugin';
 
 export class Socks5Driver {
   cipherAlgorithm: string;
@@ -21,12 +21,10 @@ export class Socks5Driver {
   clientSocket: net.Socket;
   timeout: number;
   
-  socks5Plugin: ISocks5Plugin;
-  cmdType: REQUEST_CMD;
+  executor: ISocks5;
   
-  constructor(plugin: ISocks5Plugin, cmdType: REQUEST_CMD, args: RequestOptions) {
-    this.socks5Plugin = plugin;
-    this.cmdType = cmdType;
+  constructor(executor: ISocks5, args: RequestOptions) {
+    this.executor = executor;
     
     let _this = this;
     Object.getOwnPropertyNames(args).forEach(n => _this[n] = args[n]);
@@ -47,13 +45,15 @@ export class Socks5Driver {
       _this = null;
     }
     
-    let connect = _this.socks5Plugin.getSocks5(this.cmdType);
+    let connect = _this.executor;
     
     let socks5Opts: ISocks5Options = {
       cipherAlgorithm: _this.cipherAlgorithm,
       password: _this.password,
       dstAddr: _this.dstAddr,
-      dstPort: _this.dstPort
+      dstPort: _this.dstPort,
+      serverAddr: _this.serverAddr,
+      serverPort: _this.serverPort
     };
     
     async function negotiateAsync(): Promise<boolean> {
@@ -101,6 +101,8 @@ export class Socks5Driver {
       password: _this.password,
       dstAddr: _this.dstAddr,
       dstPort: _this.dstPort,
+      serverAddr: _this.serverAddr,
+      serverPort: _this.serverPort,
       clientSocket: _this.clientSocket,
     };
     

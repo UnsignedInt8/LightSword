@@ -19,9 +19,8 @@ var consts_1 = require('./consts');
 var socks5Util = require('./util');
 var logger = require('winston');
 class Socks5Driver {
-    constructor(plugin, cmdType, args) {
-        this.socks5Plugin = plugin;
-        this.cmdType = cmdType;
+    constructor(executor, args) {
+        this.executor = executor;
         let _this = this;
         Object.getOwnPropertyNames(args).forEach(n => _this[n] = args[n]);
         this.connectServer();
@@ -37,12 +36,14 @@ class Socks5Driver {
                 _this.clientSocket = null;
                 _this = null;
             }
-            let connect = _this.socks5Plugin.getSocks5(this.cmdType);
+            let connect = _this.executor;
             let socks5Opts = {
                 cipherAlgorithm: _this.cipherAlgorithm,
                 password: _this.password,
                 dstAddr: _this.dstAddr,
-                dstPort: _this.dstPort
+                dstPort: _this.dstPort,
+                serverAddr: _this.serverAddr,
+                serverPort: _this.serverPort
             };
             function negotiateAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
@@ -89,6 +90,8 @@ class Socks5Driver {
                 password: _this.password,
                 dstAddr: _this.dstAddr,
                 dstPort: _this.dstPort,
+                serverAddr: _this.serverAddr,
+                serverPort: _this.serverPort,
                 clientSocket: _this.clientSocket,
             };
             _this.clientSocket.once('end', () => disposeSocket(null, 'end end'));

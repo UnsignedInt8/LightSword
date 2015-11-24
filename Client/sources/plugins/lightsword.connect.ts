@@ -25,7 +25,7 @@ class LightSwordConnect implements ISocks5 {
   async negotiate(options: ISocks5Options, callback: (success: boolean, reason?: string) => void) {
     let _this = this;
     
-    this.proxySocket = net.createConnection(options.dstPort, options.dstAddr, async () => {
+    this.proxySocket = net.createConnection(options.serverPort, options.serverAddr, async () => {
       logger.info(`connect: ${options.dstAddr}`);
       _this.proxySocket.removeAllListeners('error');
 

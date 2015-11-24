@@ -12,6 +12,8 @@ export interface ISocks5Options {
   password: string;
   dstAddr: string;
   dstPort: number;
+  serverAddr: string;
+  serverPort: number;
   timeout?: number;
 }
 
