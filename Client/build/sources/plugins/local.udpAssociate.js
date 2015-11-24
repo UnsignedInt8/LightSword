@@ -63,9 +63,8 @@ class LocalUdpAssociate {
         });
         dataSocket.on('error', (err) => dispose());
         _this.transitUdp.on('message', (msg, rinfo) => {
-            console.log('proxy send data: ' + msg.length);
             if (msg[2] !== 0)
-                return;
+                return dispose();
             udpReplyAddr = rinfo.address;
             udpReplyPort = rinfo.port;
             // ----------------------Build Reply Header----------------------
@@ -91,7 +90,6 @@ class LocalUdpAssociate {
             udpReplyHeader.writeUInt16BE(rinfo.port, udpReplyHeader.length - 2);
             // -------------------------------End-------------------------------
             let tuple = socks5Util.refineATYP(msg);
-            console.log(tuple);
             dataSocket.send(msg, tuple.headerLength, msg.length - tuple.headerLength, tuple.port, tuple.addr);
         });
         function dispose() {
