@@ -7,30 +7,24 @@
 import * as net from 'net';
 import { REQUEST_CMD } from './consts';
 
-export interface IBasicOptions {
+export interface ISocks5Options {
   cipherAlgorithm: string;
   password: string;
-}
-
-export interface INegotiationOptions extends IBasicOptions {
-  proxySocket: net.Socket;
-}
-
-export interface ICommandOptions extends INegotiationOptions {
   dstAddr: string;
   dstPort: number;
+  timeout?: number;
 }
 
-export interface IStreamTransportOptions extends INegotiationOptions {
+export interface IStreamTransportOptions extends ISocks5Options {
   clientSocket: net.Socket;
 }
 
 export interface ISocks5 {
   // Step 1: Negotiate with Server.
-  negotiate: (options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) => void;
+  negotiate: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
   
   // Step 2: Send SOCKS5 Command to Server.
-  sendCommand: (options: ICommandOptions, callback: (result: boolean, reason?: string) => void) => void;
+  sendCommand: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
   
   // Step 3: Fill socks5 reply structure.
   // +----+-----+-------+------+----------+----------+

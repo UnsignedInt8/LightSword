@@ -6,16 +6,16 @@
 
 import * as net from 'net';
 import * as dgram from 'dgram';
-import { ISocks5, INegotiationOptions, IStreamTransportOptions, ICommandOptions } from '../socks5/plugin';
+import { ISocks5, ISocks5Options, IStreamTransportOptions } from '../socks5/plugin';
 
 class LocalUdpAssociate implements ISocks5 {
   proxyUdp: dgram.Socket;
   
-  negotiate(options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) {
+  negotiate(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
     process.nextTick(() => callback(true));
   }
   
-  sendCommand(options: ICommandOptions, callback: (result: boolean, reason?: string) => void) {
+  sendCommand(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
     let _this = this;
     let socket = dgram.createSocket('udp' + net.isIP(options.dstAddr));
     
@@ -47,7 +47,6 @@ class LocalUdpAssociate implements ISocks5 {
   }
   
   transport(options: IStreamTransportOptions) {
-    let proxySocket = options.proxySocket;
     let clientSocket = options.clientSocket;
     
     this.proxyUdp.on('message', (msg: Buffer, rinfo: dgram.RemoteInfo) => {

@@ -20,11 +20,11 @@ var logger = require('winston');
 /**
  * LightSword Negotiation Algorithm
  */
-function negotiateAsync(options) {
+function negotiateAsync(socket, options) {
     return __awaiter(this, void 0, Promise, function* () {
         let cipherAlgorithm = options.cipherAlgorithm;
         let password = options.password;
-        let proxySocket = options.proxySocket;
+        let proxySocket = socket;
         let cipherKey = crypto.createHash('sha256').update((Math.random() * Date.now()).toString()).digest('hex');
         let vNum = Number((Math.random() * Date.now()).toFixed());
         let handshake = {

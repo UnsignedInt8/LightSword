@@ -15,19 +15,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var net = require('net');
 var lightsword_1 = require('./lightsword');
 class LightSwordUdpAssociate {
     constructor() {
         this.vNum = 0;
     }
+    disposeSocket(error, from) {
+        this.transitSocket.removeAllListeners();
+        this.transitSocket.end();
+        this.transitSocket.destroy();
+        this.transitSocket = null;
+    }
     negotiate(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
-            let result = yield lightsword_1.negotiateAsync(options);
-            let success = result.success;
-            let reason = result.reason;
-            this.cipherKey = result.cipherKey;
-            this.vNum = result.vNum;
-            callback(success, reason);
+            let _this = this;
+            this.transitSocket = net.createConnection(options.dstPort, options.dstAddr, () => __awaiter(this, void 0, Promise, function* () {
+                let result = yield lightsword_1.negotiateAsync(_this.transitSocket, options);
+                let success = result.success;
+                let reason = result.reason;
+                _this.transitSocket.removeAllListeners('error');
+                _this.cipherKey = result.cipherKey;
+                _this.vNum = result.vNum;
+                callback(success, reason);
+            }));
+            this.transitSocket.on('error', (err) => _this.disposeSocket(err, 'connect'));
         });
     }
     sendCommand(options, callback) {
@@ -39,4 +51,5 @@ class LightSwordUdpAssociate {
         });
     }
 }
+module.exports = LightSwordUdpAssociate;
 //# sourceMappingURL=lightsword.udpAssociate.js.map

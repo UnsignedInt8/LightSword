@@ -15,25 +15,43 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var net = require('net');
 var crypto = require('crypto');
+var logger = require('winston');
 var lightsword_1 = require('./lightsword');
 class LightSwordConnect {
     constructor() {
         this.vNum = 0;
     }
+    disposeSocket(error, from) {
+        this.proxySocket.removeAllListeners();
+        this.proxySocket.end();
+        this.proxySocket.destroy();
+        this.proxySocket = null;
+    }
     negotiate(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
-            let result = yield lightsword_1.negotiateAsync(options);
-            let success = result.success;
-            let reason = result.reason;
-            this.cipherKey = result.cipherKey;
-            this.vNum = result.vNum;
-            callback(success, reason);
+            let _this = this;
+            this.proxySocket = net.createConnection(options.dstPort, options.dstAddr, () => __awaiter(this, void 0, Promise, function* () {
+                logger.info(`connect: ${options.dstAddr}`);
+                let result = yield lightsword_1.negotiateAsync(_this.proxySocket, options);
+                let success = result.success;
+                let reason = result.reason;
+                _this.proxySocket.removeAllListeners('error');
+                _this.cipherKey = result.cipherKey;
+                _this.vNum = result.vNum;
+                _this = null;
+                callback(success, reason);
+            }));
+            this.proxySocket.on('error', (error) => _this.disposeSocket(error, 'connect'));
+            if (!options.timeout)
+                return;
+            this.proxySocket.setTimeout(options.timeout * 1000);
         });
     }
     sendCommand(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
-            let proxySocket = options.proxySocket;
+            let proxySocket = this.proxySocket;
             let connect = {
                 dstAddr: options.dstAddr,
                 dstPort: options.dstPort,
@@ -61,13 +79,14 @@ class LightSwordConnect {
     }
     transport(options) {
         return __awaiter(this, void 0, Promise, function* () {
-            let proxySocket = options.proxySocket;
+            let _this = this;
+            let proxySocket = this.proxySocket;
             let clientSocket = options.clientSocket;
+            proxySocket.once('end', () => _this.disposeSocket(null, 'proxy end'));
+            proxySocket.on('error', (err) => _this.disposeSocket(err, 'proxy error'));
             let decipher = crypto.createDecipher(options.cipherAlgorithm, this.cipherKey);
-            // proxySocket.on('data', data => clientSocket.write(decipher.update(data)));
             proxySocket.pipe(decipher).pipe(clientSocket);
             let cipher = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
-            // clientSocket.on('data', (data) => proxySocket.write(cipher.update(data)));
             clientSocket.pipe(cipher).pipe(proxySocket);
         });
     }

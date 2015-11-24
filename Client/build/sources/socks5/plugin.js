@@ -24,7 +24,7 @@ class PluginPivot {
         this.cmdMap.set(consts_1.REQUEST_CMD.BIND, 'bind');
         this.cmdMap.set(consts_1.REQUEST_CMD.CONNECT, 'connect');
         this.cmdMap.set(consts_1.REQUEST_CMD.UDP_ASSOCIATE, 'udpAssociate');
-        ['connect' /* , 'bind', 'udpAssociate' */].forEach(c => _this.components.set(c, require(`../plugins/${plugin}.${c}`)));
+        ['connect' /* , 'bind' */, 'udpAssociate'].forEach(c => _this.components.set(c, require(`../plugins/${plugin}.${c}`)));
     }
     getSocks5(cmd) {
         return new (this.components.get(this.cmdMap.get(cmd)))();

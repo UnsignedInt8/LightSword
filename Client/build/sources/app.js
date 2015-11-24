@@ -18,7 +18,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 require('kinq').enable();
 require('async-node');
 var localServer_1 = require('./socks5/localServer');
-var connect_1 = require('./socks5/connect');
+var driver_1 = require('./socks5/driver');
 var dispatchQueue_1 = require('./lib/dispatchQueue');
 var consts = require('./socks5/consts');
 var ipHelper_1 = require('./lib/ipHelper');
@@ -62,7 +62,7 @@ class App {
             args.serverAddr = args.dstAddr;
             args.serverPort = args.dstPort;
         }
-        new connect_1.Socks5Connect(plugin, msg, args);
+        new driver_1.Socks5Driver(plugin, msg, args);
     }
 }
 exports.App = App;

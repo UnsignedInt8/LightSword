@@ -15,16 +15,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var net = require('net');
+var logger = require('winston');
 class LocalConnect {
+    disposeSocket(error, from) {
+        this.proxySocket.removeAllListeners();
+        this.proxySocket.end();
+        this.proxySocket.destroy();
+        this.proxySocket = null;
+    }
     negotiate(options, callback) {
-        process.nextTick(() => callback(true));
+        let _this = this;
+        this.proxySocket = net.createConnection(options.dstPort, options.dstAddr, () => {
+            logger.info(`connect: ${options.dstAddr}`);
+            _this.proxySocket.removeAllListeners('error');
+            _this = null;
+            process.nextTick(() => callback(true));
+        });
+        this.proxySocket.on('error', (err) => callback(false, err.message));
     }
     sendCommand(options, callback) {
         process.nextTick(() => callback(true));
     }
     transport(options) {
-        let proxySocket = options.proxySocket;
+        let _this = this;
+        let proxySocket = this.proxySocket;
         let clientSocket = options.clientSocket;
+        proxySocket.once('end', () => _this.disposeSocket(null, 'proxy end'));
+        proxySocket.on('error', (err) => _this.disposeSocket(err, 'proxy error'));
         proxySocket.pipe(clientSocket);
         clientSocket.pipe(proxySocket);
     }

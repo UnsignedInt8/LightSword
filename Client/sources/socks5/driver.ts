@@ -9,7 +9,7 @@ import { ATYP, AUTHENTICATION, REPLY_CODE, REQUEST_CMD } from './consts';
 import * as socks5Util from './util';
 import * as logger from 'winston';
 import { RequestOptions } from './localServer';
-import { ISocks5Plugin, INegotiationOptions, ICommandOptions, IStreamTransportOptions } from './plugin';
+import { ISocks5Plugin, ISocks5Options, IStreamTransportOptions } from './plugin';
 
 export class Socks5Driver {
   cipherAlgorithm: string;
@@ -34,103 +34,80 @@ export class Socks5Driver {
     this.connectServer();
   }
   
-  connectServer() {
+  async connectServer() {
     let _this = this;
     
     // Handling errors, disposing resources.
-    function disposeSockets(error?: Error, from?: string) {
-      if (!_this || !_this || !proxySocket) return;
-      
+    function disposeSocket(error?: Error, from?: string) {
       _this.clientSocket.removeAllListeners();
       _this.clientSocket.end();
       _this.clientSocket.destroy();
-      proxySocket.removeAllListeners();
-      proxySocket.end();
-      proxySocket.destroy();
       
       _this.clientSocket = null;
-      proxySocket = null;
       _this = null;
     }
     
-    var proxySocket = net.connect(this.serverPort, this.serverAddr, async () => {
-      logger.info(`connect: ${_this.dstAddr}`);
-      
-      let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
-      let connect = _this.socks5Plugin.getSocks5(this.cmdType);
-      
-      
-      async function negotiateAsync(): Promise<boolean> {
-        let negotiationOps: INegotiationOptions = {
-          cipherAlgorithm: _this.cipherAlgorithm,
-          password: _this.password,
-          proxySocket
-        };
-        return new Promise<boolean>(resolve => {
-          connect.negotiate(negotiationOps, (success, reason) => {
-            if (!success) logger.warn(reason);
-            resolve(success);
-          });
+    let connect = _this.socks5Plugin.getSocks5(this.cmdType);
+    
+    let socks5Opts: ISocks5Options = {
+      cipherAlgorithm: _this.cipherAlgorithm,
+      password: _this.password,
+      dstAddr: _this.dstAddr,
+      dstPort: _this.dstPort
+    };
+    
+    async function negotiateAsync(): Promise<boolean> {
+      return new Promise<boolean>(resolve => {
+        connect.negotiate(socks5Opts, (success, reason) => {
+          if (!success) logger.warn(reason);
+          resolve(success);
         });
-      }
-      
-      async function sendCommandAsync(): Promise<boolean> {
-        let commandOpts: ICommandOptions = {
-          dstAddr: _this.dstAddr,
-          dstPort: _this.dstPort,
-          cipherAlgorithm: _this.cipherAlgorithm,
-          password: _this.password,
-          proxySocket
-        }
-        return new Promise<boolean>(resolve => {
-          connect.sendCommand(commandOpts, (success, reason) => {
-            if (!success) logger.warn(reason);
-            resolve(success);
-          });
+      });
+    }
+    
+    async function sendCommandAsync(): Promise<boolean> {
+      return new Promise<boolean>(resolve => {
+        connect.sendCommand(socks5Opts, (success, reason) => {
+          if (!success) logger.warn(reason);
+          resolve(success);
         });
-      }
-      
-      // Step 1: Negotiate with server      
-      let success = await negotiateAsync();
-      
-      if (!success) {
-        reply[1] = REPLY_CODE.CONNECTION_REFUSED;
-        await _this.clientSocket.writeAsync(reply);
-        return disposeSockets(null, 'proxy');
-      }
-      
-      // Step 2: Send command to Server
-      success = await sendCommandAsync();
-      reply[1] = success ? REPLY_CODE.SUCCESS : REPLY_CODE.CONNECTION_REFUSED;
-      
-      // Step 3: Fill reply structure.
-      if (connect.fillReply) reply = connect.fillReply(reply);
-      
+      });
+    }
+
+    let reply = await socks5Util.buildDefaultSocks5ReplyAsync();
+    
+    // Step 1: Negotiate with server      
+    let success = await negotiateAsync();
+    
+    if (!success) {
+      reply[1] = REPLY_CODE.CONNECTION_REFUSED;
       await _this.clientSocket.writeAsync(reply);
-      if (!success) return disposeSockets(null, 'proxy');
-      
-      // Step 4: Transport data.
-      let transportOps: IStreamTransportOptions = {
-        cipherAlgorithm: _this.cipherAlgorithm,
-        password: _this.password,
-        clientSocket: _this.clientSocket,
-        proxySocket
-      };
-      
-      connect.transport(transportOps);
-      
-      proxySocket.once('end', () => disposeSockets(null, 'proxy end'));
-      _this.clientSocket.once('end', () => disposeSockets(null, 'end end'));
-      
-      proxySocket.on('error', (err) => disposeSockets(err, 'proxy'));
-      _this.clientSocket.on('error', (err) => disposeSockets(err, 'client'));
-    });
+      return disposeSocket(null, 'proxy');
+    }
     
-    proxySocket.once('error', (error) => disposeSockets(error, 'first'));
+    // Step 2: Send command to Server
+    success = await sendCommandAsync();
+    reply[1] = success ? REPLY_CODE.SUCCESS : REPLY_CODE.CONNECTION_REFUSED;
     
-    if (!this.timeout) return;
-    proxySocket.setTimeout(this.timeout * 1000);
-    _this.clientSocket.setTimeout(this.timeout * 1000);
+    // Step 3: Fill reply structure, reply client socket.
+    if (connect.fillReply) reply = connect.fillReply(reply);
+    
+    await _this.clientSocket.writeAsync(reply);
+    if (!success) return disposeSocket(null, 'proxy');
+  
+    // Step 4: Transport data.
+    let transportOps: IStreamTransportOptions = {
+      cipherAlgorithm: _this.cipherAlgorithm,
+      password: _this.password,
+      dstAddr: _this.dstAddr,
+      dstPort: _this.dstPort,
+      clientSocket: _this.clientSocket,
+    };
+    
+    _this.clientSocket.once('end', () => disposeSocket(null, 'end end'));
+    _this.clientSocket.on('error', (err) => disposeSocket(err, 'client'));
+    
+    connect.transport(transportOps);
   }
   
 }

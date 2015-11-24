@@ -1,22 +1,18 @@
 import * as net from 'net';
 import { REQUEST_CMD } from './consts';
-export interface IBasicOptions {
+export interface ISocks5Options {
     cipherAlgorithm: string;
     password: string;
-}
-export interface INegotiationOptions extends IBasicOptions {
-    proxySocket: net.Socket;
-}
-export interface ICommandOptions extends INegotiationOptions {
     dstAddr: string;
     dstPort: number;
+    timeout?: number;
 }
-export interface IStreamTransportOptions extends INegotiationOptions {
+export interface IStreamTransportOptions extends ISocks5Options {
     clientSocket: net.Socket;
 }
 export interface ISocks5 {
-    negotiate: (options: INegotiationOptions, callback: (result: boolean, reason?: string) => void) => void;
-    sendCommand: (options: ICommandOptions, callback: (result: boolean, reason?: string) => void) => void;
+    negotiate: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
+    sendCommand: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
     fillReply?: (reply: Buffer) => Buffer;
     transport?: (options: IStreamTransportOptions) => void;
 }
