@@ -23,12 +23,6 @@ class LightSwordConnect {
     constructor() {
         this.vNum = 0;
     }
-    disposeSocket(error, from) {
-        this.proxySocket.removeAllListeners();
-        this.proxySocket.end();
-        this.proxySocket.destroy();
-        this.proxySocket = null;
-    }
     negotiate(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
             let _this = this;
@@ -44,7 +38,7 @@ class LightSwordConnect {
                 callback(success, reason);
             }));
             this.proxySocket.on('error', (error) => {
-                _this.disposeSocket(error, 'connect');
+                _this.proxySocket.dispose();
                 _this = null;
                 callback(false, error.message);
             });
@@ -87,8 +81,15 @@ class LightSwordConnect {
             let _this = this;
             let proxySocket = this.proxySocket;
             let clientSocket = options.clientSocket;
-            proxySocket.once('end', () => _this.disposeSocket(null, 'proxy end'));
-            proxySocket.on('error', (err) => _this.disposeSocket(err, 'proxy error'));
+            function disposeSocket() {
+                proxySocket.dispose();
+                clientSocket.dispose();
+                _this = null;
+            }
+            proxySocket.once('end', () => disposeSocket());
+            proxySocket.on('error', (err) => disposeSocket());
+            clientSocket.once('end', () => disposeSocket());
+            clientSocket.on('error', (err) => disposeSocket());
             let decipher = crypto.createDecipher(options.cipherAlgorithm, this.cipherKey);
             proxySocket.pipe(decipher).pipe(clientSocket);
             let cipher = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);

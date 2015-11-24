@@ -18,12 +18,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var net = require('net');
 var logger = require('winston');
 class LocalConnect {
-    disposeSocket(error, from) {
-        this.proxySocket.removeAllListeners();
-        this.proxySocket.end();
-        this.proxySocket.destroy();
-        this.proxySocket = null;
-    }
     negotiate(options, callback) {
         let _this = this;
         this.proxySocket = net.createConnection(options.dstPort, options.dstAddr, () => {
@@ -33,7 +27,7 @@ class LocalConnect {
             process.nextTick(() => callback(true));
         });
         this.proxySocket.on('error', (err) => {
-            _this.disposeSocket(err, 'connect');
+            _this.proxySocket.dispose();
             _this = null;
             callback(false, err.message);
         });
@@ -45,8 +39,15 @@ class LocalConnect {
         let _this = this;
         let proxySocket = this.proxySocket;
         let clientSocket = options.clientSocket;
-        proxySocket.once('end', () => _this.disposeSocket(null, 'proxy end'));
-        proxySocket.on('error', (err) => _this.disposeSocket(err, 'proxy error'));
+        function disposeSocket() {
+            proxySocket.dispose();
+            clientSocket.dispose();
+            _this = null;
+        }
+        proxySocket.once('end', () => disposeSocket());
+        proxySocket.on('error', (err) => disposeSocket());
+        clientSocket.once('end', () => disposeSocket());
+        clientSocket.on('error', (err) => disposeSocket());
         proxySocket.pipe(clientSocket);
         clientSocket.pipe(proxySocket);
     }

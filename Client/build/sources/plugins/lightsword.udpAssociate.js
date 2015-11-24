@@ -21,12 +21,6 @@ class LightSwordUdpAssociate {
     constructor() {
         this.vNum = 0;
     }
-    disposeSocket(error, from) {
-        this.transitSocket.removeAllListeners();
-        this.transitSocket.end();
-        this.transitSocket.destroy();
-        this.transitSocket = null;
-    }
     negotiate(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
             let _this = this;
@@ -41,7 +35,7 @@ class LightSwordUdpAssociate {
                 callback(success, reason);
             }));
             this.transitSocket.on('error', (err) => {
-                _this.disposeSocket(err, 'connect');
+                _this.transitSocket.dispose();
                 _this = null;
                 callback(false, err.message);
             });

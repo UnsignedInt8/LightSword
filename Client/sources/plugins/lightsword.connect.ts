@@ -15,13 +15,6 @@ class LightSwordConnect implements ISocks5 {
   vNum: number = 0;
   proxySocket: net.Socket;
   
-  disposeSocket(error: Error, from: any) {
-    this.proxySocket.removeAllListeners();
-    this.proxySocket.end();
-    this.proxySocket.destroy();
-    this.proxySocket = null;
-  }
-  
   async negotiate(options: ISocks5Options, callback: (success: boolean, reason?: string) => void) {
     let _this = this;
     
@@ -40,7 +33,7 @@ class LightSwordConnect implements ISocks5 {
     });
 
     this.proxySocket.on('error', (error) => {
-      _this.disposeSocket(error, 'connect');
+      _this.proxySocket.dispose();
       _this = null;
       callback(false, error.message);
     });
@@ -85,9 +78,17 @@ class LightSwordConnect implements ISocks5 {
     let _this = this;
     let proxySocket = this.proxySocket;
     let clientSocket = options.clientSocket;
+    
+    function disposeSocket() {
+      proxySocket.dispose();
+      clientSocket.dispose();
+      _this = null;
+    }
   
-    proxySocket.once('end', () => _this.disposeSocket(null, 'proxy end'));
-    proxySocket.on('error', (err) => _this.disposeSocket(err, 'proxy error'));
+    proxySocket.once('end', () => disposeSocket());
+    proxySocket.on('error', (err) => disposeSocket());
+    clientSocket.once('end', () => disposeSocket());
+    clientSocket.on('error', (err) => disposeSocket());
     
     let decipher = crypto.createDecipher(options.cipherAlgorithm, this.cipherKey);
     proxySocket.pipe(decipher).pipe(clientSocket);

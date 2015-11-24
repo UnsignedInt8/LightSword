@@ -989,6 +989,7 @@ declare module "net" {
         address(): { port: number; family: string; address: string; };
         unref(): void;
         ref(): void;
+        dispose(): void;
 
         remoteAddress: string;
         remoteFamily: string;

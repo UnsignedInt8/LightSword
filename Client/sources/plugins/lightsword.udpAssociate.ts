@@ -14,13 +14,6 @@ class LightSwordUdpAssociate implements ISocks5 {
   cipherKey: string;
   vNum: number = 0;
   transitSocket: net.Socket;
-    
-  disposeSocket(error: Error, from: any) {
-    this.transitSocket.removeAllListeners();
-    this.transitSocket.end();
-    this.transitSocket.destroy();
-    this.transitSocket = null;
-  }
   
   async negotiate(options: ISocks5Options, callback: (success: boolean, reason?: string) => void) {
     let _this = this;
@@ -38,7 +31,7 @@ class LightSwordUdpAssociate implements ISocks5 {
     });
     
     this.transitSocket.on('error', (err) => {
-      _this.disposeSocket(err, 'connect');
+      _this.transitSocket.dispose();
       _this = null;
       callback(false, err.message);
     });

@@ -94,8 +94,6 @@ class Socks5Driver {
                 serverPort: _this.serverPort,
                 clientSocket: _this.clientSocket,
             };
-            _this.clientSocket.once('end', () => disposeSocket(null, 'end end'));
-            _this.clientSocket.on('error', (err) => disposeSocket(err, 'client'));
             connect.transport(transportOps);
         });
     }

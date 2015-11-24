@@ -6,6 +6,7 @@
 
 require('kinq').enable();
 require('async-node');
+require('./lib/socket');
 
 import { LocalServer } from './socks5/localServer';
 import { Socks5Driver } from './socks5/driver';

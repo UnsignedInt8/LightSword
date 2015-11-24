@@ -17,6 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 require('kinq').enable();
 require('async-node');
+require('./lib/socket');
 var localServer_1 = require('./socks5/localServer');
 var driver_1 = require('./socks5/driver');
 var dispatchQueue_1 = require('./lib/dispatchQueue');

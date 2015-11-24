@@ -10,14 +10,7 @@ import { ISocks5, ISocks5Options, IStreamTransportOptions } from '../socks5/plug
 
 class LocalConnect implements ISocks5 {
   proxySocket: net.Socket;
-  
-  disposeSocket(error: Error, from: any) {
-    this.proxySocket.removeAllListeners();
-    this.proxySocket.end();
-    this.proxySocket.destroy();
-    this.proxySocket = null;
-  }
-  
+ 
   negotiate(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
     let _this = this;
     
@@ -30,7 +23,7 @@ class LocalConnect implements ISocks5 {
     });
     
     this.proxySocket.on('error', (err) => {
-      _this.disposeSocket(err, 'connect');
+      _this.proxySocket.dispose();
       _this = null;
       callback(false, err.message)
     });
@@ -46,8 +39,16 @@ class LocalConnect implements ISocks5 {
     let proxySocket = this.proxySocket;
     let clientSocket = options.clientSocket;
     
-    proxySocket.once('end', () => _this.disposeSocket(null, 'proxy end'));
-    proxySocket.on('error', (err) => _this.disposeSocket(err, 'proxy error'));
+    function disposeSocket() {
+      proxySocket.dispose();
+      clientSocket.dispose();
+      _this = null;
+    }
+    
+    proxySocket.once('end', () => disposeSocket());
+    proxySocket.on('error', (err) => disposeSocket());
+    clientSocket.once('end', () => disposeSocket());
+    clientSocket.on('error', (err) => disposeSocket());
     
     proxySocket.pipe(clientSocket);
     clientSocket.pipe(proxySocket);
