@@ -87,6 +87,7 @@ class LightSwordSocks5 implements ISocks5 {
       return LightSwordSocks5.connect(clientSocket, cipherAlgorithm, this.cipherKey, dstAddr, dstPort, connectOk);
     }
     
+    return clientSocket.dispose();
   }
   
   static connect(clientSocket: net.Socket, cipherAlgorithm, cipherKey, dstAddr, dstPort, connectOk) {
