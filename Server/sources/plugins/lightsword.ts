@@ -31,20 +31,20 @@ class LightSwordSocks5 implements ISocks5 {
       let n = msgDigest.indexOf('\n');
       if (n < 0) return callback(false, 'Format error');
       let digest = msgDigest.substr(n + 1);
+      let msg = msgDigest.substr(0, n);
+      if (digest !== crypto.createHash('sha256').update(msg).digest('hex')) return callback(false, 'Message has been falsified');
       
-      let handshake = JSON.parse(msgDigest.substr(0, n));
+      let handshake = JSON.parse(msg);
       let cipherKey = handshake.cipherKey;
       let clientCipherAlgorithm = handshake.cipherAlgorithm;
       let okNum = Number(handshake.vNum);
-      let fields = [cipherKey, okNum, clientCipherAlgorithm];
       
-      if (fields.any(f => !f)) return callback(false, 'Fields lost.');
       if (typeof okNum !== 'number') return callback(false, 'Not recognizable data!!!');
-      if (cipherAlgorithm !== clientCipherAlgorithm) return callback(false, 'Cipher algorithm not equal.');
+      if (cipherAlgorithm !== clientCipherAlgorithm) return callback(false, 'Cipher algorithm not same.');
       
       let welcome = {
         okNum: ++okNum,
-        digest
+        clientDigest: digest
       };
       
       let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
@@ -94,16 +94,18 @@ class LightSwordSocks5 implements ISocks5 {
     let dstPort = request.dstPort;
     let cmdType = request.type;
 
-    var proxySocket = net.createConnection(dstPort, dstAddr, async () => {      
-      let cipherOnce = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
-      let conncetOk = { msg: 'connect ok', vNum: this.vNum + 1, digest: this.digest };
-      await clientSocket.writeAsync(Buffer.concat([cipherOnce.update(new Buffer(JSON.stringify(conncetOk))), cipherOnce.final()]));
-      
-      let cipher = crypto.createCipher(cipherAlgorithm, this.cipherKey);
-      let decipher = crypto.createDecipher(cipherAlgorithm, this.cipherKey);
-      proxySocket.pipe(cipher).pipe(clientSocket);
-      clientSocket.pipe(decipher).pipe(proxySocket);
-    });
+    if (cmdType === 'connect') {
+      var proxySocket = net.createConnection(dstPort, dstAddr, async () => {      
+        let cipherOnce = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
+        let conncetOk = { msg: 'connect ok', vNum: this.vNum + 1, digest: this.digest };
+        await clientSocket.writeAsync(Buffer.concat([cipherOnce.update(new Buffer(JSON.stringify(conncetOk))), cipherOnce.final()]));
+        
+        let cipher = crypto.createCipher(cipherAlgorithm, this.cipherKey);
+        let decipher = crypto.createDecipher(cipherAlgorithm, this.cipherKey);
+        proxySocket.pipe(cipher).pipe(clientSocket);
+        clientSocket.pipe(decipher).pipe(proxySocket);
+      });
+    }
     
     proxySocket.on('error', (err) => disposeSocket());
     clientSocket.on('error', (err) => disposeSocket());

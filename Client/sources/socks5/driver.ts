@@ -64,7 +64,7 @@ export class Socks5Driver {
     
     async function sendCommandAsync(): Promise<boolean> {
       return new Promise<boolean>(resolve => {
-        executor.sendCommand(socks5Opts, (success, reason) => {
+        executor.initSocks5Proxy(socks5Opts, (success, reason) => {
           if (!success) logger.warn(reason);
           resolve(success);
         });

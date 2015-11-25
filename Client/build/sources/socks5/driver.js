@@ -57,7 +57,7 @@ class Socks5Driver {
             function sendCommandAsync() {
                 return __awaiter(this, void 0, Promise, function* () {
                     return new Promise(resolve => {
-                        executor.sendCommand(socks5Opts, (success, reason) => {
+                        executor.initSocks5(socks5Opts, (success, reason) => {
                             if (!success)
                                 logger.warn(reason);
                             resolve(success);

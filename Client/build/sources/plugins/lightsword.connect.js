@@ -47,7 +47,7 @@ class LightSwordConnect {
             this.proxySocket.setTimeout(options.timeout * 1000);
         });
     }
-    sendCommand(options, callback) {
+    initSocks5(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
             let proxySocket = this.proxySocket;
             let vNum = this.vNum;

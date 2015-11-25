@@ -16,12 +16,13 @@ class LocalUdpAssociate implements ISocks5 {
   transitUdp: dgram.Socket;
   udpType: string;
   
-  negotiate(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
-    this.udpType = 'udp' + (net.isIP(options.dstAddr) || 4);
+  async negotiate(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
+    let ip = await socks5Util.lookupHostIPAsync();
+    this.udpType = 'udp' + (net.isIP(ip) || 4);
     process.nextTick(() => callback(true));
   }
   
-  sendCommand(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
+  initSocks5Proxy(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
     let _this = this;
     let socket = dgram.createSocket(_this.udpType);
     

@@ -26,7 +26,7 @@ class LocalUdpAssociate {
         this.udpType = 'udp' + (net.isIP(options.dstAddr) || 4);
         process.nextTick(() => callback(true));
     }
-    sendCommand(options, callback) {
+    initSocks5(options, callback) {
         let _this = this;
         let socket = dgram.createSocket(_this.udpType);
         let errorHandler = (err) => {

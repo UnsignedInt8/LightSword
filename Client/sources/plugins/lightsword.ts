@@ -30,7 +30,7 @@ export async function negotiateAsync(socket: net.Socket, options: ISocks5Options
 
   let handshakeCipher = crypto.createCipher(cipherAlgorithm, password);
   let message = JSON.stringify(handshake);
-  let digest = crypto.createHash('md5').update(message).digest('hex');
+  let digest = crypto.createHash('sha256').update(message).digest('hex');
   message = `${message}\n${digest}`;
   let hello = Buffer.concat([handshakeCipher.update(new Buffer(message)), handshakeCipher.final()]);
   await proxySocket.writeAsync(hello);
@@ -44,7 +44,7 @@ export async function negotiateAsync(socket: net.Socket, options: ISocks5Options
     let res = JSON.parse(buf.toString('utf8'));
     let okNum = Number(res.okNum);
     
-    if (res.digest !== digest) return { success: false, reason: 'Message has been falsified' };
+    if (res.clientDigest !== digest) return { success: false, reason: 'Message has been falsified' };
     if (okNum !== vNum + 1) return { success: false, reason: "Can't confirm verification number." };
     
     return { success: true, vNum: okNum, cipherKey };
@@ -53,4 +53,35 @@ export async function negotiateAsync(socket: net.Socket, options: ISocks5Options
     return { success: false, reason: ex.message };
   }
   
+}
+
+export async function initSocks5Async(socket: net.Socket, options: ISocks5Options, cmdType: string, cipherKey: string, vNum: number): Promise<{ success: boolean, reason?: string }> {
+  let proxySocket = socket;
+  let connect = {
+    dstAddr: options.dstAddr,
+    dstPort: options.dstPort,
+    type: cmdType,
+    vNum
+  };
+  
+  let cipher = crypto.createCipher(options.cipherAlgorithm, cipherKey);  
+  let connectBuffer = cipher.update(new Buffer(JSON.stringify(connect)));
+  await proxySocket.writeAsync(connectBuffer);
+  
+  let data = await proxySocket.readAsync();
+  if (!data) return { success: false, reason: 'Data not available.' };
+  
+  let decipher = crypto.createDecipher(options.cipherAlgorithm, cipherKey);
+  
+  try {
+    let connectOk = JSON.parse(decipher.update(data).toString());
+    
+    if (connectOk.vNum === vNum + 1) {
+      return { success: true };
+    }
+    
+    return { success: false, reason: "Can't confirm verification number." };
+  } catch(ex) {
+    return { success: false, reason: ex.message };
+  }
 }

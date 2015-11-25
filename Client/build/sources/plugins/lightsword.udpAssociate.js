@@ -41,7 +41,7 @@ class LightSwordUdpAssociate {
             });
         });
     }
-    sendCommand(options, callback) {
+    initSocks5(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
         });
     }

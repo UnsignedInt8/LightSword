@@ -8,7 +8,7 @@ import * as net from 'net';
 import * as crypto from 'crypto';
 import * as logger from 'winston';
 import { ISocks5, ISocks5Options, ISocks5TransportOptions } from '../socks5/plugin';
-import { negotiateAsync } from './lightsword';
+import { negotiateAsync, initSocks5Async } from './lightsword';
 
 class LightSwordConnect implements ISocks5 {
   cipherKey: string;
@@ -42,36 +42,9 @@ class LightSwordConnect implements ISocks5 {
     this.proxySocket.setTimeout(options.timeout * 1000);
   }
   
-  async sendCommand(options: ISocks5Options, callback: (success: boolean, reason?: string) => void) {
-    let proxySocket = this.proxySocket;
-    let vNum = this.vNum;
-    let connect = {
-      dstAddr: options.dstAddr,
-      dstPort: options.dstPort,
-      type: 'connect',
-      vNum
-    };
-    
-    let cipher = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);  
-    let connectBuffer = cipher.update(new Buffer(JSON.stringify(connect)));
-    await proxySocket.writeAsync(connectBuffer);
-    
-    let data = await proxySocket.readAsync();
-    if (!data) return callback(false, 'Data not available.');
-    
-    let decipher = crypto.createDecipher(options.cipherAlgorithm, this.cipherKey);
-    
-    try {
-      let connectOk = JSON.parse(decipher.update(data).toString());
-      
-      if (connectOk.vNum === connect.vNum + 1) {
-        return callback(true);
-      }
-      
-      return callback(false, "Can't confirm verification number.");
-    } catch(ex) {
-      return callback(false, ex.message);
-    }
+  async initSocks5Proxy(options: ISocks5Options, callback: (success: boolean, reason?: string) => void) {
+    let result = await initSocks5Async(this.proxySocket, options, 'connect', this.cipherKey, this.vNum);
+    callback(result.success, result.reason);
   }
   
   async transport(options: ISocks5TransportOptions) {

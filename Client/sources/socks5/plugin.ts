@@ -25,8 +25,8 @@ export interface ISocks5 {
   // Step 1: Negotiate with Server.
   negotiate: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
   
-  // Step 2: Send SOCKS5 Command to Server.
-  sendCommand: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
+  // Step 2: Notifiy Server to initialize SOCKS5 proxy.
+  initSocks5Proxy: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
   
   // Step 3: Fill socks5 reply structure.
   // +----+-----+-------+------+----------+----------+
@@ -36,8 +36,8 @@ export interface ISocks5 {
   // +----+-----+-------+------+----------+----------+
   fillReply?: (reply: Buffer) => Buffer;
   
-  // Step 3: Transport data.
-  transport?: (options: ISocks5TransportOptions) => void;
+  // Step 3: Transport data with server.
+  transport: (options: ISocks5TransportOptions) => void;
 }
 
 export interface ISocks5Plugin {

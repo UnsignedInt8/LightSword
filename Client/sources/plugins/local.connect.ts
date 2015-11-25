@@ -29,7 +29,7 @@ class LocalConnect implements ISocks5 {
     });
   }
   
-  sendCommand(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
+  initSocks5Proxy(options: ISocks5Options, callback: (result: boolean, reason?: string) => void) {
     process.nextTick(() => callback(true));
   }
   
