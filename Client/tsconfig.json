@@ -4,8 +4,7 @@
     "module": "commonjs",
     "outDir": "./build",
     "declaration": true,
-    "sourceMap": true,
-    "experimentalAsyncFunctions": true
+    "sourceMap": true
   },
   "exclude": [
     ".vscode",

@@ -14,7 +14,7 @@ export interface ISocks5TransportOptions extends ISocks5Options {
 }
 export interface ISocks5 {
     negotiate: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
-    initSocks5: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
+    initSocks5Proxy: (options: ISocks5Options, callback: (result: boolean, reason?: string) => void) => void;
     fillReply?: (reply: Buffer) => Buffer;
     transport: (options: ISocks5TransportOptions) => void;
 }

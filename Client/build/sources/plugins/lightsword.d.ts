@@ -9,3 +9,7 @@ export declare function negotiateAsync(socket: net.Socket, options: ISocks5Optio
     cipherKey?: string;
     vNum?: number;
 }>;
+export declare function initSocks5Async(socket: net.Socket, options: ISocks5Options, cmdType: string, cipherKey: string, vNum: number): Promise<{
+    success: boolean;
+    reason?: string;
+}>;

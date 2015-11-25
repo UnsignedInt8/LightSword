@@ -981,6 +981,7 @@ declare module "net" {
         setEncoding(encoding?: string): void;
         write(data: any, encoding?: string, callback?: Function): void;
         destroy(): void;
+        dispose();
         pause(): void;
         resume(): void;
         setTimeout(timeout: number, callback?: Function): void;

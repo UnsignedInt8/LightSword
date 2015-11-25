@@ -47,33 +47,10 @@ class LightSwordConnect {
             this.proxySocket.setTimeout(options.timeout * 1000);
         });
     }
-    initSocks5(options, callback) {
+    initSocks5Proxy(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
-            let proxySocket = this.proxySocket;
-            let vNum = this.vNum;
-            let connect = {
-                dstAddr: options.dstAddr,
-                dstPort: options.dstPort,
-                type: 'connect',
-                vNum: vNum
-            };
-            let cipher = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
-            let connectBuffer = cipher.update(new Buffer(JSON.stringify(connect)));
-            yield proxySocket.writeAsync(connectBuffer);
-            let data = yield proxySocket.readAsync();
-            if (!data)
-                return callback(false, 'Data not available.');
-            let decipher = crypto.createDecipher(options.cipherAlgorithm, this.cipherKey);
-            try {
-                let connectOk = JSON.parse(decipher.update(data).toString());
-                if (connectOk.vNum === connect.vNum + 1) {
-                    return callback(true);
-                }
-                return callback(false, "Can't confirm verification number.");
-            }
-            catch (ex) {
-                return callback(false, ex.message);
-            }
+            let result = yield lightsword_1.initSocks5Async(this.proxySocket, options, 'connect', this.cipherKey, this.vNum);
+            callback(result.success, result.reason);
         });
     }
     transport(options) {

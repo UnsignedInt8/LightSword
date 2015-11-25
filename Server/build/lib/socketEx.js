@@ -15,32 +15,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-require('kinq').enable();
-require('async-node');
-require('./lib/socketEx');
-var logger = require('winston');
-var server_1 = require('./socks5/server');
-class App {
-    constructor(options) {
-        let defaultOptions = {
-            cipherAlgorithm: 'aes-256-cfb',
-            password: 'lightsword.neko',
-            port: 23333,
-            plugin: 'lightsword'
-        };
-        options = options || defaultOptions;
-        Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
-        try {
-            new server_1.Server(options).start();
-        }
-        catch (ex) {
-            logger.error(ex.message);
-        }
-    }
-}
-exports.App = App;
-if (!module.parent) {
-    process.title = 'LightSword Server Debug Mode';
-    new App();
-}
-//# sourceMappingURL=app.js.map
+var net = require('net');
+net.Socket.prototype.dispose = function () {
+    let me = this;
+    me.removeAllListeners();
+    me.end();
+    me.destroy();
+};
+//# sourceMappingURL=socketEx.js.map

@@ -32,7 +32,7 @@ class LocalConnect {
             callback(false, err.message);
         });
     }
-    initSocks5(options, callback) {
+    initSocks5Proxy(options, callback) {
         process.nextTick(() => callback(true));
     }
     transport(options) {

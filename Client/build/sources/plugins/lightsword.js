@@ -61,4 +61,33 @@ function negotiateAsync(socket, options) {
     });
 }
 exports.negotiateAsync = negotiateAsync;
+function initSocks5Async(socket, options, cmdType, cipherKey, vNum) {
+    return __awaiter(this, void 0, Promise, function* () {
+        let proxySocket = socket;
+        let connect = {
+            dstAddr: options.dstAddr,
+            dstPort: options.dstPort,
+            type: cmdType,
+            vNum: vNum
+        };
+        let cipher = crypto.createCipher(options.cipherAlgorithm, cipherKey);
+        let connectBuffer = cipher.update(new Buffer(JSON.stringify(connect)));
+        yield proxySocket.writeAsync(connectBuffer);
+        let data = yield proxySocket.readAsync();
+        if (!data)
+            return { success: false, reason: 'Data not available.' };
+        let decipher = crypto.createDecipher(options.cipherAlgorithm, cipherKey);
+        try {
+            let connectOk = JSON.parse(decipher.update(data).toString());
+            if (connectOk.vNum === vNum + 1) {
+                return { success: true };
+            }
+            return { success: false, reason: "Can't confirm verification number." };
+        }
+        catch (ex) {
+            return { success: false, reason: ex.message };
+        }
+    });
+}
+exports.initSocks5Async = initSocks5Async;
 //# sourceMappingURL=lightsword.js.map

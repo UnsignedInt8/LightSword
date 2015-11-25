@@ -6,6 +6,7 @@
 
 require('kinq').enable();
 require('async-node');
+require('./lib/socketEx');
 import * as fs from 'fs';
 import * as logger from 'winston';
 import { Server } from './socks5/server'

@@ -30,7 +30,7 @@ export async function negotiateAsync(socket: net.Socket, options: ISocks5Options
 
   let handshakeCipher = crypto.createCipher(cipherAlgorithm, password);
   let message = JSON.stringify(handshake);
-  let digest = crypto.createHash('sha256').update(message).digest('hex');
+  let digest = crypto.createHash('md5').update(message).digest('hex');
   message = `${message}\n${digest}`;
   let hello = Buffer.concat([handshakeCipher.update(new Buffer(message)), handshakeCipher.final()]);
   await proxySocket.writeAsync(hello);
@@ -44,7 +44,7 @@ export async function negotiateAsync(socket: net.Socket, options: ISocks5Options
     let res = JSON.parse(buf.toString('utf8'));
     let okNum = Number(res.okNum);
     
-    if (res.clientDigest !== digest) return { success: false, reason: 'Message has been falsified' };
+    if (res.digest !== digest) return { success: false, reason: 'Message has been falsified' };
     if (okNum !== vNum + 1) return { success: false, reason: "Can't confirm verification number." };
     
     return { success: true, vNum: okNum, cipherKey };

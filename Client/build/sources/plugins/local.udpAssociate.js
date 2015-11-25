@@ -23,10 +23,13 @@ var socks5Util = require('../socks5/util');
 var ipaddr = require('ipaddr.js');
 class LocalUdpAssociate {
     negotiate(options, callback) {
-        this.udpType = 'udp' + (net.isIP(options.dstAddr) || 4);
-        process.nextTick(() => callback(true));
+        return __awaiter(this, void 0, Promise, function* () {
+            let ip = yield socks5Util.lookupHostIPAsync();
+            this.udpType = 'udp' + (net.isIP(ip) || 4);
+            process.nextTick(() => callback(true));
+        });
     }
-    initSocks5(options, callback) {
+    initSocks5Proxy(options, callback) {
         let _this = this;
         let socket = dgram.createSocket(_this.udpType);
         let errorHandler = (err) => {
