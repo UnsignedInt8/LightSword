@@ -36,7 +36,7 @@ export class App {
     });
     
     server.on('error', (err) => {
-      console.log(err);
+      console.log(err.message);
       process.exit(1);
     });
     

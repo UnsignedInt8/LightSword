@@ -27,7 +27,7 @@ class App {
             socket.on('error', dispose);
         });
         server.on('error', (err) => {
-            console.log(err);
+            console.log(err.message);
             process.exit(1);
         });
         server.listen(localPort);

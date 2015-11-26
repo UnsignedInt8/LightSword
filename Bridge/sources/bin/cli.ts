@@ -20,7 +20,8 @@ program
 var args = <any>program;
 var options = {
   dstAddr: <string>args.server,
-  dstPort: <number>args.port
+  dstPort: <number>args.port,
+  localPort: args.localport
 };
 
 if (!options.dstAddr) {

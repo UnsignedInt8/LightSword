@@ -13,7 +13,8 @@ program
 var args = program;
 var options = {
     dstAddr: args.server,
-    dstPort: args.port
+    dstPort: args.port,
+    localPort: args.localport
 };
 if (!options.dstAddr) {
     console.error('Server Address not found.\n');
