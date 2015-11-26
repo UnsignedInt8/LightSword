@@ -32,7 +32,7 @@ class LightSwordUdpAssociate {
             let ip = yield socks5Util.lookupHostIPAsync();
             this.udpType = 'udp' + (net.isIP(ip) || 4);
             let _this = this;
-            this.proxySocket = net.createConnection(options.dstPort, options.dstAddr, () => __awaiter(this, void 0, Promise, function* () {
+            this.proxySocket = net.createConnection(options.serverPort, options.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
                 let result = yield lightsword_1.negotiateAsync(_this.proxySocket, options);
                 let success = result.success;
                 let reason = result.reason;
@@ -43,6 +43,7 @@ class LightSwordUdpAssociate {
                 callback(success, reason);
             }));
             this.proxySocket.on('error', (err) => {
+                console.log('udp negotiate error', err);
                 _this.proxySocket.dispose();
                 _this = null;
                 callback(false, err.message);
@@ -57,6 +58,7 @@ class LightSwordUdpAssociate {
                 callback(false, result.reason);
             let udp = dgram.createSocket(this.udpType);
             udp.once('error', (err) => {
+                console.log('udp bind error', err);
                 udp.removeAllListeners();
                 udp.close();
                 udp.unref();

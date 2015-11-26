@@ -17,9 +17,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var net = require('net');
 net.Socket.prototype.dispose = function () {
-    let me = this;
-    me.removeAllListeners();
-    me.end();
-    me.destroy();
+    this.removeAllListeners();
+    this.end();
+    this.destroy();
 };
 //# sourceMappingURL=socketEx.js.map

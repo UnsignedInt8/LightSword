@@ -1054,6 +1054,7 @@ declare module "dgram" {
         send(buf: Buffer, offset: number, length: number, port: number, address: string, callback?: (error: Error, bytes: number) => void): void;
         bind(port: number, address?: string, callback?: () => void): void;
         close(): void;
+        unref();
         address(): AddressInfo;
         setBroadcast(flag: boolean): void;
         setMulticastTTL(ttl: number): void;

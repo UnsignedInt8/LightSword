@@ -32,7 +32,6 @@ function negotiateAsync(socket, options) {
             cipherKey: cipherKey,
             cipherAlgorithm: cipherAlgorithm,
             vNum: vNum,
-            version: process.version
         };
         let handshakeCipher = crypto.createCipher(cipherAlgorithm, password);
         let message = JSON.stringify(handshake);
@@ -50,7 +49,7 @@ function negotiateAsync(socket, options) {
             let okNum = Number(res.okNum);
             if (res.digest !== digest)
                 return { success: false, reason: 'Message has been falsified' };
-            if (okNum !== vNum + 1)
+            if (okNum !== (vNum + 1))
                 return { success: false, reason: "Can't confirm verification number." };
             return { success: true, vNum: okNum, cipherKey: cipherKey };
         }
@@ -82,6 +81,8 @@ function initSocks5Async(socket, options, cmdType, cipherKey, vNum) {
             if (connectOk.vNum === vNum + 1) {
                 return { success: true };
             }
+            console.log(connectOk);
+            console.log('vNum', vNum);
             return { success: false, reason: "Can't confirm verification number." };
         }
         catch (ex) {

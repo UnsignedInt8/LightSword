@@ -27,12 +27,7 @@ class Server {
         let _this = this;
         let server = net.createServer((socket) => __awaiter(this, void 0, Promise, function* () {
             let executor = (new _this.Socks5());
-            function disposeSocket() {
-                socket.removeAllListeners();
-                socket.end();
-                socket.destroy();
-            }
-            socket.on('error', () => disposeSocket());
+            socket.on('error', () => socket.dispose());
             let options = {
                 cipherAlgorithm: _this.cipherAlgorithm,
                 password: _this.password,
@@ -52,7 +47,7 @@ class Server {
             }
             let negotiated = yield negotiateAsync();
             if (!negotiated)
-                return disposeSocket();
+                return socket.dispose();
             // Step 2: Process requests.
             executor.transport(options);
         }));

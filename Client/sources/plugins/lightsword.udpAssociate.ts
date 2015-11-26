@@ -25,8 +25,8 @@ class LightSwordUdpAssociate implements ISocks5 {
     let ip = await socks5Util.lookupHostIPAsync();
     this.udpType = 'udp' + (net.isIP(ip) || 4);
     let _this = this;
-    
-    this.proxySocket = net.createConnection(options.dstPort, options.dstAddr, async () => {
+
+    this.proxySocket = net.createConnection(options.serverPort, options.serverAddr, async () => {
       let result = await negotiateAsync(_this.proxySocket, options);
       let success = result.success;
       let reason = result.reason;
@@ -39,6 +39,7 @@ class LightSwordUdpAssociate implements ISocks5 {
     });
     
     this.proxySocket.on('error', (err) => {
+      console.log('udp negotiate error', err);
       _this.proxySocket.dispose();
       _this = null;
       callback(false, err.message);
@@ -53,6 +54,7 @@ class LightSwordUdpAssociate implements ISocks5 {
     let udp = dgram.createSocket(this.udpType);
     
     udp.once('error', (err) => {
+      console.log('udp bind error', err);
       udp.removeAllListeners();
       udp.close();
       udp.unref();

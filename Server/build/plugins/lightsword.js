@@ -16,6 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var net = require('net');
+var dgram = require('dgram');
 var crypto = require('crypto');
 class LightSwordSocks5 {
     constructor() {
@@ -45,7 +46,7 @@ class LightSwordSocks5 {
                 let handshake = JSON.parse(msg);
                 let cipherKey = handshake.cipherKey;
                 let clientCipherAlgorithm = handshake.cipherAlgorithm;
-                let okNum = handshake.vNum;
+                let okNum = Number(handshake.vNum);
                 let welcome = {
                     okNum: ++okNum,
                     digest: digest
@@ -66,45 +67,66 @@ class LightSwordSocks5 {
         return __awaiter(this, void 0, Promise, function* () {
             let clientSocket = options.clientSocket;
             let cipherAlgorithm = options.cipherAlgorithm;
-            function disposeSocket() {
-                clientSocket.removeAllListeners();
-                clientSocket.end();
-                clientSocket.destroy();
-                if (!proxySocket)
-                    return;
-                proxySocket.removeAllListeners();
-                proxySocket.end();
-                proxySocket.destroy();
-            }
             // Resolving Command Type
             let cmdData = yield clientSocket.readAsync();
             let decipher = crypto.createDecipher(cipherAlgorithm, this.cipherKey);
             let buf = Buffer.concat([decipher.update(cmdData), decipher.final()]);
             let request;
+            let disposeSocket;
             try {
                 request = JSON.parse(buf.toString('utf8'));
             }
             catch (ex) {
-                return disposeSocket();
+                return clientSocket.dispose();
             }
             if (request.vNum !== this.vNum)
-                return disposeSocket();
+                return clientSocket.dispose();
             let dstAddr = request.dstAddr;
             let dstPort = request.dstPort;
             let cmdType = request.type;
-            var proxySocket = net.createConnection(dstPort, dstAddr, () => __awaiter(this, void 0, Promise, function* () {
-                let cipherOnce = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
-                let conncetOk = { msg: 'connect ok', vNum: this.vNum + 1, digest: this.digest };
-                yield clientSocket.writeAsync(Buffer.concat([cipherOnce.update(new Buffer(JSON.stringify(conncetOk))), cipherOnce.final()]));
-                let cipher = crypto.createCipher(cipherAlgorithm, this.cipherKey);
-                let decipher = crypto.createDecipher(cipherAlgorithm, this.cipherKey);
-                proxySocket.pipe(cipher).pipe(clientSocket);
-                clientSocket.pipe(decipher).pipe(proxySocket);
-            }));
-            proxySocket.on('error', (err) => disposeSocket());
-            clientSocket.on('error', (err) => disposeSocket());
-            proxySocket.on('end', () => disposeSocket());
-            clientSocket.on('end', () => disposeSocket());
+            let connectOk = { msg: 'connect ok', vNum: this.vNum + 1, digest: this.digest };
+            console.log(connectOk);
+            let cipherConnectOk = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
+            let cipher = crypto.createCipher(cipherAlgorithm, this.cipherKey);
+            decipher = crypto.createDecipher(cipherAlgorithm, this.cipherKey);
+            if (cmdType === 'connect') {
+                let proxySocket = net.createConnection(dstPort, dstAddr, () => __awaiter(this, void 0, Promise, function* () {
+                    yield clientSocket.writeAsync(Buffer.concat([cipherConnectOk.update(new Buffer(JSON.stringify(connectOk))), cipherConnectOk.final()]));
+                    proxySocket.pipe(cipher).pipe(clientSocket);
+                    clientSocket.pipe(decipher).pipe(proxySocket);
+                }));
+                disposeSocket = () => {
+                    clientSocket.dispose();
+                    proxySocket.dispose();
+                };
+                proxySocket.on('close', disposeSocket);
+                proxySocket.on('error', disposeSocket);
+                proxySocket.on('end', disposeSocket);
+            }
+            if (cmdType === 'udpAssociate') {
+                yield clientSocket.writeAsync(Buffer.concat([cipherConnectOk.update(new Buffer(JSON.stringify(connectOk))), cipherConnectOk.final()]));
+                console.log('udp connect ok');
+                let udp = dgram.createSocket('udp' + (net.isIP(dstAddr) || 4));
+                clientSocket.on('data', (data) => {
+                    let di = decipher.update(data);
+                    udp.send(di, 0, di.length, dstPort, dstAddr);
+                });
+                udp.on('message', (msg, rinfo) => __awaiter(this, void 0, Promise, function* () {
+                    let ci = cipher.update(msg);
+                    yield clientSocket.writeAsync(ci);
+                }));
+                disposeSocket = () => {
+                    clientSocket.dispose();
+                    udp.removeAllListeners();
+                    udp.close();
+                    udp.unref();
+                };
+                udp.on('error', disposeSocket);
+                udp.on('close', disposeSocket);
+            }
+            clientSocket.on('close', disposeSocket);
+            clientSocket.on('error', disposeSocket);
+            clientSocket.on('end', disposeSocket);
         });
     }
 }

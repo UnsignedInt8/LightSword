@@ -30,13 +30,7 @@ export class Server {
       
       let executor = <ISocks5>(new _this.Socks5());
       
-      function disposeSocket() {
-        socket.removeAllListeners();
-        socket.end();
-        socket.destroy();
-      }
-      
-      socket.on('error', () => disposeSocket());
+      socket.on('error', () => socket.dispose());
       
       let options: ISocks5Options = {
         cipherAlgorithm: _this.cipherAlgorithm,
@@ -55,7 +49,7 @@ export class Server {
       }
       
       let negotiated = await negotiateAsync();
-      if (!negotiated) return disposeSocket();
+      if (!negotiated) return socket.dispose();
       
       // Step 2: Process requests.
       executor.transport(options);
