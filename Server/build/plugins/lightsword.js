@@ -45,8 +45,6 @@ class LightSwordSocks5 {
                 let handshake = JSON.parse(msg);
                 let cipherKey = handshake.cipherKey;
                 let clientCipherAlgorithm = handshake.cipherAlgorithm;
-                if (typeof handshake.vNum !== 'number')
-                    return callback(false, 'Not recognizable data!!!');
                 let okNum = handshake.vNum;
                 let welcome = {
                     okNum: ++okNum,
@@ -68,6 +66,16 @@ class LightSwordSocks5 {
         return __awaiter(this, void 0, Promise, function* () {
             let clientSocket = options.clientSocket;
             let cipherAlgorithm = options.cipherAlgorithm;
+            function disposeSocket() {
+                clientSocket.removeAllListeners();
+                clientSocket.end();
+                clientSocket.destroy();
+                if (!proxySocket)
+                    return;
+                proxySocket.removeAllListeners();
+                proxySocket.end();
+                proxySocket.destroy();
+            }
             // Resolving Command Type
             let cmdData = yield clientSocket.readAsync();
             let decipher = crypto.createDecipher(cipherAlgorithm, this.cipherKey);
@@ -77,36 +85,27 @@ class LightSwordSocks5 {
                 request = JSON.parse(buf.toString('utf8'));
             }
             catch (ex) {
-                return clientSocket.dispose();
+                return disposeSocket();
             }
             if (request.vNum !== this.vNum)
-                return clientSocket.dispose();
+                return disposeSocket();
             let dstAddr = request.dstAddr;
             let dstPort = request.dstPort;
             let cmdType = request.type;
-            let connectOk = { msg: 'connect ok', vNum: this.vNum + 1, digest: this.digest };
-            if (cmdType === 'connect') {
-                return LightSwordSocks5.connect(clientSocket, cipherAlgorithm, this.cipherKey, dstAddr, dstPort, connectOk);
-            }
+            var proxySocket = net.createConnection(dstPort, dstAddr, () => __awaiter(this, void 0, Promise, function* () {
+                let cipherOnce = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
+                let conncetOk = { msg: 'connect ok', vNum: this.vNum + 1, digest: this.digest };
+                yield clientSocket.writeAsync(Buffer.concat([cipherOnce.update(new Buffer(JSON.stringify(conncetOk))), cipherOnce.final()]));
+                let cipher = crypto.createCipher(cipherAlgorithm, this.cipherKey);
+                let decipher = crypto.createDecipher(cipherAlgorithm, this.cipherKey);
+                proxySocket.pipe(cipher).pipe(clientSocket);
+                clientSocket.pipe(decipher).pipe(proxySocket);
+            }));
+            proxySocket.on('error', (err) => disposeSocket());
+            clientSocket.on('error', (err) => disposeSocket());
+            proxySocket.on('end', () => disposeSocket());
+            clientSocket.on('end', () => disposeSocket());
         });
-    }
-    static connect(clientSocket, cipherAlgorithm, cipherKey, dstAddr, dstPort, connectOk) {
-        let proxySocket = net.createConnection(dstPort, dstAddr, () => __awaiter(this, void 0, Promise, function* () {
-            let cipherOnce = crypto.createCipher(cipherAlgorithm, cipherKey);
-            yield clientSocket.writeAsync(Buffer.concat([cipherOnce.update(new Buffer(JSON.stringify(connectOk))), cipherOnce.final()]));
-            let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-            let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
-            proxySocket.pipe(cipher).pipe(clientSocket);
-            clientSocket.pipe(decipher).pipe(proxySocket);
-        }));
-        function disposeSocket() {
-            clientSocket.dispose();
-            proxySocket.dispose();
-        }
-        proxySocket.on('error', (err) => disposeSocket());
-        clientSocket.on('error', (err) => disposeSocket());
-        proxySocket.on('end', () => disposeSocket());
-        clientSocket.on('end', () => disposeSocket());
     }
 }
 module.exports = LightSwordSocks5;

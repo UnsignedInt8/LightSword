@@ -37,7 +37,6 @@ class LightSwordSocks5 implements ISocks5 {
       let handshake = JSON.parse(msg);
       let cipherKey = handshake.cipherKey;
       let clientCipherAlgorithm = handshake.cipherAlgorithm;
-      if (typeof handshake.vNum !== 'number') return callback(false, 'Not recognizable data!!!');
       let okNum = handshake.vNum;
       
       let welcome = {
@@ -63,6 +62,7 @@ class LightSwordSocks5 implements ISocks5 {
     let clientSocket = options.clientSocket;
     let cipherAlgorithm = options.cipherAlgorithm;
     
+    
     // Resolving Command Type
     let cmdData = await clientSocket.readAsync();
     let decipher = crypto.createDecipher(cipherAlgorithm, this.cipherKey);
@@ -80,38 +80,38 @@ class LightSwordSocks5 implements ISocks5 {
     let dstAddr = request.dstAddr;
     let dstPort = request.dstPort;
     let cmdType = request.type;
-
-    let connectOk = { msg: 'connect ok', vNum: this.vNum + 1, digest: this.digest };
     
-    if (cmdType === 'connect') {
-      return LightSwordSocks5.connect(clientSocket, cipherAlgorithm, this.cipherKey, dstAddr, dstPort, connectOk);
-    }
-    
-    return clientSocket.dispose();
-  }
-  
-  static connect(clientSocket: net.Socket, cipherAlgorithm, cipherKey, dstAddr, dstPort, connectOk) {
-    let proxySocket = net.createConnection(dstPort, dstAddr, async () => {      
-      let cipherOnce = crypto.createCipher(cipherAlgorithm, cipherKey);
-      await clientSocket.writeAsync(Buffer.concat([cipherOnce.update(new Buffer(JSON.stringify(connectOk))), cipherOnce.final()]));
+    if (cmdType === 'connect') {   
       
-      let cipher = crypto.createCipher(cipherAlgorithm, cipherKey);
-      let decipher = crypto.createDecipher(cipherAlgorithm, cipherKey);
-    
-      proxySocket.pipe(cipher).pipe(clientSocket);
-      clientSocket.pipe(decipher).pipe(proxySocket);
-    });
-    
-    function disposeSocket() {
-      clientSocket.dispose();
-      proxySocket.dispose();
+      let proxySocket = net.createConnection(dstPort, dstAddr, async () => {      
+        let cipherOnce = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
+        let conncetOk = { msg: 'connect ok', vNum: this.vNum + 1, digest: this.digest };
+        await clientSocket.writeAsync(Buffer.concat([cipherOnce.update(new Buffer(JSON.stringify(conncetOk))), cipherOnce.final()]));
+        
+        let cipher = crypto.createCipher(cipherAlgorithm, this.cipherKey);
+        let decipher = crypto.createDecipher(cipherAlgorithm, this.cipherKey);
+        proxySocket.pipe(cipher).pipe(clientSocket);
+        clientSocket.pipe(decipher).pipe(proxySocket);
+      });
+      
+      function disposeSocket() {
+        clientSocket.dispose();
+        proxySocket.dispose();
+      }
+      
+      proxySocket.on('close', () => disposeSocket());
+      clientSocket.on('close', () => disposeSocket());
+      
+      proxySocket.on('error', (err) => disposeSocket());
+      clientSocket.on('error', (err) => disposeSocket());
+      
+      proxySocket.on('end', () => disposeSocket());
+      clientSocket.on('end', () => disposeSocket());
     }
-    
-    proxySocket.on('error', (err) => disposeSocket());
-    clientSocket.on('error', (err) => disposeSocket());
-    
-    proxySocket.on('end', () => disposeSocket());
-    clientSocket.on('end', () => disposeSocket());
+
+    if (cmdType === 'udpAssociate') {
+      
+    }
   }
 }
 

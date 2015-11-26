@@ -12,20 +12,21 @@ import { ISocks5Options } from '../socks5/plugin';
 /**
  * LightSword Negotiation Algorithm
  */
-export async function negotiateAsync(socket: net.Socket, options: ISocks5Options): Promise<{ success: boolean, reason?: string, cipherKey?: string, vNum?: number }> {
+export async function negotiateAsync(socket: net.Socket, options: ISocks5Options): Promise<{ success: boolean, reason?: string, cipherKey?: iv?: Buffer, string, vNum?: number }> {
   let cipherAlgorithm = options.cipherAlgorithm;
   let password = options.password;
   let proxySocket = socket;
   
   let cipherKey = crypto.createHash('sha256').update((Math.random() * Date.now()).toString()).digest('hex');
   let vNum = Number((Math.random() * Date.now()).toFixed());
+  let iv = crypto.randomBytes(16).toString('hex');
   
   let handshake = {
     padding: cipherKey.where(c => c >= 'a' && c <= 'z').toArray(),
     cipherKey,
     cipherAlgorithm,
     vNum,
-    version: process.version
+    iv
   };
 
   let handshakeCipher = crypto.createCipher(cipherAlgorithm, password);
@@ -47,7 +48,7 @@ export async function negotiateAsync(socket: net.Socket, options: ISocks5Options
     if (res.digest !== digest) return { success: false, reason: 'Message has been falsified' };
     if (okNum !== vNum + 1) return { success: false, reason: "Can't confirm verification number." };
     
-    return { success: true, vNum: okNum, cipherKey };
+    return { success: true, vNum: okNum, cipherKey, iv };
   } catch(ex) {
     logger.error(ex.message);
     return { success: false, reason: ex.message };

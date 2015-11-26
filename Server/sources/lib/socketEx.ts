@@ -7,8 +7,7 @@
 import * as net from 'net';
 
 net.Socket.prototype.dispose = function() {
-  let me = <net.Socket>this;
-  me.removeAllListeners();
-  me.end();
-  me.destroy();
+  this.removeAllListeners();
+  this.end();
+  this.destroy();
 }
