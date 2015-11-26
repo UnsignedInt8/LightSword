@@ -1,6 +1,6 @@
 # LightSword Bridge
 
-## LightSword 中转服务器
+LightSword 中转服务器
 
 使用npm安装LightSword Bridge:
 
