@@ -23,5 +23,6 @@
   "dependencies": {
     "commander": "^2.9.0",
     "kinq": ""
-  }
+  },
+  "preferGlobal": true
 }
