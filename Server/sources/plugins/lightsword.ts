@@ -84,7 +84,6 @@ class LightSwordSocks5 implements ISocks5 {
     let cmdType = request.type;
     
     let connectOk = { msg: 'connect ok', vNum: this.vNum + 1, digest: this.digest };
-    console.log(connectOk);
     let cipherConnectOk = crypto.createCipher(options.cipherAlgorithm, this.cipherKey);
 
     let cipher = crypto.createCipher(cipherAlgorithm, this.cipherKey);
@@ -111,7 +110,7 @@ class LightSwordSocks5 implements ISocks5 {
 
     if (cmdType === 'udpAssociate') {
       await clientSocket.writeAsync(Buffer.concat([cipherConnectOk.update(new Buffer(JSON.stringify(connectOk))), cipherConnectOk.final()]));
-      console.log('udp connect ok');
+
       let udp = dgram.createSocket('udp' + (net.isIP(dstAddr) || 4));
       
       clientSocket.on('data', (data) => {

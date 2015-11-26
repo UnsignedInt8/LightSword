@@ -43,7 +43,6 @@ class LightSwordUdpAssociate {
                 callback(success, reason);
             }));
             this.proxySocket.on('error', (err) => {
-                console.log('udp negotiate error', err);
                 _this.proxySocket.dispose();
                 _this = null;
                 callback(false, err.message);
@@ -58,7 +57,6 @@ class LightSwordUdpAssociate {
                 callback(false, result.reason);
             let udp = dgram.createSocket(this.udpType);
             udp.once('error', (err) => {
-                console.log('udp bind error', err);
                 udp.removeAllListeners();
                 udp.close();
                 udp.unref();

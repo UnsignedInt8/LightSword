@@ -39,7 +39,6 @@ class LightSwordUdpAssociate implements ISocks5 {
     });
     
     this.proxySocket.on('error', (err) => {
-      console.log('udp negotiate error', err);
       _this.proxySocket.dispose();
       _this = null;
       callback(false, err.message);
@@ -54,7 +53,6 @@ class LightSwordUdpAssociate implements ISocks5 {
     let udp = dgram.createSocket(this.udpType);
     
     udp.once('error', (err) => {
-      console.log('udp bind error', err);
       udp.removeAllListeners();
       udp.close();
       udp.unref();

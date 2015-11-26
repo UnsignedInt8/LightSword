@@ -81,8 +81,6 @@ function initSocks5Async(socket, options, cmdType, cipherKey, vNum) {
             if (connectOk.vNum === vNum + 1) {
                 return { success: true };
             }
-            console.log(connectOk);
-            console.log('vNum', vNum);
             return { success: false, reason: "Can't confirm verification number." };
         }
         catch (ex) {
