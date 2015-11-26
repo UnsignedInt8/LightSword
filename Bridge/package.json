@@ -1,0 +1,19 @@
+{
+  "name": "lightsword-bridge",
+  "version": "0.0.1",
+  "description": "LightSword Bridge",
+  "main": "build/",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/SunshinyNeko/LightSword.git"
+  },
+  "author": "猫王子",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/SunshinyNeko/LightSword/issues"
+  },
+  "homepage": "https://github.com/SunshinyNeko/LightSword#readme"
+}
