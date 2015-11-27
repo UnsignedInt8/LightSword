@@ -38,19 +38,23 @@ class LightSwordConnect {
                 callback(success, reason);
             }));
             this.proxySocket.on('error', (error) => {
+                logger.info(`connect error: ${error.message} ${options.dstAddr}:${options.dstPort}`);
                 _this.proxySocket.dispose();
                 _this = null;
                 callback(false, error.message);
             });
+            this.proxySocket.setTimeout(50);
             if (!options.timeout)
                 return;
-            this.proxySocket.setTimeout(options.timeout * 1000);
+            // this.proxySocket.setTimeout(options.timeout * 1000);
         });
     }
     initSocks5Proxy(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
+            this.proxySocket.once('error', (err) => callback(false, err.message));
             let result = yield lightsword_1.initSocks5Async(this.proxySocket, options, 'connect', this.cipherKey, this.vNum);
             callback(result.success, result.reason);
+            this.proxySocket.removeAllListeners('error');
         });
     }
     transport(options) {

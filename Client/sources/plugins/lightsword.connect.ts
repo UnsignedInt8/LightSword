@@ -33,18 +33,22 @@ class LightSwordConnect implements ISocks5 {
     });
 
     this.proxySocket.on('error', (error) => {
+      logger.info(`connect error: ${error.message} ${options.dstAddr}:${options.dstPort}`);
       _this.proxySocket.dispose();
       _this = null;
       callback(false, error.message);
     });
     
+    this.proxySocket.setTimeout(50);
     if (!options.timeout) return;
-    this.proxySocket.setTimeout(options.timeout * 1000);
+    // this.proxySocket.setTimeout(options.timeout * 1000);
   }
   
   async initSocks5Proxy(options: ISocks5Options, callback: (success: boolean, reason?: string) => void) {
+    this.proxySocket.once('error', (err) => callback(false, err.message));
     let result = await initSocks5Async(this.proxySocket, options, 'connect', this.cipherKey, this.vNum);
     callback(result.success, result.reason);
+    this.proxySocket.removeAllListeners('error');
   }
   
   async transport(options: ISocks5TransportOptions) {

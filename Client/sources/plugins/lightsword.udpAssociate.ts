@@ -47,8 +47,10 @@ class LightSwordUdpAssociate implements ISocks5 {
   
   async initSocks5Proxy(options: ISocks5Options, callback: (success: boolean, reason?: string) => void) {
     let _this = this;
+    this.proxySocket.on('error', (err) => callback(false, err.message));
     let result = await initSocks5Async(this.proxySocket, options, 'udpAssociate', this.cipherKey, this.vNum);
     if (!result.success) callback(false, result.reason);
+    this.proxySocket.removeAllListeners('error');
     
     let udp = dgram.createSocket(this.udpType);
     

@@ -42,6 +42,7 @@ export class Socks5Driver {
       _this = null;
     }
     
+    _this.clientSocket.on('error', (err) => disposeSocket(err));
     let executor = _this.executor;
     
     let socks5Opts: ISocks5Options = {
@@ -62,7 +63,7 @@ export class Socks5Driver {
       });
     }
     
-    async function sendCommandAsync(): Promise<boolean> {
+    async function initRemoteSocks5Async(): Promise<boolean> {
       return new Promise<boolean>(resolve => {
         executor.initSocks5Proxy(socks5Opts, (success, reason) => {
           if (!success) logger.warn(reason);
@@ -83,7 +84,7 @@ export class Socks5Driver {
     }
     
     // Step 2: Send command to Server
-    success = await sendCommandAsync();
+    success = await initRemoteSocks5Async();
     reply[1] = success ? REPLY_CODE.SUCCESS : REPLY_CODE.CONNECTION_REFUSED;
     
     // Step 3: Fill reply structure, reply client socket.

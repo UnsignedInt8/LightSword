@@ -52,9 +52,11 @@ class LightSwordUdpAssociate {
     initSocks5Proxy(options, callback) {
         return __awaiter(this, void 0, Promise, function* () {
             let _this = this;
+            this.proxySocket.on('error', (err) => callback(false, err.message));
             let result = yield lightsword_1.initSocks5Async(this.proxySocket, options, 'udpAssociate', this.cipherKey, this.vNum);
             if (!result.success)
                 callback(false, result.reason);
+            this.proxySocket.removeAllListeners('error');
             let udp = dgram.createSocket(this.udpType);
             udp.once('error', (err) => {
                 udp.removeAllListeners();

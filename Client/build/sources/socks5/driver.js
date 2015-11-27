@@ -34,6 +34,7 @@ class Socks5Driver {
                 _this.clientSocket = null;
                 _this = null;
             }
+            _this.clientSocket.on('error', (err) => disposeSocket(err));
             let executor = _this.executor;
             let socks5Opts = {
                 cipherAlgorithm: _this.cipherAlgorithm,
@@ -54,7 +55,7 @@ class Socks5Driver {
                     });
                 });
             }
-            function sendCommandAsync() {
+            function initRemoteSocks5Async() {
                 return __awaiter(this, void 0, Promise, function* () {
                     return new Promise(resolve => {
                         executor.initSocks5Proxy(socks5Opts, (success, reason) => {
@@ -74,7 +75,7 @@ class Socks5Driver {
                 return disposeSocket(null, 'proxy');
             }
             // Step 2: Send command to Server
-            success = yield sendCommandAsync();
+            success = yield initRemoteSocks5Async();
             reply[1] = success ? consts_1.REPLY_CODE.SUCCESS : consts_1.REPLY_CODE.CONNECTION_REFUSED;
             // Step 3: Fill reply structure, reply client socket.
             if (executor.fillReply)
