@@ -17,6 +17,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 require('async-node');
 require('kinq').enable();
+var constant_1 = require('../lib/constant');
 class App {
+    constructor(options) {
+        let defaultOptions = {
+            cipherAlgorithm: constant_1.defaultCipherAlgorithm,
+            password: constant_1.defaultPassword,
+            port: constant_1.defaultListenPort
+        };
+    }
 }
 exports.App = App;

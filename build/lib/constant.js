@@ -19,3 +19,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     VPN_TYPE[VPN_TYPE["SOCKS5"] = 5] = "SOCKS5";
 })(exports.VPN_TYPE || (exports.VPN_TYPE = {}));
 var VPN_TYPE = exports.VPN_TYPE;
+exports.defaultCipherAlgorithm = 'aes-256-cfb';
+exports.defaultPassword = 'lightsword.neko';
+exports.defaultListenPort = 2015;

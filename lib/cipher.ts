@@ -6,8 +6,6 @@
 
 import * as crypto from 'crypto';
 
-export const DefaultAlgorithm = 'aes-256-cfb';
-
 export const SupportedCiphers = {
   'aes-128-cfb': [16, 16],
   'aes-192-cfb': [24, 16],
@@ -27,6 +25,8 @@ export const SupportedCiphers = {
   'seed-cfb': [16, 16]
 }
 
+Object.freeze(SupportedCiphers);
+
 export function createCipher(algorithm: string, password: string): { cipher: crypto.Cipher, iv: Buffer } {
   return createDeOrCipher('cipher', algorithm, password);
 }
@@ -38,8 +38,6 @@ export function createDecipher(algorithm: string, password: string, iv: Buffer):
 function createDeOrCipher(type: string, algorithm: string, password, iv?: Buffer): { cipher: crypto.Cipher | crypto.Decipher, iv: Buffer } {
   let cipherAlgorithm = algorithm.toLowerCase();
   let keyIv = SupportedCiphers[cipherAlgorithm];
-  
-  if (!keyIv) keyIv = SupportedCiphers[DefaultAlgorithm];
   
   let key = new Buffer(password);
   if (key.length > keyIv[1]) key = key.slice(0, keyIv[1]);

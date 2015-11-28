@@ -19,7 +19,7 @@ var net = require('net');
 var crypto = require('../lib/cipher');
 var constant_1 = require('../lib/constant');
 var index_1 = require('./socks5/index');
-class Socks5Server {
+class LsServer {
     constructor(options) {
         let _this = this;
         ['cipherAlgorithm', 'password', 'port'].forEach(n => _this[n] = options[n]);
@@ -30,7 +30,7 @@ class Socks5Server {
             let data = yield client.readAsync();
             if (!data)
                 return client.dispose();
-            let meta = crypto.SupportedCiphers[me.cipherAlgorithm] || crypto.SupportedCiphers[crypto.DefaultAlgorithm];
+            let meta = crypto.SupportedCiphers[me.cipherAlgorithm];
             let ivLength = meta[1];
             let iv = new Buffer(ivLength);
             data.copy(iv, 0, 0, ivLength);
@@ -45,7 +45,7 @@ class Socks5Server {
             data.copy(request, 0, ivLength + 3 + paddingSize, data.length);
             request = decipher.update(request);
             if (vpnType === constant_1.VPN_TYPE.SOCKS5) {
-                return index_1.HandleSocks5(client, request);
+                return index_1.handleSocks5(client, request);
             }
             client.dispose();
         }));
@@ -59,4 +59,4 @@ class Socks5Server {
         this._server.destroy();
     }
 }
-exports.Socks5Server = Socks5Server;
+exports.LsServer = LsServer;

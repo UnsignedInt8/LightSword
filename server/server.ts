@@ -8,9 +8,9 @@
 import * as net from 'net';
 import * as crypto from '../lib/cipher';
 import { VPN_TYPE } from '../lib/constant'
-import { HandleSocks5 } from './socks5/index';
+import { handleSocks5 } from './socks5/index';
 
-export class Socks5Server {
+export class LsServer {
   cipherAlgorithm: string;
   password: string;
   port: number;
@@ -29,7 +29,7 @@ export class Socks5Server {
       let data = await client.readAsync();
       if (!data) return client.dispose();
       
-      let meta = crypto.SupportedCiphers[me.cipherAlgorithm] || crypto.SupportedCiphers[crypto.DefaultAlgorithm];
+      let meta = crypto.SupportedCiphers[me.cipherAlgorithm];
       let ivLength = meta[1];
       let iv = new Buffer(ivLength);
       data.copy(iv, 0, 0, ivLength);
@@ -49,7 +49,7 @@ export class Socks5Server {
       request = decipher.update(request);
       
       if (vpnType === VPN_TYPE.SOCKS5) {
-        return HandleSocks5(client, request);
+        return handleSocks5(client, request);
       }
       
       client.dispose();

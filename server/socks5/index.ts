@@ -9,7 +9,7 @@ import { REQUEST_CMD } from '../../lib/socks5Constant';
 import * as socks5Helper from '../../lib/socks5Helper';
 import { connect } from './connectHandler';
 
-export function HandleSocks5(client: net.Socket, data: Buffer) {
+export function handleSocks5(client: net.Socket, data: Buffer) {
   let dst = socks5Helper.refineDestination(data);
   
   switch (dst.cmd) {

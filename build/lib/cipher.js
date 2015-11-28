@@ -3,7 +3,6 @@
 //-----------------------------------
 'use strict';
 var crypto = require('crypto');
-exports.DefaultAlgorithm = 'aes-256-cfb';
 exports.SupportedCiphers = {
     'aes-128-cfb': [16, 16],
     'aes-192-cfb': [24, 16],
@@ -22,6 +21,7 @@ exports.SupportedCiphers = {
     'rc4-md5': [16, 16],
     'seed-cfb': [16, 16]
 };
+Object.freeze(exports.SupportedCiphers);
 function createCipher(algorithm, password) {
     return createDeOrCipher('cipher', algorithm, password);
 }
@@ -33,8 +33,6 @@ exports.createDecipher = createDecipher;
 function createDeOrCipher(type, algorithm, password, iv) {
     let cipherAlgorithm = algorithm.toLowerCase();
     let keyIv = exports.SupportedCiphers[cipherAlgorithm];
-    if (!keyIv)
-        keyIv = exports.SupportedCiphers[exports.DefaultAlgorithm];
     let key = new Buffer(password);
     if (key.length > keyIv[1])
         key = key.slice(0, keyIv[1]);
