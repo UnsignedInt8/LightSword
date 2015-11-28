@@ -5,6 +5,7 @@
 'use strict'
 
 import * as net from 'net';
+require('../lib/socketEx');
 
 export class App {
   
@@ -20,13 +21,8 @@ export class App {
       });
       
       function dispose() {
-        transitSocket.removeAllListeners();
-        transitSocket.end();
-        transitSocket.destroy();
-        
-        socket.removeAllListeners();
-        socket.end();
-        socket.destroy();
+        transitSocket.dispose();
+        socket.dispose();
       }
       
       transitSocket.on('end', dispose);

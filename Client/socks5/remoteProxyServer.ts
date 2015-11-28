@@ -4,4 +4,8 @@
 
 'use strict'
 
-require('./socketEx');
+import { Socks5Server } from './socks5Server';
+
+export class RemoteProxyServer extends Socks5Server {
+  
+}

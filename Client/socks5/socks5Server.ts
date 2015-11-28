@@ -6,10 +6,10 @@
 
 import * as net from 'net';
 import * as crypto from 'crypto';
-import * as socks5const from './const';
 import * as cipher from '../../lib/cipher';
+import { AUTHENTICATION, SOCKS_VER } from '../../lib/socks5Constant';
 
-type ServerOptions = {
+export type ServerOptions = {
   listenAddr: string;
   listenPort: number;
   password: string;
@@ -19,7 +19,7 @@ type ServerOptions = {
   timeout: number;
 }
 
-class LocalServer {
+export abstract class Socks5Server {
   public listenAddr: string;
   public listenPort: number;
   public password: string;
@@ -47,8 +47,8 @@ class LocalServer {
       await client.writeAsync(reply.data);
       if (!reply.success) return client.dispose();
       
-      let request = await client.readAsync();
-      
+      data = await client.readAsync();
+      _this.connectRemoteServer(client, data);
     });
     
     server.listen(this.listenPort, this.listenAddr);
@@ -57,11 +57,13 @@ class LocalServer {
   
   private handleHandshake(data: Buffer): { success: boolean, data: Buffer } {
     let methodCount = data[1];
-    let code = data.skip(2).take(methodCount).contains(socks5const.AUTHENTICATION.NOAUTH) 
-      ? socks5const.AUTHENTICATION.NOAUTH 
-      : socks5const.AUTHENTICATION.NONE;
-    let success = code === socks5const.AUTHENTICATION.NOAUTH;
+    let code = data.skip(2).take(methodCount).contains(AUTHENTICATION.NOAUTH) 
+      ? AUTHENTICATION.NOAUTH 
+      : AUTHENTICATION.NONE;
+    let success = code === AUTHENTICATION.NOAUTH;
     
-    return { success, data: new Buffer([socks5const.SOCKS_VER.V5, code]) };
+    return { success, data: new Buffer([SOCKS_VER.V5, code]) };
   }
+  
+  abstract connectRemoteServer(clientSocket: net.Socket, socksRequest: Buffer);
 }
