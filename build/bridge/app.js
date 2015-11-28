@@ -3,6 +3,7 @@
 //-----------------------------------
 'use strict';
 var net = require('net');
+require('../lib/socketEx');
 class App {
     constructor(options) {
         let dstAddr = options.dstAddr;
@@ -14,12 +15,8 @@ class App {
                 transitSocket.pipe(socket);
             });
             function dispose() {
-                transitSocket.removeAllListeners();
-                transitSocket.end();
-                transitSocket.destroy();
-                socket.removeAllListeners();
-                socket.end();
-                socket.destroy();
+                transitSocket.dispose();
+                socket.dispose();
             }
             transitSocket.on('end', dispose);
             transitSocket.on('error', dispose);

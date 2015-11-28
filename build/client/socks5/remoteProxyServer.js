@@ -1,3 +1,7 @@
+//-----------------------------------
+// Copyright(c) 2015 猫王子
+//-----------------------------------
+'use strict';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
     return new Promise(function (resolve, reject) {
         generator = generator.call(thisArg, _arguments);
@@ -11,3 +15,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var socks5Server_1 = require('./socks5Server');
+class RemoteProxyServer extends socks5Server_1.Socks5Server {
+    connectRemoteServer(client, request) {
+    }
+}
+exports.RemoteProxyServer = RemoteProxyServer;
