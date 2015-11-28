@@ -52,6 +52,7 @@ export abstract class Socks5Server {
     });
     
     server.listen(this.listenPort, this.listenAddr);
+    server.on('error', (err) => console.error(err.message));
     this._server = server;
   }
   

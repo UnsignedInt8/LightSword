@@ -3,7 +3,7 @@
 //-----------------------------------
 'use strict';
 var crypto = require('crypto');
-let SupportedCiphers = {
+exports.SupportedCiphers = {
     'aes-128-cfb': [16, 16],
     'aes-192-cfb': [24, 16],
     'aes-256-cfb': [32, 16],
@@ -23,10 +23,10 @@ let SupportedCiphers = {
 };
 function createCipher(algorithm, password) {
     let cipherAlgorithm = algorithm.toLowerCase();
-    let keyIv = SupportedCiphers[algorithm];
+    let keyIv = exports.SupportedCiphers[algorithm];
     if (!keyIv) {
         cipherAlgorithm = 'aes-256-cfb';
-        keyIv = SupportedCiphers[cipherAlgorithm];
+        keyIv = exports.SupportedCiphers[cipherAlgorithm];
     }
     let key = new Buffer(password);
     if (key.length > keyIv[1])

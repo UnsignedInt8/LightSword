@@ -7,7 +7,6 @@
 import * as program from 'commander';
 import { App } from '../app'
 import * as fs from 'fs';
-import * as logger from 'winston';
 import * as path from 'path';
 import * as child from 'child_process';
 
@@ -36,15 +35,15 @@ function parseFile(path: string) {
   try {
     return JSON.parse(content);
   } catch(ex) {
-    logger.warn('Configuration file error');
-    logger.warn(ex.message);
+    console.warn('Configuration file error');
+    console.warn(ex.message);
   }
 }
 
 var fileOptions = parseFile(args.config) || {};
   
 var argsOptions = {
-  listenAddr: args.any ? '0.0.0.0' : 'localhost',
+  listenAddr: args.any ? '' : 'localhost',
   listenPort: args.listenport,
   serverAddr: args.server,
   serverPort: args.port,
@@ -55,7 +54,7 @@ var argsOptions = {
 }
 
 if (args.fork && !process.env.__daemon) {
-  logger.info('Run as daemon');
+  console.info('Run as daemon');
   process.env.__daemon = true;
   var cp = child.spawn(process.argv[1], process.argv.skip(2).toArray(), { detached: true, stdio: 'ignore', env: process.env, cwd: process.cwd() });
   cp.unref();

@@ -3,6 +3,9 @@
   "version": "0.3.0",
   "description": "LightSword Secure SOCKS5 Proxy",
   "main": "index.js",
+  "bin": {
+    "lightsword-client": "./build/client/bin/cli.js"
+  },
   "scripts": {
     "test": "mocha test/**/*.js test/*.js"
   },
@@ -25,8 +28,7 @@
   "dependencies": {
     "async-node": "0.0.5",
     "commander": "^2.9.0",
-    "kinq": "0.0.6",
-    "winston": "^2.1.1"
+    "kinq": "0.0.6"
   },
   "devDependencies": {
     "mocha": "^2.3.4"

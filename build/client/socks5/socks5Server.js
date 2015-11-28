@@ -39,6 +39,7 @@ class Socks5Server {
             _this.connectRemoteServer(client, data);
         }));
         server.listen(this.listenPort, this.listenAddr);
+        server.on('error', (err) => console.error(err.message));
         this._server = server;
     }
     handleHandshake(data) {

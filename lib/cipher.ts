@@ -6,7 +6,7 @@
 
 import * as crypto from 'crypto';
 
-let SupportedCiphers = {
+export const SupportedCiphers = {
   'aes-128-cfb': [16, 16],
   'aes-192-cfb': [24, 16],
   'aes-256-cfb': [32, 16],

@@ -15,9 +15,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var net = require('net');
+var crypto = require('../../lib/cipher');
+var socks5Constant_1 = require('../../lib/socks5Constant');
 var socks5Server_1 = require('./socks5Server');
+// +------+------+-------+
+// | IV   | TYPE | DATA  |
+// +------+------+-------+
+// | 8-16 | 1    | VAR   |
+// +------+------+-------+
 class RemoteProxyServer extends socks5Server_1.Socks5Server {
     connectRemoteServer(client, request) {
+        let me = this;
+        let proxySocket = net.createConnection(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
+            let encryptor = crypto.createCipher(me.cipherAlgorithm, me.password);
+            let cipher = encryptor.cipher;
+            let et = cipher.update(new Buffer(socks5Constant_1.VPN_TYPE.SOCKS5));
+            let ed = cipher.update(request);
+            yield proxySocket.writeAsync(Buffer.concat([encryptor.iv, et, ed]));
+        }));
+        function dispose() {
+            client.dispose();
+            proxySocket.dispose();
+        }
+        proxySocket.on('end', () => dispose);
+        proxySocket.on('error', () => dispose);
+        client.on('end', () => dispose);
+        client.on('error', () => dispose);
+        proxySocket.setTimeout(this.timeout);
     }
 }
 exports.RemoteProxyServer = RemoteProxyServer;
