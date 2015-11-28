@@ -1,3 +1,0 @@
-# LightSword Client
-
-Cipher Algorithms
