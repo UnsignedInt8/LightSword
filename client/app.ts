@@ -4,7 +4,7 @@
 
 'use strict'
 
-require('../../lib/socketEx');
+require('../lib/socketEx');
 require('kinq').enable();
 import { ServerOptions } from './socks5/socks5Server';
 import { LocalProxyServer } from './socks5/localProxyServer';

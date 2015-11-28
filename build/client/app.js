@@ -15,7 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-require('../../lib/socketEx');
+require('../lib/socketEx');
 require('kinq').enable();
 var localProxyServer_1 = require('./socks5/localProxyServer');
 var remoteProxyServer_1 = require('./socks5/remoteProxyServer');
