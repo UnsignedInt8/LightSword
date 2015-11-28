@@ -36,16 +36,20 @@ export class Socks5Server {
       
       let decipher = crypto.createDecipher(me.cipherAlgorithm, me.password, iv);
       
-      let typeBuffer = new Buffer(1);
-      data.copy(typeBuffer, 0, ivLength, ivLength + 1);
-      let type = decipher.update(typeBuffer)[0];
+      let vpnTypeBuf = new Buffer(1);
+      data.copy(vpnTypeBuf, 0, ivLength, ivLength + 1);
+      let vpnType = decipher.update(vpnTypeBuf)[0];
       
-      let request = new Buffer(data.length - ivLength - 1);
-      data.copy(request, 0, ivLength + 1, data.length);
+      let paddingSizeBuf = new Buffer(1);
+      data.copy(paddingSizeBuf, 0, ivLength + 2, ivLength + 3);
+      let paddingSize = decipher.update(paddingSizeBuf)[0];
+      
+      let request = new Buffer(data.length - ivLength - 3 - paddingSize);
+      data.copy(request, 0, ivLength + 3 + paddingSize, data.length);
       request = decipher.update(request);
       
-      if (type === VPN_TYPE.SOCKS5) {
-        return HandleSocks5(request);
+      if (vpnType === VPN_TYPE.SOCKS5) {
+        return HandleSocks5(client, request);
       }
       
       client.dispose();
