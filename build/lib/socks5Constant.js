@@ -37,7 +37,3 @@ var REPLY_CODE = exports.REPLY_CODE;
     SOCKS_VER[SOCKS_VER["V5"] = 5] = "V5";
 })(exports.SOCKS_VER || (exports.SOCKS_VER = {}));
 var SOCKS_VER = exports.SOCKS_VER;
-(function (VPN_TYPE) {
-    VPN_TYPE[VPN_TYPE["SOCKS5"] = 5] = "SOCKS5";
-})(exports.VPN_TYPE || (exports.VPN_TYPE = {}));
-var VPN_TYPE = exports.VPN_TYPE;

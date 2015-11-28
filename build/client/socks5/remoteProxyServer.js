@@ -16,23 +16,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var net = require('net');
-var crypto = require('../../lib/cipher');
-var socks5Constant_1 = require('../../lib/socks5Constant');
+var crypto = require('crypto');
+var cryptoEx = require('../../lib/cipher');
+var constant_1 = require('../../lib/constant');
 var socks5Server_1 = require('./socks5Server');
-// +------+------+-------+
-// | IV   | TYPE | DATA  |
-// +------+------+-------+
-// | 8-16 | 1    | VAR   |
-// +------+------+-------+
+// +------+------+------+----------+------------+
+// | IV   | TYPE | PLEN | RPADDING | SOCKS5DATA |
+// +------+------+------+----------+------------+
+// | 8-16 | 1    | 1    | 0-255    | VARIABLE   |
+// +------+------+------+----------+------------+
 class RemoteProxyServer extends socks5Server_1.Socks5Server {
     connectRemoteServer(client, request) {
         let me = this;
         let proxySocket = net.createConnection(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
-            let encryptor = crypto.createCipher(me.cipherAlgorithm, me.password);
+            let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
             let cipher = encryptor.cipher;
-            let et = cipher.update(new Buffer(socks5Constant_1.VPN_TYPE.SOCKS5));
+            let iv = encryptor.iv;
+            let et = cipher.update(new Buffer([constant_1.VPN_TYPE.SOCKS5]));
+            let pl = Number((Math.random() * 0xff).toFixed());
+            let pa = crypto.randomBytes(pl);
+            let el = cipher.update(new Buffer([pl]));
+            let ep = cipher.update(pa);
             let ed = cipher.update(request);
-            yield proxySocket.writeAsync(Buffer.concat([encryptor.iv, et, ed]));
+            yield proxySocket.writeAsync(Buffer.concat([iv, et, el, ep, ed]));
+            let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
         }));
         function dispose() {
             client.dispose();

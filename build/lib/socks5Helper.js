@@ -23,6 +23,7 @@ var socks5Constant_1 = require('./socks5Constant');
 // | 1  |  1  | X'00' |  1   | Variable |    2     |
 // +----+-----+-------+------+----------+----------+
 function refineDestination(rawData) {
+    let cmd = rawData[1];
     let atyp = rawData[3];
     let port = rawData.readUInt16BE(rawData.length - 2);
     let addr = '';
@@ -46,6 +47,6 @@ function refineDestination(rawData) {
             }
             break;
     }
-    return { addr: addr, port: port };
+    return { cmd: cmd, addr: addr, port: port };
 }
 exports.refineDestination = refineDestination;

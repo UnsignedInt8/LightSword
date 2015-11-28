@@ -4,7 +4,8 @@
   "description": "LightSword Secure SOCKS5 Proxy",
   "main": "index.js",
   "bin": {
-    "lightsword-client": "./build/client/bin/cli.js"
+    "lightsword-client": "./build/client/bin/cli.js",
+    "lightsword-server": "./build/server/bin/cli.js"
   },
   "scripts": {
     "test": "mocha test/**/*.js test/*.js"

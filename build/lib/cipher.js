@@ -3,6 +3,7 @@
 //-----------------------------------
 'use strict';
 var crypto = require('crypto');
+exports.DefaultAlgorithm = 'aes-256-cfb';
 exports.SupportedCiphers = {
     'aes-128-cfb': [16, 16],
     'aes-192-cfb': [24, 16],
@@ -22,19 +23,24 @@ exports.SupportedCiphers = {
     'seed-cfb': [16, 16]
 };
 function createCipher(algorithm, password) {
+    return createDeOrCipher('cipher', algorithm, password);
+}
+exports.createCipher = createCipher;
+function createDecipher(algorithm, password, iv) {
+    return createDeOrCipher('decipher', algorithm, password).cipher;
+}
+exports.createDecipher = createDecipher;
+function createDeOrCipher(type, algorithm, password, iv) {
     let cipherAlgorithm = algorithm.toLowerCase();
-    let keyIv = exports.SupportedCiphers[algorithm];
-    if (!keyIv) {
-        cipherAlgorithm = 'aes-256-cfb';
-        keyIv = exports.SupportedCiphers[cipherAlgorithm];
-    }
+    let keyIv = exports.SupportedCiphers[cipherAlgorithm];
+    if (!keyIv)
+        keyIv = exports.SupportedCiphers[exports.DefaultAlgorithm];
     let key = new Buffer(password);
     if (key.length > keyIv[1])
         key = key.slice(0, keyIv[1]);
     if (key.length < keyIv[1])
         key = Buffer.concat([key, crypto.randomBytes(keyIv[1] - key.length)]);
-    let iv = crypto.randomBytes(keyIv[1]);
-    let cipher = crypto.createCipheriv(algorithm, key, iv);
+    iv = iv || crypto.randomBytes(keyIv[1]);
+    let cipher = type === 'cipher' ? crypto.createCipheriv(algorithm, key, iv) : crypto.createDecipheriv(algorithm, key, iv);
     return { cipher: cipher, iv: iv };
 }
-exports.createCipher = createCipher;
