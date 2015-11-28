@@ -7,6 +7,7 @@
 import * as net from 'net';
 import * as crypto from 'crypto';
 import * as socks5const from './const';
+import * as cipher from '../../../lib/build/ciphers';
 
 type ServerOptions = {
   listenAddr: string;
