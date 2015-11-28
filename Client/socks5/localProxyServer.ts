@@ -35,6 +35,8 @@ export class LocalProxyServer extends Socks5Server {
     client.on('end', dispose);
     client.on('error', dispose);
     
+    proxySocket.setTimeout(this.timeout);
+    
     return proxySocket;
   }
   

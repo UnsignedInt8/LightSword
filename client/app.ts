@@ -6,6 +6,7 @@
 
 require('../lib/socketEx');
 require('kinq').enable();
+require('async-node');
 import { ServerOptions } from './socks5/socks5Server';
 import { LocalProxyServer } from './socks5/localProxyServer';
 import { RemoteProxyServer } from './socks5/remoteProxyServer';
@@ -36,7 +37,7 @@ export class App {
 
 if (!module.parent) {
   process.title = 'LightSword Client Debug Mode';
-  new App({ listenAddr: '::1', listenPort: 2002 });
+  new App({ listenAddr: 'localhost', listenPort: 2002 });
 } else {
   localAddrs.push('::1');
 }

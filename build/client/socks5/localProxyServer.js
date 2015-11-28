@@ -38,6 +38,7 @@ class LocalProxyServer extends socks5Server_1.Socks5Server {
         proxySocket.on('error', dispose);
         client.on('end', dispose);
         client.on('error', dispose);
+        proxySocket.setTimeout(this.timeout);
         return proxySocket;
     }
 }

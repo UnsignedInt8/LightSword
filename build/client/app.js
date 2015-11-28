@@ -17,6 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 require('../lib/socketEx');
 require('kinq').enable();
+require('async-node');
 var localProxyServer_1 = require('./socks5/localProxyServer');
 var remoteProxyServer_1 = require('./socks5/remoteProxyServer');
 let localAddrs = ['127.0.0.1', 'localhost', undefined, null];
@@ -41,7 +42,7 @@ class App {
 exports.App = App;
 if (!module.parent) {
     process.title = 'LightSword Client Debug Mode';
-    new App({ listenAddr: '::1', listenPort: 2002 });
+    new App({ listenAddr: 'localhost', listenPort: 2002 });
 }
 else {
     localAddrs.push('::1');
