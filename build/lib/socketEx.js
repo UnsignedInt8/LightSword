@@ -15,7 +15,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-require('../../lib/build/index');
-class App {
-}
-exports.App = App;
+var net = require('net');
+net.Socket.prototype.dispose = function () {
+    this.removeAllListeners();
+    this.end();
+    this.destroy();
+};

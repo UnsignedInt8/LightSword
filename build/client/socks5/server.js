@@ -30,11 +30,12 @@ class LocalServer {
         let server = net.createServer((client) => __awaiter(this, void 0, Promise, function* () {
             let data = yield client.readAsync();
             if (!data)
-                return client.destroy();
+                return client.dispose();
             let reply = _this.handleHandshake(data);
             yield client.writeAsync(reply.data);
             if (!reply.success)
-                return client.destroy();
+                return client.dispose();
+            let request = yield client.readAsync();
         }));
         server.listen(this.listenPort, this.listenAddr);
         this._server = server;
