@@ -38,7 +38,3 @@ export enum REPLY_CODE {
 export enum SOCKS_VER {
   V5 = 0x05
 }
-
-export enum VPN_TYPE {
-  SOCKS5 = 0x05
-}

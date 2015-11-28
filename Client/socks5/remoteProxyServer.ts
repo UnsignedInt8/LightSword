@@ -6,7 +6,7 @@
 
 import * as net from 'net';
 import * as crypto from '../../lib/cipher';
-import { VPN_TYPE } from '../../lib/socks5Constant';
+import { VPN_TYPE } from '../../lib/constant';
 import { Socks5Server } from './socks5Server';
 
 // +------+------+-------+

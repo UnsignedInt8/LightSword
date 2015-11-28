@@ -7,14 +7,15 @@
 import * as os from 'os';
 import * as dns from 'dns';
 import * as util from 'util';
-import { ATYP } from './socks5Constant';
+import { ATYP, REQUEST_CMD } from './socks5Constant';
 
 // +----+-----+-------+------+----------+----------+
 // |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
 // +----+-----+-------+------+----------+----------+
 // | 1  |  1  | X'00' |  1   | Variable |    2     |
 // +----+-----+-------+------+----------+----------+
-export function refineDestination(rawData: Buffer): { addr: string, port: number } {
+export function refineDestination(rawData: Buffer): { cmd: REQUEST_CMD, addr: string, port: number } {
+  let cmd = rawData[1];
   let atyp = rawData[3];
   let port = rawData.readUInt16BE(rawData.length - 2);
   let addr = '';
@@ -45,5 +46,5 @@ export function refineDestination(rawData: Buffer): { addr: string, port: number
       break;
   }
   
-  return { addr, port };
+  return { cmd, addr, port };
 }
