@@ -1,19 +1,20 @@
 {
-  "name": "lightsword-client",
+  "name": "lightsword",
   "version": "0.3.0",
-  "description": "LightSword Client",
+  "description": "LightSword Secure SOCKS5 Proxy",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/SunshinyNeko/LightSword.git"
+    "url": "git+https://github.com/SunshinyNeko/LightSword.git"
   },
   "keywords": [
-    "SOCKS5",
+    "SOCK5",
     "Proxy",
-    "GFW"
+    "GFW",
+    "Secure"
   ],
   "author": "猫王子",
   "license": "GPL-2.0",
