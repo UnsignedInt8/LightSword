@@ -10,12 +10,12 @@ import { Socks5Server } from './socks5Server';
 
 export class LocalProxyServer extends Socks5Server {
   
-  connectRemoteServer(client: net.Socket, socksRequest: Buffer): net.Socket {
-    let dst = socks5Helper.refineDestination(socksRequest);
+  connectRemoteServer(client: net.Socket, request: Buffer): net.Socket {
+    let dst = socks5Helper.refineDestination(request);
     
     let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
-      let reply = new Buffer(socksRequest.length);
-      socksRequest.copy(reply);
+      let reply = new Buffer(request.length);
+      request.copy(reply);
       reply[0] = 0x05;
       reply[1] = 0x00;
       
