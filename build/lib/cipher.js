@@ -27,7 +27,7 @@ function createCipher(algorithm, password) {
 }
 exports.createCipher = createCipher;
 function createDecipher(algorithm, password, iv) {
-    return createDeOrCipher('decipher', algorithm, password).cipher;
+    return createDeOrCipher('decipher', algorithm, password, iv).cipher;
 }
 exports.createDecipher = createDecipher;
 function createDeOrCipher(type, algorithm, password, iv) {
@@ -39,7 +39,9 @@ function createDeOrCipher(type, algorithm, password, iv) {
         key = key.slice(0, keyLength);
     if (key.length < keyLength)
         key = new Buffer(password.repeat(keyLength / password.length + 1)).slice(0, keyLength);
+    console.log('passin iv', iv);
     iv = iv || crypto.randomBytes(keyIv[1]);
+    console.log(iv);
     let cipher = type === 'cipher' ? crypto.createCipheriv(algorithm, key, iv) : crypto.createDecipheriv(algorithm, key, iv);
     return { cipher: cipher, iv: iv };
 }

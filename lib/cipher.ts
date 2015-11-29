@@ -32,7 +32,7 @@ export function createCipher(algorithm: string, password: string): { cipher: cry
 }
 
 export function createDecipher(algorithm: string, password: string, iv: Buffer): crypto.Decipher {
-  return createDeOrCipher('decipher', algorithm, password).cipher;
+  return createDeOrCipher('decipher', algorithm, password, iv).cipher;
 }
 
 function createDeOrCipher(type: string, algorithm: string, password: string, iv?: Buffer): { cipher: crypto.Cipher | crypto.Decipher, iv: Buffer } {

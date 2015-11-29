@@ -40,8 +40,8 @@ class LsServer {
             let dt = decipher.update(et);
             let vpnType = dt[0];
             let paddingSize = dt[1];
-            // console.log('vpn type ', vpnType);
-            // console.log('paddingSize ', paddingSize);
+            console.log('vpn type ', vpnType);
+            console.log('paddingSize ', paddingSize);
             let request = new Buffer(data.length - ivLength - 3 - paddingSize);
             data.copy(request, 0, ivLength + 3 + paddingSize, data.length);
             request = decipher.update(request);
