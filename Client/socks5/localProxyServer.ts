@@ -68,10 +68,11 @@ export class LocalProxyServer extends Socks5Server {
       serverUdp.close();
       
       udpTable.each(tuple => {
-        let udp = udpTable.get(tuple[0]);
+        let key = tuple[0];
+        let udp = udpTable.get(key);
         udp.removeAllListeners();
         udp.close();
-        udpTable.delete(tuple[0]);
+        udpTable.delete(key);
       });
     }
     

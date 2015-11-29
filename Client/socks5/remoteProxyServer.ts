@@ -100,30 +100,39 @@ export class RemoteProxyServer extends Socks5Server {
   
   udpAssociate(client: net.Socket, cipher: crypto.Cipher, decipher: crypto.Decipher, serverAddr: string) {
     let udpType = 'udp' + (net.isIP(serverAddr) || 4);
-    let udp = dgram.createSocket(udpType);
+    let transitUdp = dgram.createSocket(udpType);
     
-    udp.bind();
-    udp.unref();
-    udp.once('listening', async () => {
-      let udpAddr = udp.address();
+    transitUdp.bind();
+    transitUdp.unref();
+    transitUdp.once('listening', async () => {
+      let udpAddr = transitUdp.address();
       let reply = socks5Helper.buildSocks5Reply(0x0, udpAddr.family === 'IPv4' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
       await client.writeAsync(reply);
     });
     
-    udp.on('message', async (msg: Buffer, rinfo: dgram.RemoteInfo) => {
+    let udpTable = new Map<any, dgram.Socket>();
+    transitUdp.on('message', async (msg: Buffer, rinfo: dgram.RemoteInfo) => {
       let dst = socks5Helper.refineDestination(msg);
       
     });
     
     function dispose() {
-      udp.removeAllListeners();
-      udp.close();
-      udp.unref();
+      transitUdp.removeAllListeners();
+      transitUdp.close();
+      transitUdp.unref();
+      
+      udpTable.each(tuple => {
+        let key = tuple[0];
+        let udp = udpTable.get(key);
+        udp.removeAllListeners();
+        udp.close();
+        udpTable.delete(key);
+      });
     }
     
     client.once('error', dispose);
     client.once('end', dispose);
-    udp.on('error', dispose);
-    udp.on('close', dispose);
+    transitUdp.on('error', dispose);
+    transitUdp.on('close', dispose);
   }
 }
