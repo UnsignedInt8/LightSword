@@ -50,7 +50,7 @@ export abstract class Socks5Server {
       if (!reply.success) return client.dispose();
       
       data = await client.readAsync();
-      _this.connectRemoteServer(client, data);
+      _this.handleRequest(client, data);
     });
     
     server.listen(this.listenPort, this.listenAddr);
@@ -68,5 +68,5 @@ export abstract class Socks5Server {
     return { success, data: new Buffer([SOCKS_VER.V5, code]) };
   }
   
-  abstract connectRemoteServer(clientSocket: net.Socket, socksRequest: Buffer);
+  abstract handleRequest(clientSocket: net.Socket, socksRequest: Buffer);
 }

@@ -57,11 +57,12 @@ export class LsServer {
         timeout: me.timeout
       };
       
+      let handled = false;
       if (vpnType === VPN_TYPE.SOCKS5) {
-        if (!handleSocks5(client, request, options)) me.blacklist.add(client.remoteAddress);
-        return;
+        handled = handleSocks5(client, request, options);
       }
       
+      if (handled) return;
       me.blacklist.add(client.remoteAddress);
       client.dispose();
     });

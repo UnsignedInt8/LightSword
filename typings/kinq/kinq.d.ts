@@ -125,7 +125,7 @@ declare interface _Linqable<T> {
   /**
     * Alias of forEach
     */
-    each(callback: (T) => void): void;
+    each(callback: (T, index: number) => void): void;
     
   /**
     * Returns the element at a specified index in a sequence.
@@ -177,7 +177,7 @@ declare interface _Linqable<T> {
     * Flattens a nested sequence (the nesting can be to any depth).
     * @param deep Default is true, If you pass false, the sequence will only be flattened a single level.
     */
-    flatten(deep: boolean): _Linqable<T>;
+    flatten<U extends _Linqable<T>>(deep: boolean): _Linqable<T>;
     
   /**
     * Groups the elements of a sequence according to a specified key selector function and projects the elements for each group by using a specified function.

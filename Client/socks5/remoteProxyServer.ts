@@ -12,6 +12,7 @@ import { VPN_TYPE } from '../../lib/constant';
 import { Socks5Server } from './socks5Server';
 import { LocalProxyServer } from './localProxyServer';
 import * as socks5Helper from '../../lib/socks5Helper';
+import { REQUEST_CMD } from '../../lib/socks5Constant';
 
 // +------+------+------+----------+------------+
 // | IV   | TYPE | PLEN | RPADDING | SOCKS5DATA |
@@ -21,7 +22,7 @@ import * as socks5Helper from '../../lib/socks5Helper';
 export class RemoteProxyServer extends Socks5Server {
   localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname()];
   
-  connectRemoteServer(client: net.Socket, request: Buffer) {
+  handleRequest(client: net.Socket, request: Buffer) {
     let me = this;
     
     let req = socks5Helper.refineDestination(request);
@@ -56,8 +57,13 @@ export class RemoteProxyServer extends Socks5Server {
       let reply = decipher.update(reBuf);
       
       await client.writeAsync(reply);
-      client.pipe(cipher).pipe(proxySocket);
-      proxySocket.pipe(decipher).pipe(client);
+      
+      switch (req.cmd) {
+        case REQUEST_CMD.CONNECT:
+          client.pipe(cipher).pipe(proxySocket);
+          proxySocket.pipe(decipher).pipe(client);
+          break;
+      }
     });
     
     function dispose() {
@@ -72,4 +78,5 @@ export class RemoteProxyServer extends Socks5Server {
     
     proxySocket.setTimeout(this.timeout);
   }
+  
 }

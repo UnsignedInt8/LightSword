@@ -5,7 +5,7 @@
 'use strict'
 
 import * as os from 'os';
-import * as dns from 'dns';
+import * as net from 'net';
 import * as util from 'util';
 import { ATYP, REQUEST_CMD } from './socks5Constant';
 
@@ -47,4 +47,33 @@ export function refineDestination(rawData: Buffer): { cmd: REQUEST_CMD, addr: st
   }
   
   return { cmd, addr, port };
+}
+
+// +----+-----+-------+------+----------+----------+
+// |VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
+// +----+-----+-------+------+----------+----------+
+// | 1  |  1  | X'00' |  1   | Variable |    2     |
+// +----+-----+-------+------+----------+----------+
+export function buildSocks5Reply(rep: number, atyp: number, fullAddr: string, port: number) {
+  let type = net.isIP(fullAddr);
+  let addr = [];
+  switch (type) {
+    case 4:
+      addr = fullAddr.split('.').select(s => Number.parseInt(s)).toArray();
+      break;
+    case 6:
+      addr = fullAddr.split(':').select(s => [Number.parseInt(s.substr(0, 2), 16), Number.parseInt(s.substr(2, 2), 16)]).aggregate((c: Array<number>, n) => c.concat(n));
+      break;
+    case 0:
+      fullAddr.each((c, i) => addr.push(fullAddr.charCodeAt(i)));
+      break;
+  }
+  
+  let reply = [0x05, rep, 0x00, atyp, ];
+  if (type === ATYP.DN) reply.push(addr.length);
+  reply = reply.concat(addr).concat([0x00, 0x00]);
+  
+  let buf = new Buffer(reply);
+  buf.writeUInt16BE(port, buf.length - 2);
+  return buf;
 }

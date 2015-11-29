@@ -10,7 +10,7 @@ import { Socks5Server } from './socks5Server';
 
 export class LocalProxyServer extends Socks5Server {
   
-  connectRemoteServer(client: net.Socket, request: Buffer) {
+  handleRequest(client: net.Socket, request: Buffer) {
     LocalProxyServer.connectServer(client, request, this.timeout);
   }
   
