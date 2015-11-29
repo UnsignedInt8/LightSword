@@ -11,4 +11,3 @@ net.Socket.prototype.dispose = function() {
   this.end();
   this.destroy();
 }
-

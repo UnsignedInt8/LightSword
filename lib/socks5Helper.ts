@@ -14,23 +14,31 @@ import { ATYP, REQUEST_CMD } from './socks5Constant';
 // +----+-----+-------+------+----------+----------+
 // | 1  |  1  | X'00' |  1   | Variable |    2     |
 // +----+-----+-------+------+----------+----------+
-export function refineDestination(rawData: Buffer): { cmd: REQUEST_CMD, addr: string, port: number } {
+// +----+------+------+----------+----------+----------+
+// |RSV | FRAG | ATYP | DST.ADDR | DST.PORT |   DATA   |
+// +----+------+------+----------+----------+----------+
+// | 2  |  1   |  1   | Variable |    2     | Variable |
+// +----+------+------+----------+----------+----------+
+export function refineDestination(rawData: Buffer): { cmd: REQUEST_CMD, addr: string, port: number, headerSize?: number } {
   let cmd = rawData[1];
   let atyp = rawData[3];
   let port = rawData.readUInt16BE(rawData.length - 2);
   let addr = '';
+  let dnLength = 0;
   
   switch (atyp) {
     case ATYP.DN:
-      let dnLength = rawData[4];
+      dnLength = rawData[4];
       addr = rawData.toString('utf8', 5, 5 + dnLength);
       break;
       
     case ATYP.IPV4:
+      dnLength = 4;
       addr = rawData.skip(4).take(4).aggregate((c: string, n) => c.length > 1 ? c + util.format('.%d', n) : util.format('%d.%d', c, n));
       break;
       
     case ATYP.IPV6:
+      dnLength = 16;
       let bytes = rawData.skip(4).take(16).toArray();
       let ipv6 = '';
       
@@ -46,7 +54,7 @@ export function refineDestination(rawData: Buffer): { cmd: REQUEST_CMD, addr: st
       break;
   }
   
-  return { cmd, addr, port };
+  return { cmd, addr, port, headerSize: 4 + (atyp === ATYP.DN ? 1 : 0) + dnLength + 2 };
 }
 
 // +----+-----+-------+------+----------+----------+

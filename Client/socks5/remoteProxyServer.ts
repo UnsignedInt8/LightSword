@@ -6,13 +6,14 @@
 
 import * as os from 'os';
 import * as net from 'net';
+import * as dgram from 'dgram';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
 import { VPN_TYPE } from '../../lib/constant';
 import { Socks5Server } from './socks5Server';
 import { LocalProxyServer } from './localProxyServer';
 import * as socks5Helper from '../../lib/socks5Helper';
-import { REQUEST_CMD } from '../../lib/socks5Constant';
+import { REQUEST_CMD, ATYP } from '../../lib/socks5Constant';
 
 // +------+------+------+----------+------------+
 // | IV   | TYPE | PLEN | RPADDING | SOCKS5DATA |
@@ -32,7 +33,6 @@ export class RemoteProxyServer extends Socks5Server {
     
     let proxySocket = net.createConnection(this.serverPort, this.serverAddr, async () => {
       let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
-      
       let cipher = encryptor.cipher;
       
       let iv = encryptor.iv;
@@ -58,17 +58,20 @@ export class RemoteProxyServer extends Socks5Server {
       data.copy(reBuf, 0, iv.length + 1 + paddingSize, data.length);
       let reply = decipher.update(reBuf);
       
-      await client.writeAsync(reply);
-      
       switch (req.cmd) {
         case REQUEST_CMD.CONNECT:
+          await client.writeAsync(reply);
           client.pipe(cipher).pipe(proxySocket);
           proxySocket.pipe(decipher).pipe(client);
+          break;
+        case REQUEST_CMD.UDP_ASSOCIATE:
+          me.udpAssociate(client, cipher, decipher, me.serverAddr);
           break;
       }
     });
     
-    function dispose() {
+    function dispose(err: Error) {
+      if (err) console.info(err.message);
       client.dispose();
       proxySocket.dispose();
     }
@@ -81,4 +84,30 @@ export class RemoteProxyServer extends Socks5Server {
     proxySocket.setTimeout(this.timeout);
   }
   
+  udpAssociate(client: net.Socket, cipher: crypto.Cipher, decipher: crypto.Decipher, serverAddr: string) {
+    let udpType = 'udp' + (net.isIP(serverAddr) || 4);
+    let udp = dgram.createSocket(udpType);
+    
+    udp.bind();
+    udp.once('listening', async () => {
+      let udpAddr = udp.address();
+      let reply = socks5Helper.buildSocks5Reply(0x0, udpAddr.family === 'IPv4' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
+      await client.writeAsync(reply);
+    });
+    
+    udp.on('message', async (msg: Buffer, rinfo: dgram.RemoteInfo) => {
+      
+    });
+    
+    function dispose() {
+      udp.removeAllListeners();
+      udp.close();
+      udp.unref();
+    }
+    
+    client.once('error', dispose);
+    client.once('end', dispose);
+    udp.on('error', dispose);
+    udp.on('close', dispose);
+  }
 }

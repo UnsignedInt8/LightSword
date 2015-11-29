@@ -7,6 +7,7 @@
 import * as net from 'net';
 import * as crypto from 'crypto';
 import { connect } from './connectHandler';
+import { udpAssociate } from './udpHandler';
 import { ISocks5Options } from '../../lib/constant';
 import { REQUEST_CMD } from '../../lib/socks5Constant';
 import * as socks5Helper from '../../lib/socks5Helper';
@@ -19,6 +20,7 @@ export function handleSocks5(client: net.Socket, data: Buffer, options: ISocks5O
       connect(client, data, dst, options);
       break;
     case REQUEST_CMD.BIND:
+      udpAssociate(client, data, dst, options);
       break;
     case REQUEST_CMD.UDP_ASSOCIATE:
       break;
