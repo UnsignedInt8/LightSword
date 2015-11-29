@@ -30,6 +30,7 @@ export class App {
     Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
     
     let isLocalProxy = localAddrs.contains(options.serverAddr);
+    console.log(isLocalProxy);
     let server = isLocalProxy ? new LocalProxyServer(options) : new RemoteProxyServer(options);
     server.start();
   }

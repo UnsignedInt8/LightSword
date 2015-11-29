@@ -21,4 +21,4 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var VPN_TYPE = exports.VPN_TYPE;
 exports.defaultCipherAlgorithm = 'aes-256-cfb';
 exports.defaultPassword = 'lightsword.neko';
-exports.defaultListenPort = 2015;
+exports.defaultServerPort = 2015;

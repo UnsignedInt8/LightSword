@@ -29,6 +29,13 @@
 			// If JavaScript source maps are enabled, the generated code is expected in this directory.
 			"outDir": null
 		},
+    {
+      "request": "launch",
+      "name": "Launch Server",
+      "type": "node",
+      "program": "./build/server/app.js",
+      "args": []
+    },
 		{
       "request": "attach",
 			"name": "Attach",

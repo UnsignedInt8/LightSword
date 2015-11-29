@@ -7,7 +7,7 @@
 require('async-node');
 require('kinq').enable();
 import { LsServer } from './server';
-import { defaultCipherAlgorithm, defaultListenPort, defaultPassword } from '../lib/constant';
+import { defaultCipherAlgorithm, defaultServerPort, defaultPassword } from '../lib/constant';
 
 export class App {
   
@@ -15,7 +15,7 @@ export class App {
     let defaultOptions = {
       cipherAlgorithm: defaultCipherAlgorithm,
       password: defaultPassword,
-      port: defaultListenPort
+      port: defaultServerPort
     };
     
     options = options || defaultOptions;

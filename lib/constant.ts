@@ -10,4 +10,4 @@ export enum VPN_TYPE {
 
 export const defaultCipherAlgorithm = 'aes-256-cfb';
 export const defaultPassword = 'lightsword.neko';
-export const defaultListenPort = 2015;
+export const defaultServerPort = 2015;

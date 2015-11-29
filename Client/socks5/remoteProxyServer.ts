@@ -19,7 +19,7 @@ export class RemoteProxyServer extends Socks5Server {
   
   connectRemoteServer(client: net.Socket, request: Buffer) {
     let me = this;
-
+    
     let proxySocket = net.createConnection(this.serverPort, this.serverAddr, async () => {
       let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
       let cipher = encryptor.cipher;

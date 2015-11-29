@@ -40,8 +40,9 @@ function createDeOrCipher(type: string, algorithm: string, password, iv?: Buffer
   let keyIv = SupportedCiphers[cipherAlgorithm];
   
   let key = new Buffer(password);
-  if (key.length > keyIv[1]) key = key.slice(0, keyIv[1]);
-  if (key.length < keyIv[1]) key = Buffer.concat([key, crypto.randomBytes(keyIv[1] - key.length)]);
+  let keyLength = keyIv[0];
+  if (key.length > keyLength) key = key.slice(0, keyLength);
+  if (key.length < keyLength) key = Buffer.concat([key, crypto.randomBytes(keyLength - key.length)]);
   
   iv = iv || crypto.randomBytes(keyIv[1]);
   let cipher = type === 'cipher' ? crypto.createCipheriv(algorithm, key, iv) : crypto.createDecipheriv(algorithm, key, iv);

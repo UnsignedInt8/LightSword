@@ -17,14 +17,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 require('async-node');
 require('kinq').enable();
+var server_1 = require('./server');
 var constant_1 = require('../lib/constant');
 class App {
     constructor(options) {
         let defaultOptions = {
             cipherAlgorithm: constant_1.defaultCipherAlgorithm,
             password: constant_1.defaultPassword,
-            port: constant_1.defaultListenPort
+            port: constant_1.defaultServerPort
         };
+        options = options || defaultOptions;
+        Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
+        let server = new server_1.LsServer(options);
+        server.start();
     }
 }
 exports.App = App;
+if (!module.parent) {
+    process.title = 'LightSword Server Debug Mode';
+    new App();
+}
