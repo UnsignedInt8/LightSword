@@ -35,14 +35,15 @@ export function createDecipher(algorithm: string, password: string, iv: Buffer):
   return createDeOrCipher('decipher', algorithm, password).cipher;
 }
 
-function createDeOrCipher(type: string, algorithm: string, password, iv?: Buffer): { cipher: crypto.Cipher | crypto.Decipher, iv: Buffer } {
+function createDeOrCipher(type: string, algorithm: string, password: string, iv?: Buffer): { cipher: crypto.Cipher | crypto.Decipher, iv: Buffer } {
   let cipherAlgorithm = algorithm.toLowerCase();
   let keyIv = SupportedCiphers[cipherAlgorithm];
   
   let key = new Buffer(password);
   let keyLength = keyIv[0];
+  
   if (key.length > keyLength) key = key.slice(0, keyLength);
-  if (key.length < keyLength) key = Buffer.concat([key, crypto.randomBytes(keyLength - key.length)]);
+  if (key.length < keyLength) key = new Buffer(password.repeat(keyLength / password.length + 1)).slice(0, keyLength);
   
   iv = iv || crypto.randomBytes(keyIv[1]);
   let cipher = type === 'cipher' ? crypto.createCipheriv(algorithm, key, iv) : crypto.createDecipheriv(algorithm, key, iv);

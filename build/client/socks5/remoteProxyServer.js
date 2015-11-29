@@ -32,14 +32,18 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
             let cipher = encryptor.cipher;
             let iv = encryptor.iv;
-            let et = cipher.update(new Buffer([constant_1.VPN_TYPE.SOCKS5]));
             let pl = Number((Math.random() * 0xff).toFixed());
+            let et = cipher.update(new Buffer([constant_1.VPN_TYPE.SOCKS5, pl]));
             let pa = crypto.randomBytes(pl);
-            let el = cipher.update(new Buffer([pl]));
-            let ep = cipher.update(pa);
             let ed = cipher.update(request);
-            yield proxySocket.writeAsync(Buffer.concat([iv, et, el, ep, ed]));
             let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
+            let det = decipher.update(et);
+            console.log('det ', det);
+            console.log('et ', et);
+            // console.log('iv ', iv);
+            // console.log('padding len ', pl);
+            let data = Buffer.concat([iv, et, pa, ed]);
+            yield proxySocket.writeAsync(data);
         }));
         function dispose() {
             client.dispose();
