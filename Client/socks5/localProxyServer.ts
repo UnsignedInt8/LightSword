@@ -5,17 +5,23 @@
 'use strict'
 
 import * as net from 'net';
-import * as socks5Helper from '../../lib/socks5Helper';
 import { Socks5Server } from './socks5Server';
+import { REQUEST_CMD } from '../../lib/socks5Constant';
+import * as socks5Helper from '../../lib/socks5Helper';
 
 export class LocalProxyServer extends Socks5Server {
   
   handleRequest(client: net.Socket, request: Buffer) {
-    LocalProxyServer.connectServer(client, request, this.timeout);
+    let dst = socks5Helper.refineDestination(request);
+    
+    switch (dst.cmd) {
+      case REQUEST_CMD.CONNECT:
+        LocalProxyServer.connectServer(client, dst, request, this.timeout);
+        break;
+    }
   }
   
-  static connectServer(client: net.Socket, request: Buffer, timeout: number) {
-    let dst = socks5Helper.refineDestination(request);
+  static connectServer(client: net.Socket, dst: { port: number, addr: string }, request: Buffer, timeout: number) {
     
     let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
       let reply = new Buffer(request.length);

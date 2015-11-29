@@ -26,7 +26,9 @@ export class RemoteProxyServer extends Socks5Server {
     let me = this;
     
     let req = socks5Helper.refineDestination(request);
-    if (this.localArea.contains(req.addr)) return LocalProxyServer.connectServer(client, request, this.timeout);
+    if (this.localArea.contains(req.addr) && this.bypassLocal) {
+      if (req.cmd === REQUEST_CMD.CONNECT) return LocalProxyServer.connectServer(client, { addr: req.addr, port: req.port }, request, this.timeout);
+    }
     
     let proxySocket = net.createConnection(this.serverPort, this.serverAddr, async () => {
       let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
