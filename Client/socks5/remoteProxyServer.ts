@@ -31,8 +31,7 @@ export class RemoteProxyServer extends Socks5Server {
       let pa = crypto.randomBytes(pl);
       let ed = cipher.update(request);
 
-      let data = Buffer.concat([iv, et, pa, ed]);
-      await proxySocket.writeAsync(data);
+      await proxySocket.writeAsync(Buffer.concat([iv, et, pa, ed]));
       
       let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
     });

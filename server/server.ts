@@ -42,15 +42,18 @@ export class LsServer {
       let vpnType = dt[0];
       let paddingSize = dt[1];
       
-      console.log('vpn type ', vpnType);
-      console.log('paddingSize ', paddingSize);
-      
-      let request = new Buffer(data.length - ivLength - 3 - paddingSize);
-      data.copy(request, 0, ivLength + 3 + paddingSize, data.length);
+      let request = new Buffer(data.length - ivLength - 2 - paddingSize);
+      data.copy(request, 0, ivLength + 2 + paddingSize, data.length);
       request = decipher.update(request);
       
+      let options = {
+        decipher,
+        password: me.password,
+        cipherAlgorithm: me.cipherAlgorithm
+      };
+      
       if (vpnType === VPN_TYPE.SOCKS5) {
-        return handleSocks5(client, request);
+        return handleSocks5(client, request, options);
       }
       
       client.dispose();
