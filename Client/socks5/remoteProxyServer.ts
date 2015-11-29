@@ -33,7 +33,24 @@ export class RemoteProxyServer extends Socks5Server {
 
       await proxySocket.writeAsync(Buffer.concat([iv, et, pa, ed]));
       
-      let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
+      let data = await proxySocket.readAsync();
+      if (!data) return proxySocket.dispose();
+      
+      let riv = new Buffer(iv.length);
+      data.copy(riv, 0, 0, iv.length);
+      let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
+      
+      let rlBuf = new Buffer(1);
+      data.copy(rlBuf, 0, iv.length, iv.length + 1);
+      let paddingSize = decipher.update(rlBuf)[0];
+      
+      let reBuf = new Buffer(data.length - iv.length - 1 - paddingSize);
+      data.copy(reBuf, 0, iv.length + 1 + paddingSize, data.length);
+      let reply = decipher.update(reBuf);
+      
+      await client.writeAsync(reply);
+      client.pipe(cipher).pipe(proxySocket);
+      proxySocket.pipe(decipher).pipe(client);
     });
     
     function dispose() {

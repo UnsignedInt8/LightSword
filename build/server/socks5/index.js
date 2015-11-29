@@ -15,14 +15,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var connectHandler_1 = require('./connectHandler');
 var socks5Constant_1 = require('../../lib/socks5Constant');
 var socks5Helper = require('../../lib/socks5Helper');
-var connectHandler_1 = require('./connectHandler');
-function handleSocks5(client, data) {
+function handleSocks5(client, data, options) {
     let dst = socks5Helper.refineDestination(data);
     switch (dst.cmd) {
         case socks5Constant_1.REQUEST_CMD.CONNECT:
-            connectHandler_1.connect(client, dst.addr, dst.port);
+            connectHandler_1.connect(client, data, dst, options);
             break;
     }
 }

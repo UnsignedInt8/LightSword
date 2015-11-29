@@ -36,14 +36,22 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let et = cipher.update(new Buffer([constant_1.VPN_TYPE.SOCKS5, pl]));
             let pa = crypto.randomBytes(pl);
             let ed = cipher.update(request);
-            let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
-            let det = decipher.update(et);
-            console.log('det ', det);
-            console.log('et ', et);
-            // console.log('iv ', iv);
-            // console.log('padding len ', pl);
-            let data = Buffer.concat([iv, et, pa, ed]);
-            yield proxySocket.writeAsync(data);
+            yield proxySocket.writeAsync(Buffer.concat([iv, et, pa, ed]));
+            let data = yield proxySocket.readAsync();
+            if (!data)
+                return proxySocket.dispose();
+            let riv = new Buffer(iv.length);
+            data.copy(riv, 0, 0, iv.length);
+            let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
+            let rlBuf = new Buffer(1);
+            data.copy(rlBuf, 0, iv.length, iv.length + 1);
+            let paddingSize = decipher.update(rlBuf)[0];
+            let reBuf = new Buffer(data.length - iv.length - 1 - paddingSize);
+            data.copy(reBuf, 0, iv.length + 1 + paddingSize, data.length);
+            let reply = decipher.update(reBuf);
+            yield client.writeAsync(reply);
+            client.pipe(cipher).pipe(proxySocket);
+            proxySocket.pipe(decipher).pipe(client);
         }));
         function dispose() {
             client.dispose();

@@ -31,7 +31,8 @@ export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string
     let er = cipher.update(reply);
     
     await client.writeAsync(Buffer.concat([iv, el, pd, er]));
-    
+    client.pipe(options.decipher).pipe(proxySocket);
+    proxySocket.pipe(cipher).pipe(client);
   });
   
   function dispose() {
