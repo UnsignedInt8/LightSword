@@ -31,17 +31,10 @@ export class RemoteProxyServer extends Socks5Server {
       let pa = crypto.randomBytes(pl);
       let ed = cipher.update(request);
 
-      let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
-      let det = decipher.update(et);
-      console.log('det ', det);
-      
-      console.log('et ', et);
-      // console.log('iv ', iv);
-      // console.log('padding len ', pl);
-      
       let data = Buffer.concat([iv, et, pa, ed]);
       await proxySocket.writeAsync(data);
       
+      let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
     });
     
     function dispose() {

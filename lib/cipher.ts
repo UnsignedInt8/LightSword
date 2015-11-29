@@ -27,8 +27,8 @@ export const SupportedCiphers = {
 
 Object.freeze(SupportedCiphers);
 
-export function createCipher(algorithm: string, password: string): { cipher: crypto.Cipher, iv: Buffer } {
-  return createDeOrCipher('cipher', algorithm, password);
+export function createCipher(algorithm: string, password: string, iv?: Buffer): { cipher: crypto.Cipher, iv: Buffer } {
+  return createDeOrCipher('cipher', algorithm, password, iv);
 }
 
 export function createDecipher(algorithm: string, password: string, iv: Buffer): crypto.Decipher {
