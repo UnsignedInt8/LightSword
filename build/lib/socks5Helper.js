@@ -65,20 +65,10 @@ exports.refineDestination = refineDestination;
 // | 1  |  1  | X'00' |  1   | Variable |    2     |
 // +----+-----+-------+------+----------+----------+
 function buildSocks5Reply(rep, atyp, fullAddr, port) {
-    let type = net.isIP(fullAddr);
-    let addr = [];
-    switch (type) {
-        case 4:
-            addr = fullAddr.split('.').select(s => Number.parseInt(s)).toArray();
-            break;
-        case 6:
-            addr = fullAddr.split(':').select(s => [Number.parseInt(s.substr(0, 2), 16), Number.parseInt(s.substr(2, 2), 16)]).aggregate((c, n) => c.concat(n));
-            break;
-        case 0:
-            fullAddr.each((c, i) => addr.push(fullAddr.charCodeAt(i)));
-            break;
-    }
-    let reply = [0x05, rep, 0x00, atyp,];
+    let tuple = parseAddrToBytes(fullAddr);
+    let type = tuple.type;
+    let addr = tuple.addrBytes;
+    let reply = [0x05, rep, 0x00, atyp];
     if (type === socks5Constant_1.ATYP.DN)
         reply.push(addr.length);
     reply = reply.concat(addr).concat([0x00, 0x00]);
@@ -87,3 +77,37 @@ function buildSocks5Reply(rep, atyp, fullAddr, port) {
     return buf;
 }
 exports.buildSocks5Reply = buildSocks5Reply;
+// +----+------+------+----------+----------+----------+
+// |RSV | FRAG | ATYP | DST.ADDR | DST.PORT |   DATA   |
+// +----+------+------+----------+----------+----------+
+// | 2  |  1   |  1   | Variable |    2     | Variable |
+// +----+------+------+----------+----------+----------+
+function buildSocks5UdpReply(dstAddr, dstPort) {
+    let tuple = parseAddrToBytes(dstAddr);
+    let type = tuple.type;
+    let addr = tuple.addrBytes;
+    let reply = [0x0, 0x0, 0x0, type];
+    if (type === socks5Constant_1.ATYP.DN)
+        reply.push(addr.length);
+    reply = reply.concat(addr).concat([0x00, 0x00]);
+    let buf = new Buffer(reply);
+    buf.writeUInt16BE(dstPort, buf.length - 2);
+    return buf;
+}
+exports.buildSocks5UdpReply = buildSocks5UdpReply;
+function parseAddrToBytes(fullAddr) {
+    let type = net.isIP(fullAddr);
+    let addrBytes = [];
+    switch (type) {
+        case 4:
+            addrBytes = fullAddr.split('.').select(s => Number.parseInt(s)).toArray();
+            break;
+        case 6:
+            addrBytes = fullAddr.split(':').select(s => [Number.parseInt(s.substr(0, 2), 16), Number.parseInt(s.substr(2, 2), 16)]).aggregate((c, n) => c.concat(n));
+            break;
+        case 0:
+            fullAddr.each((c, i) => addrBytes.push(fullAddr.charCodeAt(i)));
+            break;
+    }
+    return { addrBytes: addrBytes, type: type ? (type === 4 ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6) : socks5Constant_1.ATYP.DN };
+}

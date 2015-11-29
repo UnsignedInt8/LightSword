@@ -44,12 +44,14 @@ function udpAssociate(client, rawData, dst, options) {
         let udpMsg = options.decipher.update(msg);
         let dst = socksHelper.refineDestination(msg);
         let proxyUdp = dgram.createSocket(udpType);
+        proxyUdp.unref();
         proxyUdp.send(udpMsg, dst.headerSize, udpMsg.length - dst.headerSize, dst.port, dst.addr);
         proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(dst); });
         proxyUdp.on('message', (msg) => {
-            serverUdp.send;
+            let header = socksHelper.buildSocks5UdpReply(rinfo.address, rinfo.port);
+            // serverUdp.send()
         });
-        proxyUdp.unref();
+        udpTable.set(dst, proxyUdp);
     }));
     function dispose() {
         serverUdp.removeAllListeners();

@@ -46,8 +46,9 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     proxyUdp.send(udpMsg, dst.headerSize, udpMsg.length - dst.headerSize, dst.port, dst.addr);
     proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(dst); });
     proxyUdp.on('message', (msg: Buffer) => {
+      let header = socksHelper.buildSocks5UdpReply(rinfo.address, rinfo.port);
       
-      serverUdp.send()
+      // serverUdp.send()
     });
     
     udpTable.set(dst, proxyUdp);

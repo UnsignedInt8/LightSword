@@ -51,9 +51,29 @@ class LocalProxyServer extends socks5Server_1.Socks5Server {
         serverUdp.on('message', (msg, rinfo) => {
             let dst = socks5Helper.refineDestination(msg);
             let proxyUdp = dgram.createSocket(udpType);
-            proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
             proxyUdp.unref();
+            proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
+            proxyUdp.on('message', (msg) => {
+                let header = socks5Helper.buildSocks5UdpReply(rinfo.address, rinfo.port);
+                let data = Buffer.concat([header, msg]);
+                serverUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
+            });
+            proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(dst); });
         });
+        function dispose() {
+            client.dispose();
+            serverUdp.removeAllListeners();
+            serverUdp.close();
+            udpTable.each(tuple => {
+                let udp = udpTable.get(tuple[0]);
+                udp.removeAllListeners();
+                udp.close();
+                udpTable.delete(tuple[0]);
+            });
+        }
+        serverUdp.on('error', dispose);
+        client.on('error', dispose);
+        client.on('end', dispose);
     }
     static connectServer(client, dst, request, timeout) {
         let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {

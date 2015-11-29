@@ -50,9 +50,34 @@ export class LocalProxyServer extends Socks5Server {
       
       let proxyUdp = dgram.createSocket(udpType);
       proxyUdp.unref();
+      
       proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
+      proxyUdp.on('message', (msg: Buffer) => {
+        let header = socks5Helper.buildSocks5UdpReply(rinfo.address, rinfo.port);
+        let data = Buffer.concat([header, msg]);
+        serverUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
+      });
+      
+      proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(dst); })
     });
     
+    function dispose() {
+      client.dispose();
+      
+      serverUdp.removeAllListeners();
+      serverUdp.close();
+      
+      udpTable.each(tuple => {
+        let udp = udpTable.get(tuple[0]);
+        udp.removeAllListeners();
+        udp.close();
+        udpTable.delete(tuple[0]);
+      });
+    }
+    
+    serverUdp.on('error', dispose);
+    client.on('error', dispose);
+    client.on('end', dispose);
   }
   
   static connectServer(client: net.Socket, dst: { port: number, addr: string }, request: Buffer, timeout: number) {
