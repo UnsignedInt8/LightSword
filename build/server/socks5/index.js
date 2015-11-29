@@ -24,6 +24,13 @@ function handleSocks5(client, data, options) {
         case socks5Constant_1.REQUEST_CMD.CONNECT:
             connectHandler_1.connect(client, data, dst, options);
             break;
+        case socks5Constant_1.REQUEST_CMD.BIND:
+            break;
+        case socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE:
+            break;
+        default:
+            return false;
     }
+    return true;
 }
 exports.handleSocks5 = handleSocks5;

@@ -17,6 +17,7 @@ export type ServerOptions = {
   serverAddr: string;
   serverPort: number;
   timeout: number;
+  bypassLocal: boolean;
 }
 
 export abstract class Socks5Server {
@@ -27,6 +28,7 @@ export abstract class Socks5Server {
   public serverAddr: string;
   public serverPort: number;
   public timeout: number;
+  public bypassLocal: boolean;
   
   private _server: net.Server;
   

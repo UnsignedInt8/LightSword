@@ -21,12 +21,15 @@ var constant_1 = require('../lib/constant');
 var index_1 = require('./socks5/index');
 class LsServer {
     constructor(options) {
+        this.blacklist = new Set();
         let _this = this;
         Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
     }
     start() {
         let me = this;
         let server = net.createServer((client) => __awaiter(this, void 0, Promise, function* () {
+            if (me.blacklist.has(client.remoteAddress))
+                return client.dispose();
             let data = yield client.readAsync();
             if (!data)
                 return client.dispose();
@@ -50,18 +53,21 @@ class LsServer {
                 timeout: me.timeout
             };
             if (vpnType === constant_1.VPN_TYPE.SOCKS5) {
-                return index_1.handleSocks5(client, request, options);
+                if (!index_1.handleSocks5(client, request, options))
+                    me.blacklist.add(client.remoteAddress);
+                return;
             }
+            me.blacklist.add(client.remoteAddress);
             client.dispose();
         }));
         server.listen(this.port);
         server.on('error', (err) => console.error(err.message));
-        this._server = server;
+        this.server = server;
     }
     stop() {
-        this._server.end();
-        this._server.close();
-        this._server.destroy();
+        this.server.end();
+        this.server.close();
+        this.server.destroy();
     }
 }
 exports.LsServer = LsServer;

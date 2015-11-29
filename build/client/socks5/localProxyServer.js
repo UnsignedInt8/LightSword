@@ -20,6 +20,9 @@ var socks5Helper = require('../../lib/socks5Helper');
 var socks5Server_1 = require('./socks5Server');
 class LocalProxyServer extends socks5Server_1.Socks5Server {
     connectRemoteServer(client, request) {
+        LocalProxyServer.connectServer(client, request, this.timeout);
+    }
+    static connectServer(client, request, timeout) {
         let dst = socks5Helper.refineDestination(request);
         let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {
             let reply = new Buffer(request.length);
@@ -38,7 +41,8 @@ class LocalProxyServer extends socks5Server_1.Socks5Server {
         proxySocket.on('error', dispose);
         client.on('end', dispose);
         client.on('error', dispose);
-        proxySocket.setTimeout(this.timeout);
+        proxySocket.setTimeout(timeout);
+        client.setTimeout(timeout);
     }
 }
 exports.LocalProxyServer = LocalProxyServer;

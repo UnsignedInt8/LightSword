@@ -11,6 +11,10 @@ import { Socks5Server } from './socks5Server';
 export class LocalProxyServer extends Socks5Server {
   
   connectRemoteServer(client: net.Socket, request: Buffer) {
+    LocalProxyServer.connectServer(client, request, this.timeout);
+  }
+  
+  static connectServer(client: net.Socket, request: Buffer, timeout: number) {
     let dst = socks5Helper.refineDestination(request);
     
     let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
@@ -35,7 +39,8 @@ export class LocalProxyServer extends Socks5Server {
     client.on('end', dispose);
     client.on('error', dispose);
     
-    proxySocket.setTimeout(this.timeout);
+    proxySocket.setTimeout(timeout);
+    client.setTimeout(timeout);
   }
   
 }

@@ -4,11 +4,14 @@
 
 'use strict'
 
+import * as os from 'os';
 import * as net from 'net';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
 import { VPN_TYPE } from '../../lib/constant';
 import { Socks5Server } from './socks5Server';
+import { LocalProxyServer } from './localProxyServer';
+import * as socks5Helper from '../../lib/socks5Helper';
 
 // +------+------+------+----------+------------+
 // | IV   | TYPE | PLEN | RPADDING | SOCKS5DATA |
@@ -16,9 +19,13 @@ import { Socks5Server } from './socks5Server';
 // | 8-16 | 1    | 1    | 0-255    | VARIABLE   |
 // +------+------+------+----------+------------+
 export class RemoteProxyServer extends Socks5Server {
+  localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname()];
   
   connectRemoteServer(client: net.Socket, request: Buffer) {
     let me = this;
+    
+    let req = socks5Helper.refineDestination(request);
+    if (this.localArea.contains(req.addr)) return LocalProxyServer.connectServer(client, request, this.timeout);
     
     let proxySocket = net.createConnection(this.serverPort, this.serverAddr, async () => {
       let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
@@ -29,9 +36,9 @@ export class RemoteProxyServer extends Socks5Server {
       let pl = Number((Math.random() * 0xff).toFixed());
       let et = cipher.update(new Buffer([VPN_TYPE.SOCKS5, pl]));
       let pa = crypto.randomBytes(pl);
-      let ed = cipher.update(request);
+      let er = cipher.update(request);
 
-      await proxySocket.writeAsync(Buffer.concat([iv, et, pa, ed]));
+      await proxySocket.writeAsync(Buffer.concat([iv, et, pa, er]));
       
       let data = await proxySocket.readAsync();
       if (!data) return proxySocket.dispose();

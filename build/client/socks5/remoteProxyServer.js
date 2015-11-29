@@ -15,19 +15,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var os = require('os');
 var net = require('net');
 var crypto = require('crypto');
 var cryptoEx = require('../../lib/cipher');
 var constant_1 = require('../../lib/constant');
 var socks5Server_1 = require('./socks5Server');
+var localProxyServer_1 = require('./localProxyServer');
+var socks5Helper = require('../../lib/socks5Helper');
 // +------+------+------+----------+------------+
 // | IV   | TYPE | PLEN | RPADDING | SOCKS5DATA |
 // +------+------+------+----------+------------+
 // | 8-16 | 1    | 1    | 0-255    | VARIABLE   |
 // +------+------+------+----------+------------+
 class RemoteProxyServer extends socks5Server_1.Socks5Server {
+    constructor(...args) {
+        super(...args);
+        this.localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname()];
+    }
     connectRemoteServer(client, request) {
         let me = this;
+        let req = socks5Helper.refineDestination(request);
+        if (this.localArea.contains(req.addr))
+            return localProxyServer_1.LocalProxyServer.connectServer(client, request, this.timeout);
         let proxySocket = net.createConnection(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
             let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
             let cipher = encryptor.cipher;
@@ -35,8 +45,8 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let pl = Number((Math.random() * 0xff).toFixed());
             let et = cipher.update(new Buffer([constant_1.VPN_TYPE.SOCKS5, pl]));
             let pa = crypto.randomBytes(pl);
-            let ed = cipher.update(request);
-            yield proxySocket.writeAsync(Buffer.concat([iv, et, pa, ed]));
+            let er = cipher.update(request);
+            yield proxySocket.writeAsync(Buffer.concat([iv, et, pa, er]));
             let data = yield proxySocket.readAsync();
             if (!data)
                 return proxySocket.dispose();
