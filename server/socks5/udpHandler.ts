@@ -18,6 +18,7 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
   let cipher: crypto.Cipher;
   
   serverUdp.bind();
+  serverUdp.unref();
   serverUdp.once('listening', async () => {
     let udpAddr = serverUdp.address();
     let reply = socksHelper.buildSocks5Reply(0x0, udpAddr.family === '' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
@@ -34,24 +35,22 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     await client.writeAsync(Buffer.concat([iv, el, pd, er]));
   });
   
+  let udpTable = new Map<any, dgram.Socket>();
   serverUdp.on('message', async (msg: Buffer, rinfo: dgram.RemoteInfo) => {
     let udpMsg = options.decipher.update(msg);
     let dst = socksHelper.refineDestination(msg);
-    let db = new Buffer(udpMsg.length - dst.headerSize);
-    udpMsg.copy(db, 0, dst.headerSize, udpMsg.length);
     
     let proxyUdp = dgram.createSocket(udpType);
-    proxyUdp.send(db, 0, db.length, dst.port, dst.addr);
-    proxyUdp.once('error', proxyUdp.close);
-    proxyUdp.once('message', (msg: Buffer) => {
+    proxyUdp.unref();
+    
+    proxyUdp.send(udpMsg, dst.headerSize, udpMsg.length - dst.headerSize, dst.port, dst.addr);
+    proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(dst); });
+    proxyUdp.on('message', (msg: Buffer) => {
       
+      serverUdp.send()
     });
     
-    setTimeout(() => {
-      proxyUdp.removeAllListeners();
-      proxyUdp.close();
-      proxyUdp.unref();
-    }, options.timeout * 1000);
+    udpTable.set(dst, proxyUdp);
   });
   
   function dispose() {

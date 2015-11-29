@@ -17,27 +17,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var os = require('os');
 var net = require('net');
+var dgram = require('dgram');
 var crypto = require('crypto');
 var cryptoEx = require('../../lib/cipher');
 var constant_1 = require('../../lib/constant');
 var socks5Server_1 = require('./socks5Server');
 var localProxyServer_1 = require('./localProxyServer');
 var socks5Helper = require('../../lib/socks5Helper');
+var socks5Constant_1 = require('../../lib/socks5Constant');
+//
+// LightSword Protocol
+//
+// ------------------Request---------------------
+//
 // +------+------+------+----------+------------+
 // | IV   | TYPE | PLEN | RPADDING | SOCKS5DATA |
 // +------+------+------+----------+------------+
 // | 8-16 | 1    | 1    | 0-255    | VARIABLE   |
 // +------+------+------+----------+------------+
+//
+// ---------------Response-----------------
+//
+// +------+------+----------+-------------+
+// | IV   | PLEN | RPADDING | SOCKS5REPLY |
+// +------+------+----------+-------------+
+// | 8-16 | 1    | 0-255    | VARIABLE    |
+// +------+------+----------+-------------+
+//
 class RemoteProxyServer extends socks5Server_1.Socks5Server {
     constructor(...args) {
         super(...args);
         this.localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname()];
     }
-    connectRemoteServer(client, request) {
+    handleRequest(client, request) {
         let me = this;
         let req = socks5Helper.refineDestination(request);
-        if (this.localArea.contains(req.addr))
-            return localProxyServer_1.LocalProxyServer.connectServer(client, request, this.timeout);
+        if (this.localArea.contains(req.addr) && this.bypassLocal) {
+            if (req.cmd === socks5Constant_1.REQUEST_CMD.CONNECT)
+                return localProxyServer_1.LocalProxyServer.connectServer(client, { addr: req.addr, port: req.port }, request, this.timeout);
+        }
         let proxySocket = net.createConnection(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
             let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
             let cipher = encryptor.cipher;
@@ -59,11 +77,20 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let reBuf = new Buffer(data.length - iv.length - 1 - paddingSize);
             data.copy(reBuf, 0, iv.length + 1 + paddingSize, data.length);
             let reply = decipher.update(reBuf);
-            yield client.writeAsync(reply);
-            client.pipe(cipher).pipe(proxySocket);
-            proxySocket.pipe(decipher).pipe(client);
+            switch (req.cmd) {
+                case socks5Constant_1.REQUEST_CMD.CONNECT:
+                    yield client.writeAsync(reply);
+                    client.pipe(cipher).pipe(proxySocket);
+                    proxySocket.pipe(decipher).pipe(client);
+                    break;
+                case socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE:
+                    me.udpAssociate(client, cipher, decipher, me.serverAddr);
+                    break;
+            }
         }));
-        function dispose() {
+        function dispose(err) {
+            if (err)
+                console.info(err.message);
             client.dispose();
             proxySocket.dispose();
         }
@@ -72,6 +99,29 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
         client.on('end', () => dispose);
         client.on('error', () => dispose);
         proxySocket.setTimeout(this.timeout);
+    }
+    udpAssociate(client, cipher, decipher, serverAddr) {
+        let udpType = 'udp' + (net.isIP(serverAddr) || 4);
+        let udp = dgram.createSocket(udpType);
+        udp.bind();
+        udp.unref();
+        udp.once('listening', () => __awaiter(this, void 0, Promise, function* () {
+            let udpAddr = udp.address();
+            let reply = socks5Helper.buildSocks5Reply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
+            yield client.writeAsync(reply);
+        }));
+        udp.on('message', (msg, rinfo) => __awaiter(this, void 0, Promise, function* () {
+            let dst = socks5Helper.refineDestination(msg);
+        }));
+        function dispose() {
+            udp.removeAllListeners();
+            udp.close();
+            udp.unref();
+        }
+        client.once('error', dispose);
+        client.once('end', dispose);
+        udp.on('error', dispose);
+        udp.on('close', dispose);
     }
 }
 exports.RemoteProxyServer = RemoteProxyServer;

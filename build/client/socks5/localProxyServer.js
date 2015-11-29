@@ -16,14 +16,46 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var net = require('net');
-var socks5Helper = require('../../lib/socks5Helper');
+var dgram = require('dgram');
 var socks5Server_1 = require('./socks5Server');
+var socks5Constant_1 = require('../../lib/socks5Constant');
+var socks5Helper = require('../../lib/socks5Helper');
 class LocalProxyServer extends socks5Server_1.Socks5Server {
-    connectRemoteServer(client, request) {
-        LocalProxyServer.connectServer(client, request, this.timeout);
-    }
-    static connectServer(client, request, timeout) {
+    handleRequest(client, request) {
         let dst = socks5Helper.refineDestination(request);
+        switch (dst.cmd) {
+            case socks5Constant_1.REQUEST_CMD.CONNECT:
+                LocalProxyServer.connectServer(client, dst, request, this.timeout);
+                break;
+            case socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE:
+                LocalProxyServer.udpAssociate(client, dst);
+                break;
+            default:
+                return false;
+        }
+        return true;
+    }
+    static bind(client, dst) {
+    }
+    static udpAssociate(client, dst) {
+        let udpType = 'udp' + (net.isIP(dst.addr) || 4);
+        let serverUdp = dgram.createSocket(udpType);
+        serverUdp.bind();
+        serverUdp.unref();
+        serverUdp.on('listening', () => __awaiter(this, void 0, Promise, function* () {
+            let udpAddr = serverUdp.address();
+            let reply = socks5Helper.buildSocks5Reply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
+            yield client.writeAsync(reply);
+        }));
+        let udpTable = new Map();
+        serverUdp.on('message', (msg, rinfo) => {
+            let dst = socks5Helper.refineDestination(msg);
+            let proxyUdp = dgram.createSocket(udpType);
+            proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
+            proxyUdp.unref();
+        });
+    }
+    static connectServer(client, dst, request, timeout) {
         let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {
             let reply = new Buffer(request.length);
             request.copy(reply);

@@ -16,6 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var connectHandler_1 = require('./connectHandler');
+var udpHandler_1 = require('./udpHandler');
 var socks5Constant_1 = require('../../lib/socks5Constant');
 var socks5Helper = require('../../lib/socks5Helper');
 function handleSocks5(client, data, options) {
@@ -25,6 +26,7 @@ function handleSocks5(client, data, options) {
             connectHandler_1.connect(client, data, dst, options);
             break;
         case socks5Constant_1.REQUEST_CMD.BIND:
+            udpHandler_1.udpAssociate(client, data, dst, options);
             break;
         case socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE:
             break;

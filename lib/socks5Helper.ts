@@ -62,26 +62,53 @@ export function refineDestination(rawData: Buffer): { cmd: REQUEST_CMD, addr: st
 // +----+-----+-------+------+----------+----------+
 // | 1  |  1  | X'00' |  1   | Variable |    2     |
 // +----+-----+-------+------+----------+----------+
-export function buildSocks5Reply(rep: number, atyp: number, fullAddr: string, port: number) {
-  let type = net.isIP(fullAddr);
-  let addr = [];
-  switch (type) {
-    case 4:
-      addr = fullAddr.split('.').select(s => Number.parseInt(s)).toArray();
-      break;
-    case 6:
-      addr = fullAddr.split(':').select(s => [Number.parseInt(s.substr(0, 2), 16), Number.parseInt(s.substr(2, 2), 16)]).aggregate((c: Array<number>, n) => c.concat(n));
-      break;
-    case 0:
-      fullAddr.each((c, i) => addr.push(fullAddr.charCodeAt(i)));
-      break;
-  }
+export function buildSocks5Reply(rep: number, atyp: number, fullAddr: string, port: number): Buffer {
+  let tuple = parseAddrToBytes(fullAddr);
+  let type = tuple.type;
+  let addr = tuple.addrBytes;
   
-  let reply = [0x05, rep, 0x00, atyp, ];
+  let reply = [0x05, rep, 0x00, atyp];
   if (type === ATYP.DN) reply.push(addr.length);
   reply = reply.concat(addr).concat([0x00, 0x00]);
   
   let buf = new Buffer(reply);
   buf.writeUInt16BE(port, buf.length - 2);
   return buf;
+}
+
+// +----+------+------+----------+----------+----------+
+// |RSV | FRAG | ATYP | DST.ADDR | DST.PORT |   DATA   |
+// +----+------+------+----------+----------+----------+
+// | 2  |  1   |  1   | Variable |    2     | Variable |
+// +----+------+------+----------+----------+----------+
+export function buildSocks5UdpReply(dstAddr: string, dstPort: number): Buffer {
+  let tuple = parseAddrToBytes(dstAddr);
+  let type = tuple.type;
+  let addr = tuple.addrBytes;
+  
+  let reply = [0x0, 0x0, 0x0, type];
+  if (type === ATYP.DN) reply.push(addr.length);
+  reply = reply.concat(addr).concat([0x00, 0x00]);
+  
+  let buf = new Buffer(reply);
+  buf.writeUInt16BE(dstPort, buf.length - 2);
+  return buf;
+}
+
+function parseAddrToBytes(fullAddr: string): { addrBytes: number[], type: ATYP } {
+  let type = net.isIP(fullAddr);
+  let addrBytes = [];
+  switch (type) {
+    case 4:
+      addrBytes = fullAddr.split('.').select(s => Number.parseInt(s)).toArray();
+      break;
+    case 6:
+      addrBytes = fullAddr.split(':').select(s => [Number.parseInt(s.substr(0, 2), 16), Number.parseInt(s.substr(2, 2), 16)]).aggregate((c: Array<number>, n) => c.concat(n));
+      break;
+    case 0:
+      fullAddr.each((c, i) => addrBytes.push(fullAddr.charCodeAt(i)));
+      break;
+  }
+  
+  return { addrBytes, type: type ? (type === 4 ? ATYP.IPV4 : ATYP.IPV6) : ATYP.DN }
 }

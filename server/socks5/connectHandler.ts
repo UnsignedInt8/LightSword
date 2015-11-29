@@ -9,11 +9,6 @@ import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
 import { ISocks5Options } from '../../lib/constant';
 
-// +------+------+----------+-------+
-// | IV   | PLEN | RPADDING | REPLY |
-// +------+------+----------+-------+
-// | 8-16 | 1    | 0-255    | VAR   |
-// +------+------+----------+-------+
 export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: ISocks5Options) {
   let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
     console.log(`connect: ${dst.addr}:${dst.port}`);

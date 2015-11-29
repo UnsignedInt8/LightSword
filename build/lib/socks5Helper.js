@@ -15,6 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var net = require('net');
 var util = require('util');
 var socks5Constant_1 = require('./socks5Constant');
 // +----+-----+-------+------+----------+----------+
@@ -22,20 +23,28 @@ var socks5Constant_1 = require('./socks5Constant');
 // +----+-----+-------+------+----------+----------+
 // | 1  |  1  | X'00' |  1   | Variable |    2     |
 // +----+-----+-------+------+----------+----------+
+// +----+------+------+----------+----------+----------+
+// |RSV | FRAG | ATYP | DST.ADDR | DST.PORT |   DATA   |
+// +----+------+------+----------+----------+----------+
+// | 2  |  1   |  1   | Variable |    2     | Variable |
+// +----+------+------+----------+----------+----------+
 function refineDestination(rawData) {
     let cmd = rawData[1];
     let atyp = rawData[3];
     let port = rawData.readUInt16BE(rawData.length - 2);
     let addr = '';
+    let dnLength = 0;
     switch (atyp) {
         case socks5Constant_1.ATYP.DN:
-            let dnLength = rawData[4];
+            dnLength = rawData[4];
             addr = rawData.toString('utf8', 5, 5 + dnLength);
             break;
         case socks5Constant_1.ATYP.IPV4:
+            dnLength = 4;
             addr = rawData.skip(4).take(4).aggregate((c, n) => c.length > 1 ? c + util.format('.%d', n) : util.format('%d.%d', c, n));
             break;
         case socks5Constant_1.ATYP.IPV6:
+            dnLength = 16;
             let bytes = rawData.skip(4).take(16).toArray();
             let ipv6 = '';
             for (let b of bytes) {
@@ -47,6 +56,34 @@ function refineDestination(rawData) {
             }
             break;
     }
-    return { cmd: cmd, addr: addr, port: port };
+    return { cmd: cmd, addr: addr, port: port, headerSize: 4 + (atyp === socks5Constant_1.ATYP.DN ? 1 : 0) + dnLength + 2 };
 }
 exports.refineDestination = refineDestination;
+// +----+-----+-------+------+----------+----------+
+// |VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
+// +----+-----+-------+------+----------+----------+
+// | 1  |  1  | X'00' |  1   | Variable |    2     |
+// +----+-----+-------+------+----------+----------+
+function buildSocks5Reply(rep, atyp, fullAddr, port) {
+    let type = net.isIP(fullAddr);
+    let addr = [];
+    switch (type) {
+        case 4:
+            addr = fullAddr.split('.').select(s => Number.parseInt(s)).toArray();
+            break;
+        case 6:
+            addr = fullAddr.split(':').select(s => [Number.parseInt(s.substr(0, 2), 16), Number.parseInt(s.substr(2, 2), 16)]).aggregate((c, n) => c.concat(n));
+            break;
+        case 0:
+            fullAddr.each((c, i) => addr.push(fullAddr.charCodeAt(i)));
+            break;
+    }
+    let reply = [0x05, rep, 0x00, atyp,];
+    if (type === socks5Constant_1.ATYP.DN)
+        reply.push(addr.length);
+    reply = reply.concat(addr).concat([0x00, 0x00]);
+    let buf = new Buffer(reply);
+    buf.writeUInt16BE(port, buf.length - 2);
+    return buf;
+}
+exports.buildSocks5Reply = buildSocks5Reply;

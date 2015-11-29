@@ -18,11 +18,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var net = require('net');
 var crypto = require('crypto');
 var cryptoEx = require('../../lib/cipher');
-// +------+------+----------+-------+
-// | IV   | PLEN | RPADDING | REPLY |
-// +------+------+----------+-------+
-// | 8-16 | 1    | 0-255    | VAR   |
-// +------+------+----------+-------+
 function connect(client, rawData, dst, options) {
     let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {
         console.log(`connect: ${dst.addr}:${dst.port}`);

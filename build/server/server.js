@@ -52,11 +52,12 @@ class LsServer {
                 cipherAlgorithm: me.cipherAlgorithm,
                 timeout: me.timeout
             };
+            let handled = false;
             if (vpnType === constant_1.VPN_TYPE.SOCKS5) {
-                if (!index_1.handleSocks5(client, request, options))
-                    me.blacklist.add(client.remoteAddress);
-                return;
+                handled = index_1.handleSocks5(client, request, options);
             }
+            if (handled)
+                return;
             me.blacklist.add(client.remoteAddress);
             client.dispose();
         }));
