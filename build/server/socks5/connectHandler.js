@@ -25,6 +25,7 @@ var cryptoEx = require('../../lib/cipher');
 // +------+------+----------+-------+
 function connect(client, rawData, dst, options) {
     let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {
+        console.log(`connect: ${dst.addr}:${dst.port}`);
         let reply = new Buffer(rawData.length);
         rawData.copy(reply, 0, 0, rawData.length);
         reply[0] = 0x05;
@@ -40,7 +41,9 @@ function connect(client, rawData, dst, options) {
         client.pipe(options.decipher).pipe(proxySocket);
         proxySocket.pipe(cipher).pipe(client);
     }));
-    function dispose() {
+    function dispose(err) {
+        if (err)
+            console.info(err.message);
         client.dispose();
         proxySocket.dispose();
     }
@@ -48,5 +51,7 @@ function connect(client, rawData, dst, options) {
     proxySocket.on('end', dispose);
     client.on('error', dispose);
     client.on('end', dispose);
+    proxySocket.setTimeout(options.timeout * 1000);
+    client.setTimeout(options.timeout * 1000);
 }
 exports.connect = connect;

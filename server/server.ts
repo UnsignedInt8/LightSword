@@ -14,18 +14,22 @@ export class LsServer {
   cipherAlgorithm: string;
   password: string;
   port: number;
+  timeout: number;
   
-  _server: net.Server;
+  private blacklist = new Set<string>();
+  private server: net.Server;
   
   constructor(options: { cipherAlgorithm: string, password: string, port: number, plugin: string }) {
     let _this = this;
-    ['cipherAlgorithm', 'password', 'port'].forEach(n => _this[n] = options[n]);
+    Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
   }
   
   start() {
     let me = this;
     
     let server = net.createServer(async (client) => {
+      if (me.blacklist.has(client.remoteAddress)) return client.dispose();
+      
       let data = await client.readAsync();
       if (!data) return client.dispose();
       
@@ -49,24 +53,28 @@ export class LsServer {
       let options = {
         decipher,
         password: me.password,
-        cipherAlgorithm: me.cipherAlgorithm
+        cipherAlgorithm: me.cipherAlgorithm,
+        timeout: me.timeout
       };
       
       if (vpnType === VPN_TYPE.SOCKS5) {
-        return handleSocks5(client, request, options);
+        if (!handleSocks5(client, request, options)) me.blacklist.add(client.remoteAddress);
+        return;
       }
       
+      me.blacklist.add(client.remoteAddress);
       client.dispose();
     });
     
     server.listen(this.port);
     server.on('error', (err) => console.error(err.message));
-    this._server = server;
+    this.server = server;
   }
   
   stop() {
-    this._server.end();
-    this._server.close();
-    this._server.destroy();
+    this.server.end();
+    this.server.close();
+    this.server.destroy();
   }
+    
 }

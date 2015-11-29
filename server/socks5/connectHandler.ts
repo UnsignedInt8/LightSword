@@ -6,8 +6,8 @@
 
 import * as net from 'net';
 import * as crypto from 'crypto';
-import { ISocks5Options } from './index';
 import * as cryptoEx from '../../lib/cipher';
+import { ISocks5Options } from '../../lib/constant';
 
 // +------+------+----------+-------+
 // | IV   | PLEN | RPADDING | REPLY |
@@ -16,6 +16,8 @@ import * as cryptoEx from '../../lib/cipher';
 // +------+------+----------+-------+
 export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: ISocks5Options) {
   let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
+    console.log(`connect: ${dst.addr}:${dst.port}`);
+    
     let reply = new Buffer(rawData.length);
     rawData.copy(reply, 0, 0, rawData.length);
     reply[0] = 0x05;
@@ -35,7 +37,8 @@ export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string
     proxySocket.pipe(cipher).pipe(client);
   });
   
-  function dispose() {
+  function dispose(err: Error) {
+    if (err) console.info(err.message);
     client.dispose();
     proxySocket.dispose();
   }
@@ -44,4 +47,7 @@ export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string
   proxySocket.on('end', dispose);
   client.on('error', dispose);
   client.on('end', dispose);
+  
+  proxySocket.setTimeout(options.timeout * 1000);
+  client.setTimeout(options.timeout * 1000);
 }

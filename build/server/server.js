@@ -22,7 +22,7 @@ var index_1 = require('./socks5/index');
 class LsServer {
     constructor(options) {
         let _this = this;
-        ['cipherAlgorithm', 'password', 'port'].forEach(n => _this[n] = options[n]);
+        Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
     }
     start() {
         let me = this;
@@ -46,7 +46,8 @@ class LsServer {
             let options = {
                 decipher: decipher,
                 password: me.password,
-                cipherAlgorithm: me.cipherAlgorithm
+                cipherAlgorithm: me.cipherAlgorithm,
+                timeout: me.timeout
             };
             if (vpnType === constant_1.VPN_TYPE.SOCKS5) {
                 return index_1.handleSocks5(client, request, options);
