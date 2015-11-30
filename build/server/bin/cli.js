@@ -15,7 +15,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var program = require('commander');
 var app_1 = require('../app');
 var fs = require('fs');
-var logger = require('winston');
 var path = require('path');
 var child = require('child_process');
 program
@@ -38,8 +37,8 @@ function parseOptions(path) {
         return JSON.parse(content);
     }
     catch (ex) {
-        logger.warn('Configuration file error');
-        logger.warn(ex.message);
+        console.warn('Configuration file error');
+        console.warn(ex.message);
     }
 }
 var fileOptions = parseOptions(args.config) || {};
@@ -64,11 +63,11 @@ var argsOptions = {
 if (!users.length)
     users.push(argsOptions);
 if (args.fork && !process.env.__daemon) {
-    logger.info('Run as daemon');
+    console.info('Run as daemon');
     process.env.__daemon = true;
     var cp = child.spawn(process.argv[1], process.argv.skip(2).toArray(), { cwd: process.cwd(), stdio: 'ignore', env: process.env, detached: true });
     cp.unref();
-    logger.info('Child PID: ' + cp.pid);
+    console.info('Child PID: ' + cp.pid);
     process.exit(0);
 }
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
