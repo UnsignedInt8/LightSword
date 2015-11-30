@@ -1,5 +1,7 @@
 # LightSword
 
+[![Build Status](https://travis-ci.org/SunshinyNeko/LightSword.svg)](https://travis-ci.org/SunshinyNeko/LightSword)
+
 光刃——基于Node的科学上网工具
 
 光刃是按照前辈程序员开发的Shadowsocks为原型开发的SOCKS5代理工具。目前为开发预览版，可以尝鲜试用。
