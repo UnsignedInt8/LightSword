@@ -50,6 +50,7 @@ export class LocalProxyServer extends Socks5Server {
       
       let proxyUdp = dgram.createSocket(udpType);
       proxyUdp.unref();
+      udpTable.set(dst, proxyUdp);
       
       proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
       proxyUdp.on('message', (msg: Buffer) => {

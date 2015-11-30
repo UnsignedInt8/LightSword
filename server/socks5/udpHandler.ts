@@ -42,6 +42,7 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     
     let proxyUdp = dgram.createSocket(udpType);
     proxyUdp.unref();
+    udpTable.set(dst, proxyUdp);
     
     proxyUdp.send(udpMsg, dst.headerSize, udpMsg.length - dst.headerSize, dst.port, dst.addr);
     proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(dst); });

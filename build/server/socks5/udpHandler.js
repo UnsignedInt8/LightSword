@@ -45,6 +45,7 @@ function udpAssociate(client, rawData, dst, options) {
         let dst = socksHelper.refineDestination(msg);
         let proxyUdp = dgram.createSocket(udpType);
         proxyUdp.unref();
+        udpTable.set(dst, proxyUdp);
         proxyUdp.send(udpMsg, dst.headerSize, udpMsg.length - dst.headerSize, dst.port, dst.addr);
         proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(dst); });
         proxyUdp.on('message', (msg) => {

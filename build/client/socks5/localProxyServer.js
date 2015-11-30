@@ -52,6 +52,7 @@ class LocalProxyServer extends socks5Server_1.Socks5Server {
             let dst = socks5Helper.refineDestination(msg);
             let proxyUdp = dgram.createSocket(udpType);
             proxyUdp.unref();
+            udpTable.set(dst, proxyUdp);
             proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
             proxyUdp.on('message', (msg) => {
                 let header = socks5Helper.buildSocks5UdpReply(rinfo.address, rinfo.port);

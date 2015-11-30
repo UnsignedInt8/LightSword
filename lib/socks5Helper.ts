@@ -9,11 +9,15 @@ import * as net from 'net';
 import * as util from 'util';
 import { ATYP, REQUEST_CMD } from './socks5Constant';
 
+//
+// TCP
 // +----+-----+-------+------+----------+----------+
 // |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
 // +----+-----+-------+------+----------+----------+
 // | 1  |  1  | X'00' |  1   | Variable |    2     |
 // +----+-----+-------+------+----------+----------+
+//
+// UDP
 // +----+------+------+----------+----------+----------+
 // |RSV | FRAG | ATYP | DST.ADDR | DST.PORT |   DATA   |
 // +----+------+------+----------+----------+----------+
@@ -22,7 +26,6 @@ import { ATYP, REQUEST_CMD } from './socks5Constant';
 export function refineDestination(rawData: Buffer): { cmd: REQUEST_CMD, addr: string, port: number, headerSize?: number } {
   let cmd = rawData[1];
   let atyp = rawData[3];
-  let port = rawData.readUInt16BE(rawData.length - 2);
   let addr = '';
   let dnLength = 0;
   
@@ -54,7 +57,9 @@ export function refineDestination(rawData: Buffer): { cmd: REQUEST_CMD, addr: st
       break;
   }
   
-  return { cmd, addr, port, headerSize: 4 + (atyp === ATYP.DN ? 1 : 0) + dnLength + 2 };
+  let headerSize = 4 + (atyp === ATYP.DN ? 1 : 0) + dnLength + 2;
+  let port = rawData.readUInt16BE(headerSize - 2);  
+  return { cmd, addr, port, headerSize};
 }
 
 // +----+-----+-------+------+----------+----------+

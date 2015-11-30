@@ -18,11 +18,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var net = require('net');
 var util = require('util');
 var socks5Constant_1 = require('./socks5Constant');
+//
+// TCP
 // +----+-----+-------+------+----------+----------+
 // |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
 // +----+-----+-------+------+----------+----------+
 // | 1  |  1  | X'00' |  1   | Variable |    2     |
 // +----+-----+-------+------+----------+----------+
+//
+// UDP
 // +----+------+------+----------+----------+----------+
 // |RSV | FRAG | ATYP | DST.ADDR | DST.PORT |   DATA   |
 // +----+------+------+----------+----------+----------+
@@ -31,7 +35,6 @@ var socks5Constant_1 = require('./socks5Constant');
 function refineDestination(rawData) {
     let cmd = rawData[1];
     let atyp = rawData[3];
-    let port = rawData.readUInt16BE(rawData.length - 2);
     let addr = '';
     let dnLength = 0;
     switch (atyp) {
@@ -56,7 +59,9 @@ function refineDestination(rawData) {
             }
             break;
     }
-    return { cmd: cmd, addr: addr, port: port, headerSize: 4 + (atyp === socks5Constant_1.ATYP.DN ? 1 : 0) + dnLength + 2 };
+    let headerSize = 4 + (atyp === socks5Constant_1.ATYP.DN ? 1 : 0) + dnLength + 2;
+    let port = rawData.readUInt16BE(headerSize - 2);
+    return { cmd: cmd, addr: addr, port: port, headerSize: headerSize };
 }
 exports.refineDestination = refineDestination;
 // +----+-----+-------+------+----------+----------+
