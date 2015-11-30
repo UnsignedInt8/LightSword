@@ -1,0 +1,40 @@
+{
+  "name": "lightsword",
+  "version": "0.3.0",
+  "description": "LightSword Secure SOCKS5 Proxy",
+  "main": "index.js",
+  "bin": {
+    "lslocal": "./build/client/bin/cli.js",
+    "lsserver": "./build/client/bin/cli.js",
+    "lightsword-client": "./build/client/bin/cli.js",
+    "lightsword-server": "./build/server/bin/cli.js",
+    "lightsword": "./build/server/bin/cli.js"
+  },
+  "scripts": {
+    "test": "mocha test/**/*.js test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SunshinyNeko/LightSword.git"
+  },
+  "keywords": [
+    "SOCK5",
+    "Proxy",
+    "GFW",
+    "Secure"
+  ],
+  "author": "猫王子",
+  "license": "GPL-2.0",
+  "bugs": {
+    "url": "https://github.com/SunshinyNeko/LightSword/issues"
+  },
+  "homepage": "https://github.com/SunshinyNeko/LightSword#readme",
+  "dependencies": {
+    "async-node": "0.0.5",
+    "commander": "^2.9.0",
+    "kinq": "0.0.6"
+  },
+  "devDependencies": {
+    "mocha": "^2.3.4"
+  }
+}
