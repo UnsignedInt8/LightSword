@@ -21,7 +21,7 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
   serverUdp.unref();
   serverUdp.once('listening', async () => {
     let udpAddr = serverUdp.address();
-    let reply = socksHelper.buildSocks5Reply(0x0, udpAddr.family === '' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
+    let reply = socksHelper.createSocks5TcpReply(0x0, udpAddr.family === '' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
     
     let encryptor = cryptoEx.createCipher(options.cipherAlgorithm, options.password);
     cipher = encryptor.cipher;
@@ -47,7 +47,7 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     proxyUdp.send(udpMsg, dst.headerSize, udpMsg.length - dst.headerSize, dst.port, dst.addr);
     proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(dst); });
     proxyUdp.on('message', (msg: Buffer) => {
-      let header = socksHelper.buildSocks5UdpReply(rinfo.address, rinfo.port);
+      let header = socksHelper.createSocks5UdpHeader(rinfo.address, rinfo.port);
       
       // serverUdp.send()
     });

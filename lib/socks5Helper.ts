@@ -67,7 +67,7 @@ export function refineDestination(rawData: Buffer): { cmd: REQUEST_CMD, addr: st
 // +----+-----+-------+------+----------+----------+
 // | 1  |  1  | X'00' |  1   | Variable |    2     |
 // +----+-----+-------+------+----------+----------+
-export function buildSocks5Reply(rep: number, atyp: number, fullAddr: string, port: number): Buffer {
+export function createSocks5TcpReply(rep: number, atyp: number, fullAddr: string, port: number): Buffer {
   let tuple = parseAddrToBytes(fullAddr);
   let type = tuple.type;
   let addr = tuple.addrBytes;
@@ -86,7 +86,7 @@ export function buildSocks5Reply(rep: number, atyp: number, fullAddr: string, po
 // +----+------+------+----------+----------+----------+
 // | 2  |  1   |  1   | Variable |    2     | Variable |
 // +----+------+------+----------+----------+----------+
-export function buildSocks5UdpReply(dstAddr: string, dstPort: number): Buffer {
+export function createSocks5UdpHeader(dstAddr: string, dstPort: number): Buffer {
   let tuple = parseAddrToBytes(dstAddr);
   let type = tuple.type;
   let addr = tuple.addrBytes;

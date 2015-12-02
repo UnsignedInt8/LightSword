@@ -88,17 +88,20 @@ export class RemoteProxyServer extends Socks5Server {
     transitUdp.unref();
     transitUdp.once('listening', async () => {
       let udpAddr = transitUdp.address();
-      let reply = socks5Helper.buildSocks5Reply(0x0, udpAddr.family === 'IPv4' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
+      let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
       await client.writeAsync(reply);
     });
     
-    let udpTable = new Set<dgram.Socket>();
+    let udpSet = new Set<dgram.Socket>();
     transitUdp.on('message', async (msg: Buffer, rinfo: dgram.RemoteInfo) => {
-      // let dst = socks5Helper.refineDestination(msg);
+      
       let proxyUdp = dgram.createSocket(udpType);
+      proxyUdp.unref();
+      
       let encryptor = cryptoEx.createCipher(cipherAlgorithm, password);
       let cipher = encryptor.cipher;
       let iv = encryptor.iv;
+      let decipher = cryptoEx.createDecipher(cipherAlgorithm, password, iv);
       
       let pl = Number((Math.random() * 0xff).toFixed());
       let rp = crypto.randomBytes(pl);
@@ -108,10 +111,13 @@ export class RemoteProxyServer extends Socks5Server {
       let data = Buffer.concat([iv, el, rp, em]);
       proxyUdp.send(data, 0, data.length, server.udpPort, server.addr);
       proxyUdp.on('message', (rMsg: Buffer) => {
-        
+        let reply = decipher.update(rMsg);
+        let header = socks5Helper.createSocks5UdpHeader(rinfo.address, rinfo.port);
+        let data = Buffer.concat([header, reply]);
+        transitUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
       });
       
-      
+      proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(proxyUdp); })
     });
     
     function dispose() {
@@ -119,10 +125,10 @@ export class RemoteProxyServer extends Socks5Server {
       transitUdp.close();
       transitUdp.unref();
       
-      udpTable.each(udp => {
+      udpSet.each(udp => {
         udp.removeAllListeners();
         udp.close();
-        udpTable.delete(udp);
+        udpSet.delete(udp);
       });
     }
     

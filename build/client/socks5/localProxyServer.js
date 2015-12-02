@@ -44,33 +44,31 @@ class LocalProxyServer extends socks5Server_1.Socks5Server {
         serverUdp.unref();
         serverUdp.on('listening', () => __awaiter(this, void 0, Promise, function* () {
             let udpAddr = serverUdp.address();
-            let reply = socks5Helper.buildSocks5Reply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
+            let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
             yield client.writeAsync(reply);
         }));
-        let udpTable = new Map();
+        let udpTable = new Set();
         serverUdp.on('message', (msg, rinfo) => {
             let dst = socks5Helper.refineDestination(msg);
             let proxyUdp = dgram.createSocket(udpType);
             proxyUdp.unref();
-            udpTable.set(dst, proxyUdp);
+            udpTable.add(proxyUdp);
             proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
             proxyUdp.on('message', (msg) => {
-                let header = socks5Helper.buildSocks5UdpReply(rinfo.address, rinfo.port);
+                let header = socks5Helper.createSocks5UdpHeader(rinfo.address, rinfo.port);
                 let data = Buffer.concat([header, msg]);
                 serverUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
             });
-            proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(dst); });
+            proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(proxyUdp); });
         });
         function dispose() {
             client.dispose();
             serverUdp.removeAllListeners();
             serverUdp.close();
-            udpTable.each(tuple => {
-                let key = tuple[0];
-                let udp = udpTable.get(key);
+            udpTable.each(udp => {
                 udp.removeAllListeners();
                 udp.close();
-                udpTable.delete(key);
+                udpTable.delete(udp);
             });
         }
         serverUdp.on('error', dispose);

@@ -40,7 +40,7 @@ export class LocalProxyServer extends Socks5Server {
     serverUdp.unref();
     serverUdp.on('listening', async () => {
       let udpAddr = serverUdp.address();
-      let reply = socks5Helper.buildSocks5Reply(0x0, udpAddr.family === 'IPv4' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
+      let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
       await client.writeAsync(reply);
     });
     
@@ -54,7 +54,7 @@ export class LocalProxyServer extends Socks5Server {
       
       proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
       proxyUdp.on('message', (msg: Buffer) => {
-        let header = socks5Helper.buildSocks5UdpReply(rinfo.address, rinfo.port);
+        let header = socks5Helper.createSocks5UdpHeader(rinfo.address, rinfo.port);
         let data = Buffer.concat([header, msg]);
         serverUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
       });

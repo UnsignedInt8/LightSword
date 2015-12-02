@@ -69,7 +69,7 @@ exports.refineDestination = refineDestination;
 // +----+-----+-------+------+----------+----------+
 // | 1  |  1  | X'00' |  1   | Variable |    2     |
 // +----+-----+-------+------+----------+----------+
-function buildSocks5Reply(rep, atyp, fullAddr, port) {
+function createSocks5TcpReply(rep, atyp, fullAddr, port) {
     let tuple = parseAddrToBytes(fullAddr);
     let type = tuple.type;
     let addr = tuple.addrBytes;
@@ -81,13 +81,13 @@ function buildSocks5Reply(rep, atyp, fullAddr, port) {
     buf.writeUInt16BE(port, buf.length - 2);
     return buf;
 }
-exports.buildSocks5Reply = buildSocks5Reply;
+exports.createSocks5TcpReply = createSocks5TcpReply;
 // +----+------+------+----------+----------+----------+
 // |RSV | FRAG | ATYP | DST.ADDR | DST.PORT |   DATA   |
 // +----+------+------+----------+----------+----------+
 // | 2  |  1   |  1   | Variable |    2     | Variable |
 // +----+------+------+----------+----------+----------+
-function buildSocks5UdpReply(dstAddr, dstPort) {
+function createSocks5UdpHeader(dstAddr, dstPort) {
     let tuple = parseAddrToBytes(dstAddr);
     let type = tuple.type;
     let addr = tuple.addrBytes;
@@ -99,7 +99,7 @@ function buildSocks5UdpReply(dstAddr, dstPort) {
     buf.writeUInt16BE(dstPort, buf.length - 2);
     return buf;
 }
-exports.buildSocks5UdpReply = buildSocks5UdpReply;
+exports.createSocks5UdpHeader = createSocks5UdpHeader;
 function parseAddrToBytes(fullAddr) {
     let type = net.isIP(fullAddr);
     let addrBytes = [];
