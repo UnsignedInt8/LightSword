@@ -1,6 +1,6 @@
 {
   "name": "lightsword",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "LightSword Secure SOCKS5 Proxy",
   "main": "index.js",
   "bin": {
@@ -8,7 +8,9 @@
     "lsserver": "./build/server/bin/cli.js",
     "lightsword-client": "./build/client/bin/cli.js",
     "lightsword-server": "./build/server/bin/cli.js",
-    "lightsword": "./build/server/bin/cli.js"
+    "lightsword": "./build/server/bin/cli.js",
+    "lsbridge": "./build/bridge/bin/cli.js",
+    "ilghtsword-bridge": "./build/bridge/bin/cli.js"
   },
   "scripts": {
     "test": "mocha test/**/*.js test/*.js"

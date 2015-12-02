@@ -13,7 +13,7 @@ import { App } from '../app';
 program
   .option('-s, --server <Address>', 'Next Node Address', String)
   .option('-p, --port <Number>', 'Next Node Server Port', Number.parseInt)
-  .option('-l, --localport <Number>', 'Local Port', Number.parseInt)
+  .option('-l, --listenport <Number>', 'Local Port', Number.parseInt)
   .option('-f, --fork', 'Run as Daemon')
   .parse(process.argv);
 
@@ -21,7 +21,7 @@ var args = <any>program;
 var options = {
   dstAddr: <string>args.server,
   dstPort: <number>args.port,
-  localPort: args.localport
+  localPort: args.listenport
 };
 
 if (!options.dstAddr) {
