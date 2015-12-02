@@ -4,7 +4,7 @@
 
 光刃——基于Node的SOCKS5代理。
 
-光刃参照了Shadowsocks的思想，并用Node.js实现。光刃基于Node 4.0＋，因此需要首先安装Node.js 4.0 以上版本，点击访问[官方网址](https://nodejs.org)。
+光刃参见了Shadowsocks的协议，并用Node.js实现。光刃基于Node.js 4.0＋，因此需要首先安装Node.js 4.0 以上版本，点击访问[官方网址](https://nodejs.org)。
 
 安装好Node之后，即可安装LightSword。目前中国并没有封杀npmjs.org，因此可以直接安装：
 

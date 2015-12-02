@@ -15,7 +15,7 @@ import * as socksHelper from '../../lib/socks5Helper';
 export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: ISocks5Options) {
   let udpType = 'udp' + (net.isIP(dst.addr) || 4);
   let serverUdp = dgram.createSocket(udpType);
-  let cipher: crypto.Cipher;
+  let ivLength: number = cryptoEx.SupportedCiphers[options.cipherAlgorithm][1];
   
   serverUdp.bind();
   serverUdp.unref();
@@ -24,9 +24,9 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     let reply = socksHelper.createSocks5TcpReply(0x0, udpAddr.family === '' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
     
     let encryptor = cryptoEx.createCipher(options.cipherAlgorithm, options.password);
-    cipher = encryptor.cipher;
-    
+    let cipher = encryptor.cipher;
     let iv = encryptor.iv;
+    
     let pl = Number((Math.random() * 0xff).toFixed());
     let pd = crypto.randomBytes(pl);
     let el = cipher.update(new Buffer([pl]));
@@ -35,23 +35,36 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     await client.writeAsync(Buffer.concat([iv, el, pd, er]));
   });
   
-  let udpSet = new Set<dgram.Socket>();
+  let udpSet = new Map<string, dgram.Socket>();
   serverUdp.on('message', async (msg: Buffer, rinfo: dgram.RemoteInfo) => {
-    let udpMsg = options.decipher.update(msg);
-    let dst = socksHelper.refineDestination(msg);
+    let iv = new Buffer(ivLength);
+    msg.copy(iv, 0, 0, ivLength);
     
-    let proxyUdp = dgram.createSocket(udpType);
+    let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, iv);
+    let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
+    
+    let el = new Buffer(1);
+    msg.copy(el, 0, ivLength, ivLength + 1);
+    let pl = decipher.update(el)[0];
+    
+    let udpMsg = new Buffer(msg.length - ivLength - 1 - pl);
+    msg.copy(udpMsg, 0, ivLength + 1 + pl, msg.length);
+    udpMsg = decipher.update(udpMsg);
+    
+    let dst = socksHelper.refineDestination(udpMsg);
+    
+    let socketId = `${rinfo.address}:${rinfo.port}`;
+    let proxyUdp = udpSet.get(socketId) || dgram.createSocket(udpType);
     proxyUdp.unref();
-    udpSet.add(proxyUdp);
     
     proxyUdp.send(udpMsg, dst.headerSize, udpMsg.length - dst.headerSize, dst.port, dst.addr);
-    proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(proxyUdp); });
     proxyUdp.on('message', (msg: Buffer) => {
-      let header = socksHelper.createSocks5UdpHeader(rinfo.address, rinfo.port);
-      
-      // serverUdp.send()
+      let data = cipher.update(msg);
+      serverUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
     });
     
+    proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(socketId); });
+    if (!udpSet.has(socketId) ) udpSet.set(socketId, proxyUdp);
   });
   
   function dispose() {
