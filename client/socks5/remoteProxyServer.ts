@@ -14,25 +14,6 @@ import { LocalProxyServer } from './localProxyServer';
 import * as socks5Helper from '../../lib/socks5Helper';
 import { REQUEST_CMD, ATYP } from '../../lib/socks5Constant';
 
-//
-// LightSword Protocol
-//
-// ------------------Request---------------------
-//
-// +------+------+------+----------+------------+
-// | IV   | TYPE | PLEN | RPADDING | SOCKS5DATA |
-// +------+------+------+----------+------------+
-// | 8-16 | 1    | 1    | 0-255    | VARIABLE   |
-// +------+------+------+----------+------------+
-//
-// ---------------Response-----------------
-//
-// +------+------+----------+-------------+
-// | IV   | PLEN | RPADDING | SOCKS5REPLY |
-// +------+------+----------+-------------+
-// | 8-16 | 1    | 0-255    | VARIABLE    |
-// +------+------+----------+-------------+
-//
 export class RemoteProxyServer extends Socks5Server {
   
   handleRequest(client: net.Socket, request: Buffer) {
@@ -111,7 +92,7 @@ export class RemoteProxyServer extends Socks5Server {
     
     let udpTable = new Map<any, dgram.Socket>();
     transitUdp.on('message', async (msg: Buffer, rinfo: dgram.RemoteInfo) => {
-      let dst = socks5Helper.refineDestination(msg);
+      // let dst = socks5Helper.refineDestination(msg);
       
     });
     
