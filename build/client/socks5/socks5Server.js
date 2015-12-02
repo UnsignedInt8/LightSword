@@ -20,13 +20,13 @@ var net = require('net');
 var socks5Constant_1 = require('../../lib/socks5Constant');
 class Socks5Server {
     constructor(options) {
-        this.localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname()];
+        this.localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname().toLowerCase()];
         let _this = this;
         if (options)
             Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
     }
     start() {
-        if (this._server)
+        if (this.server)
             return;
         let _this = this;
         let server = net.createServer((client) => __awaiter(this, void 0, Promise, function* () {
@@ -42,7 +42,11 @@ class Socks5Server {
         }));
         server.listen(this.listenPort, this.listenAddr);
         server.on('error', (err) => console.error(err.message));
-        this._server = server;
+        this.server = server;
+    }
+    stop() {
+        this.server.removeAllListeners();
+        this.server.close();
     }
     handleHandshake(data) {
         let methodCount = data[1];
