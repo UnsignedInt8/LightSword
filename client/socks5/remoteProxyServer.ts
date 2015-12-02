@@ -125,11 +125,12 @@ export class RemoteProxyServer extends Socks5Server {
       transitUdp.close();
       transitUdp.unref();
       
-      udpSet.each(udp => {
+      udpSet.forEach(udp => {
         udp.removeAllListeners();
         udp.close();
-        udpSet.delete(udp);
       });
+      
+      udpSet.clear();
     }
     
     client.once('error', dispose);

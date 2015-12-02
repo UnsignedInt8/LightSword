@@ -1,4 +1,3 @@
-# LightSword Protocols
 
 TCP
 ---
