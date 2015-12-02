@@ -44,13 +44,13 @@ export class LocalProxyServer extends Socks5Server {
       await client.writeAsync(reply);
     });
     
-    let udpTable = new Map<any, dgram.Socket>();
+    let udpTable = new Set<dgram.Socket>();
     serverUdp.on('message', (msg: Buffer, rinfo: dgram.RemoteInfo) => {
       let dst = socks5Helper.refineDestination(msg);
       
       let proxyUdp = dgram.createSocket(udpType);
       proxyUdp.unref();
-      udpTable.set(dst, proxyUdp);
+      udpTable.add(proxyUdp);
       
       proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
       proxyUdp.on('message', (msg: Buffer) => {
@@ -59,7 +59,7 @@ export class LocalProxyServer extends Socks5Server {
         serverUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
       });
       
-      proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(dst); })
+      proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpTable.delete(proxyUdp); })
     });
     
     function dispose() {
@@ -68,12 +68,10 @@ export class LocalProxyServer extends Socks5Server {
       serverUdp.removeAllListeners();
       serverUdp.close();
       
-      udpTable.each(tuple => {
-        let key = tuple[0];
-        let udp = udpTable.get(key);
+      udpTable.each(udp => {
         udp.removeAllListeners();
         udp.close();
-        udpTable.delete(key);
+        udpTable.delete(udp);
       });
     }
     

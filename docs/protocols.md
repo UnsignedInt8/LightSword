@@ -1,5 +1,8 @@
 # LightSword Protocols
 
+TCP
+---
+
 ```
 ------------------Request---------------------
 
@@ -24,12 +27,26 @@ SOCKS5DATA: Encrypted Socks5 Protocol Data, Variable Bytes.
 +------+------+----------+-------------+
 | 8-16 | 1    | 0-255    | VARIABLE    |
 +------+------+----------+-------------+
-| RAW  | EN   | RAW      | ENCRYPTED   |
+| RAW  | ENED | RAW      | ENCRYPTED   |
 +------+------+----------+-------------+
 
 IV: Initialization Vector, 8-16 Bytes.
 PLEN: Random Padding Length, 1 Byte.
 RPADDING: Random Padding Bytes, 0-255 Bytes.
 SOCKS5REPLAY: Encrypted Socks5 Reply Data, Variable Bytes.
+
+```
+
+UDP
+---
+
+```
++------+------+----------+------------+
+| IV   | PLEN | RPADDING | SOCKS5DATA |
++------+------+----------+------------+
+| 8-16 | 1    | 0-255    | VARIABLE   |
++------+------+----------+------------+
+| RAW  | ENED | RAW      | ENCRYPTED  |
++------+------+----------+------------+
 
 ```
