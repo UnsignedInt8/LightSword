@@ -11,8 +11,8 @@ export class App {
   
   constructor(options: { dstAddr: string, dstPort?: number, localPort?: number }) {
     let dstAddr = options.dstAddr;
-    let dstPort = options.dstPort || 23333;
-    let localPort = options.localPort || 22333;
+    let dstPort = options.dstPort || 2015;
+    let localPort = options.localPort || 2015;
     
     let server = net.createServer((socket) => {
       let transitSocket = net.createConnection(dstPort, dstAddr, () => {

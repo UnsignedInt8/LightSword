@@ -32,26 +32,26 @@ Quick Start
 
 服务器：
 ```
-lsserver -p port -m aes-256-cfb -k xxx
+lsserver -f
 ```
 
 客户端：
 ```
-lslocal -s server_addr -p server_port -m aes-256-cfb -l 1080
+lslocal -s server_addr -f
 ```
 
 中转站：
 ```
-lsbridge -s server_addr -p server_port
+lsbridge -s server_addr -f
 ```
+
+以上配置均使用内置默认设置，详细参数请参见源码文件夹中的 README.md 文件。
 
 配置你的浏览器及其它需要科学上网的软件使用光刃提供的SOCKS5代理。
 
 默认监听地址: localhost
 
 端口: 1080
-
-详细参数请参见源码文件夹中的 README.md 文件
 
 License
 ---

@@ -7,14 +7,14 @@ var app_1 = require('../app');
 program
     .option('-s, --server <Address>', 'Next Node Address', String)
     .option('-p, --port <Number>', 'Next Node Server Port', Number.parseInt)
-    .option('-l, --localport <Number>', 'Local Port', Number.parseInt)
+    .option('-l, --listenport <Number>', 'Local Port', Number.parseInt)
     .option('-f, --fork', 'Run as Daemon')
     .parse(process.argv);
 var args = program;
 var options = {
     dstAddr: args.server,
     dstPort: args.port,
-    localPort: args.localport
+    localPort: args.listenport
 };
 if (!options.dstAddr) {
     console.error('Server Address not found.\n');
