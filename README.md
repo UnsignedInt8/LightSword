@@ -4,13 +4,13 @@
 
 光刃——基于 Node.js 的 SOCKS5 代理。
 
-光刃参考了Shadowsocks的协议，并用 Typescript 实现。光刃基于Node.js 4.0＋，因此需要首先安装Node.js 4.0 以上版本，点击访问[官方网址](https://nodejs.org)。
+光刃参考了 Shadowsocks 的协议，并用 Typescript 实现。光刃基于 Node.js 4.0＋，因此需要首先安装 Node.js 4.0  以上版本，点击访问[官方网址](https://nodejs.org)。
 
 
 Quick Start
 ---
 
-首先，安装Node.js 4.0+，安装好Node.js之后，即可使用Node.js的包管理器npm安装LightSword。目前中国并没有封杀npmjs.org，因此可以直接安装：
+首先，安装Node.js 4.0+，安装好 Node.js 之后，即可使用 Node.js 的包管理器npm安装 LightSword 。目前中国并没有封杀 npmjs.org ，因此可以直接安装：
 
 
 1.安装
@@ -47,7 +47,7 @@ lsbridge -s server_addr -f
 
 以上配置均使用内置默认设置，详细参数请参见源码文件夹中的 README.md 文件。
 
-配置你的浏览器及其它需要科学上网的软件使用光刃提供的SOCKS5代理。
+配置你的浏览器及其它需要科学上网的软件使用光刃提供的 SOCKS5 代理。
 
 默认监听地址: localhost
 
