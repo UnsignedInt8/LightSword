@@ -61,7 +61,7 @@ export class RemoteProxyServer extends Socks5Server {
           break;
         case REQUEST_CMD.UDP_ASSOCIATE:
           let udpReply = socks5Helper.refineDestination(reply);
-          me.udpAssociate(client, { addr: udpReply.addr, udpPort: udpReply.port }, me.cipherAlgorithm, me.password);
+          me.udpAssociate(client, { addr: udpReply.addr, port: udpReply.port }, me.cipherAlgorithm, me.password);
           break;
       }
     });
@@ -80,23 +80,22 @@ export class RemoteProxyServer extends Socks5Server {
     proxySocket.setTimeout(this.timeout);
   }
   
-  udpAssociate(client: net.Socket, server: { addr: string, udpPort: number }, cipherAlgorithm: string, password: string) {
-    let udpType = 'udp' + (net.isIP(server.addr) || 4);
-    let transitUdp = dgram.createSocket(udpType);
+  udpAssociate(client: net.Socket, udpServer: { addr: string, port: number }, cipherAlgorithm: string, password: string) {
+    let udpType = 'udp' + (net.isIP(udpServer.addr) || 4);
+    let listeningUdp = dgram.createSocket(udpType);
     
-    transitUdp.bind();
-    transitUdp.unref();
-    transitUdp.once('listening', async () => {
-      let udpAddr = transitUdp.address();
+    listeningUdp.bind();
+    listeningUdp.unref();
+    listeningUdp.once('listening', async () => {
+      let udpAddr = listeningUdp.address();
       let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
       await client.writeAsync(reply);
     });
     
-    let udpSet = new Map<string, dgram.Socket>();
-    transitUdp.on('message', async (msg: Buffer, rinfo: dgram.RemoteInfo) => {
-      let socketId = `${rinfo.address}:${rinfo.port}`;
+    let udpSet = new Set<dgram.Socket>();
+    listeningUdp.on('message', async (msg: Buffer, cinfo: dgram.RemoteInfo) => {
       
-      let proxyUdp = udpSet.get(socketId) || dgram.createSocket(udpType);
+      let proxyUdp = dgram.createSocket(udpType);
       proxyUdp.unref();
       
       let encryptor = cryptoEx.createCipher(cipherAlgorithm, password);
@@ -110,22 +109,23 @@ export class RemoteProxyServer extends Socks5Server {
       let em = cipher.update(msg);
       
       let data = Buffer.concat([iv, el, rp, em]);
-      proxyUdp.send(data, 0, data.length, server.udpPort, server.addr);
-      proxyUdp.on('message', (rMsg: Buffer) => {
-        let reply = decipher.update(rMsg);
-        let header = socks5Helper.createSocks5UdpHeader(rinfo.address, rinfo.port);
+      proxyUdp.send(data, 0, data.length, udpServer.port, udpServer.addr);
+      
+      proxyUdp.on('message', (sMsg: Buffer, sinfo: dgram.RemoteInfo) => {
+        let reply = decipher.update(sMsg);
+        let header = socks5Helper.createSocks5UdpHeader(cinfo.address, cinfo.port);
         let data = Buffer.concat([header, reply]);
-        transitUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
+        listeningUdp.send(data, 0, data.length, cinfo.port, cinfo.address);
       });
       
-      proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(socketId); })
-      if (!udpSet.has(socketId)) udpSet.set(socketId, proxyUdp);
+      proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(proxyUdp); })
+      udpSet.add(proxyUdp);
     });
     
     function dispose() {
-      transitUdp.removeAllListeners();
-      transitUdp.close();
-      transitUdp.unref();
+      listeningUdp.removeAllListeners();
+      listeningUdp.close();
+      listeningUdp.unref();
       
       udpSet.forEach(udp => {
         udp.removeAllListeners();
@@ -137,7 +137,7 @@ export class RemoteProxyServer extends Socks5Server {
     
     client.once('error', dispose);
     client.once('end', dispose);
-    transitUdp.on('error', dispose);
-    transitUdp.on('close', dispose);
+    listeningUdp.on('error', dispose);
+    listeningUdp.on('close', dispose);
   }
 }

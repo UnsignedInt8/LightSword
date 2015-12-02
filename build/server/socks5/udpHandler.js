@@ -29,7 +29,7 @@ function udpAssociate(client, rawData, dst, options) {
     serverUdp.unref();
     serverUdp.once('listening', () => __awaiter(this, void 0, Promise, function* () {
         let udpAddr = serverUdp.address();
-        let reply = socksHelper.createSocks5TcpReply(0x0, udpAddr.family === '' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
+        let reply = socksHelper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
         let encryptor = cryptoEx.createCipher(options.cipherAlgorithm, options.password);
         let cipher = encryptor.cipher;
         let iv = encryptor.iv;
@@ -39,8 +39,8 @@ function udpAssociate(client, rawData, dst, options) {
         let er = cipher.update(reply);
         yield client.writeAsync(Buffer.concat([iv, el, pd, er]));
     }));
-    let udpSet = new Map();
-    serverUdp.on('message', (msg, rinfo) => __awaiter(this, void 0, Promise, function* () {
+    let udpSet = new Set();
+    serverUdp.on('message', (msg, cinfo) => __awaiter(this, void 0, Promise, function* () {
         let iv = new Buffer(ivLength);
         msg.copy(iv, 0, 0, ivLength);
         let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, iv);
@@ -52,17 +52,16 @@ function udpAssociate(client, rawData, dst, options) {
         msg.copy(udpMsg, 0, ivLength + 1 + pl, msg.length);
         udpMsg = decipher.update(udpMsg);
         let dst = socksHelper.refineDestination(udpMsg);
-        let socketId = `${rinfo.address}:${rinfo.port}`;
-        let proxyUdp = udpSet.get(socketId) || dgram.createSocket(udpType);
+        let socketId = `${cinfo.address}:${cinfo.port}`;
+        let proxyUdp = dgram.createSocket(udpType);
         proxyUdp.unref();
         proxyUdp.send(udpMsg, dst.headerSize, udpMsg.length - dst.headerSize, dst.port, dst.addr);
-        proxyUdp.on('message', (msg) => {
+        proxyUdp.on('message', (msg, rinfo) => {
             let data = cipher.update(msg);
-            serverUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
+            proxyUdp.send(data, 0, data.length, cinfo.port, cinfo.address);
         });
-        proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(socketId); });
-        if (!udpSet.has(socketId))
-            udpSet.set(socketId, proxyUdp);
+        proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(proxyUdp); });
+        udpSet.add(proxyUdp);
     }));
     function dispose() {
         serverUdp.removeAllListeners();

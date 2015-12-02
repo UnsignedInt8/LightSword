@@ -28,7 +28,7 @@ export class App {
     };
     
     options = options || defaultOptions;
-    Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
+    Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] === undefined ? defaultOptions[n] : options[n]);
     
     let isLocalProxy = localAddrs.contains(options.serverAddr);
     let server = isLocalProxy ? new LocalProxyServer(options) : new RemoteProxyServer(options);
@@ -38,7 +38,7 @@ export class App {
 
 if (!module.parent) {
   process.title = 'LightSword Client Debug Mode';
-  new App({ serverAddr: '::1', listenPort: 2002 });
+  new App({ serverAddr: '::1', listenPort: 2002, bypassLocal: false });
 } else {
   localAddrs.push('::1');
 }

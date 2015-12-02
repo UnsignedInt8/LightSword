@@ -20,9 +20,9 @@ export function handleSocks5(client: net.Socket, data: Buffer, options: ISocks5O
       connect(client, data, dst, options);
       break;
     case REQUEST_CMD.BIND:
-      udpAssociate(client, data, dst, options);
       break;
     case REQUEST_CMD.UDP_ASSOCIATE:
+      udpAssociate(client, data, dst, options);
       break;
     default:
       return false;

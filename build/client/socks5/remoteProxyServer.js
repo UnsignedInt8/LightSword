@@ -64,7 +64,7 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
                     break;
                 case socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE:
                     let udpReply = socks5Helper.refineDestination(reply);
-                    me.udpAssociate(client, { addr: udpReply.addr, udpPort: udpReply.port }, me.cipherAlgorithm, me.password);
+                    me.udpAssociate(client, { addr: udpReply.addr, port: udpReply.port }, me.cipherAlgorithm, me.password);
                     break;
             }
         }));
@@ -80,20 +80,19 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
         client.on('error', () => dispose);
         proxySocket.setTimeout(this.timeout);
     }
-    udpAssociate(client, server, cipherAlgorithm, password) {
-        let udpType = 'udp' + (net.isIP(server.addr) || 4);
-        let transitUdp = dgram.createSocket(udpType);
-        transitUdp.bind();
-        transitUdp.unref();
-        transitUdp.once('listening', () => __awaiter(this, void 0, Promise, function* () {
-            let udpAddr = transitUdp.address();
+    udpAssociate(client, udpServer, cipherAlgorithm, password) {
+        let udpType = 'udp' + (net.isIP(udpServer.addr) || 4);
+        let listeningUdp = dgram.createSocket(udpType);
+        listeningUdp.bind();
+        listeningUdp.unref();
+        listeningUdp.once('listening', () => __awaiter(this, void 0, Promise, function* () {
+            let udpAddr = listeningUdp.address();
             let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
             yield client.writeAsync(reply);
         }));
-        let udpSet = new Map();
-        transitUdp.on('message', (msg, rinfo) => __awaiter(this, void 0, Promise, function* () {
-            let socketId = `${rinfo.address}:${rinfo.port}`;
-            let proxyUdp = udpSet.get(socketId) || dgram.createSocket(udpType);
+        let udpSet = new Set();
+        listeningUdp.on('message', (msg, cinfo) => __awaiter(this, void 0, Promise, function* () {
+            let proxyUdp = dgram.createSocket(udpType);
             proxyUdp.unref();
             let encryptor = cryptoEx.createCipher(cipherAlgorithm, password);
             let cipher = encryptor.cipher;
@@ -104,21 +103,20 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let el = cipher.update(new Buffer([pl]));
             let em = cipher.update(msg);
             let data = Buffer.concat([iv, el, rp, em]);
-            proxyUdp.send(data, 0, data.length, server.udpPort, server.addr);
-            proxyUdp.on('message', (rMsg) => {
-                let reply = decipher.update(rMsg);
-                let header = socks5Helper.createSocks5UdpHeader(rinfo.address, rinfo.port);
+            proxyUdp.send(data, 0, data.length, udpServer.port, udpServer.addr);
+            proxyUdp.on('message', (sMsg, sinfo) => {
+                let reply = decipher.update(sMsg);
+                let header = socks5Helper.createSocks5UdpHeader(cinfo.address, cinfo.port);
                 let data = Buffer.concat([header, reply]);
-                transitUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
+                listeningUdp.send(data, 0, data.length, cinfo.port, cinfo.address);
             });
-            proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(socketId); });
-            if (!udpSet.has(socketId))
-                udpSet.set(socketId, proxyUdp);
+            proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(proxyUdp); });
+            udpSet.add(proxyUdp);
         }));
         function dispose() {
-            transitUdp.removeAllListeners();
-            transitUdp.close();
-            transitUdp.unref();
+            listeningUdp.removeAllListeners();
+            listeningUdp.close();
+            listeningUdp.unref();
             udpSet.forEach(udp => {
                 udp.removeAllListeners();
                 udp.close();
@@ -127,8 +125,8 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
         }
         client.once('error', dispose);
         client.once('end', dispose);
-        transitUdp.on('error', dispose);
-        transitUdp.on('close', dispose);
+        listeningUdp.on('error', dispose);
+        listeningUdp.on('close', dispose);
     }
 }
 exports.RemoteProxyServer = RemoteProxyServer;

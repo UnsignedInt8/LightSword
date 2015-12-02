@@ -21,7 +21,7 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
   serverUdp.unref();
   serverUdp.once('listening', async () => {
     let udpAddr = serverUdp.address();
-    let reply = socksHelper.createSocks5TcpReply(0x0, udpAddr.family === '' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
+    let reply = socksHelper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? ATYP.IPV4 : ATYP.IPV6, udpAddr.address, udpAddr.port);
     
     let encryptor = cryptoEx.createCipher(options.cipherAlgorithm, options.password);
     let cipher = encryptor.cipher;
@@ -35,8 +35,8 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     await client.writeAsync(Buffer.concat([iv, el, pd, er]));
   });
   
-  let udpSet = new Map<string, dgram.Socket>();
-  serverUdp.on('message', async (msg: Buffer, rinfo: dgram.RemoteInfo) => {
+  let udpSet = new Set<dgram.Socket>();
+  serverUdp.on('message', async (msg: Buffer, cinfo: dgram.RemoteInfo) => {
     let iv = new Buffer(ivLength);
     msg.copy(iv, 0, 0, ivLength);
     
@@ -53,18 +53,18 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     
     let dst = socksHelper.refineDestination(udpMsg);
     
-    let socketId = `${rinfo.address}:${rinfo.port}`;
-    let proxyUdp = udpSet.get(socketId) || dgram.createSocket(udpType);
+    let socketId = `${cinfo.address}:${cinfo.port}`;
+    let proxyUdp = dgram.createSocket(udpType);
     proxyUdp.unref();
     
     proxyUdp.send(udpMsg, dst.headerSize, udpMsg.length - dst.headerSize, dst.port, dst.addr);
-    proxyUdp.on('message', (msg: Buffer) => {
+    proxyUdp.on('message', (msg: Buffer, rinfo: dgram.RemoteInfo) => {
       let data = cipher.update(msg);
-      serverUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
+      proxyUdp.send(data, 0, data.length, cinfo.port, cinfo.address);
     });
     
-    proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(socketId); });
-    if (!udpSet.has(socketId) ) udpSet.set(socketId, proxyUdp);
+    proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(proxyUdp); });
+    udpSet.add(proxyUdp);
   });
   
   function dispose() {

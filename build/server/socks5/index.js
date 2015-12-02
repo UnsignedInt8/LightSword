@@ -26,9 +26,9 @@ function handleSocks5(client, data, options) {
             connectHandler_1.connect(client, data, dst, options);
             break;
         case socks5Constant_1.REQUEST_CMD.BIND:
-            udpHandler_1.udpAssociate(client, data, dst, options);
             break;
         case socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE:
+            udpHandler_1.udpAssociate(client, data, dst, options);
             break;
         default:
             return false;
