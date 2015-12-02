@@ -74,6 +74,7 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let reply = decipher.update(reBuf);
             switch (req.cmd) {
                 case socks5Constant_1.REQUEST_CMD.CONNECT:
+                    console.info(`connected: ${req.addr}:${req.port}`);
                     yield client.writeAsync(reply);
                     client.pipe(cipher).pipe(proxySocket);
                     proxySocket.pipe(decipher).pipe(client);

@@ -31,8 +31,8 @@ export abstract class Socks5Server {
   public timeout: number;
   public bypassLocal: boolean;
   
-  private _server: net.Server;
-  localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname()];
+  private server: net.Server;
+  protected localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname().toLowerCase()];
 
   constructor(options: ServerOptions) {
     let _this = this;
@@ -40,7 +40,7 @@ export abstract class Socks5Server {
   }
   
   start() {
-    if (this._server) return;
+    if (this.server) return;
     let _this = this;
     
     let server = net.createServer(async (client) => {
@@ -57,7 +57,12 @@ export abstract class Socks5Server {
     
     server.listen(this.listenPort, this.listenAddr);
     server.on('error', (err) => console.error(err.message));
-    this._server = server;
+    this.server = server;
+  }
+  
+  stop() {
+    this.server.removeAllListeners();
+    this.server.close();
   }
   
   private handleHandshake(data: Buffer): { success: boolean, data: Buffer } {
