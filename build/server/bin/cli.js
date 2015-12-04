@@ -18,6 +18,7 @@ var ipc = require('../../lib/ipc');
 var fs = require('fs');
 var path = require('path');
 var child = require('child_process');
+var cluster_1 = require('../cluster');
 program
     .version('0.3')
     .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
@@ -28,6 +29,7 @@ program
     .option('-t, --timeout [number]', 'Timeout', Number.parseInt)
     .option('-f, --fork', 'Run as Daemon')
     .option('-d, --daemon <command>', 'Daemon Control', String)
+    .option('-r, --cluster', 'Run as Cluster Mode')
     .parse(process.argv);
 var args = program;
 function parseOptions(path) {
@@ -83,5 +85,10 @@ else {
     Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
     process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
     process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));
-    users.forEach(u => new app_1.App(u));
+    if (args.cluster) {
+        cluster_1.runAsClusterMode(users);
+    }
+    else {
+        users.forEach(u => new app_1.App(u));
+    }
 }

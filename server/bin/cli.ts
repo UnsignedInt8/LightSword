@@ -9,6 +9,7 @@ import * as ipc from '../../lib/ipc';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as child from 'child_process';
+import { runAsClusterMode } from '../cluster';
 
 program
   .version('0.3')
@@ -20,6 +21,7 @@ program
   .option('-t, --timeout [number]', 'Timeout', Number.parseInt)
   .option('-f, --fork', 'Run as Daemon')
   .option('-d, --daemon <command>', 'Daemon Control', String)
+  .option('-r, --cluster', 'Run as Cluster Mode')
   .parse(process.argv);
   
 var args = <any>program;
@@ -83,5 +85,9 @@ if (args.daemon && !process.env.__daemon) {
   process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
   process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));
   
-  users.forEach(u => new App(u));  
+  if (args.cluster) {
+    runAsClusterMode(users);
+  } else {
+    users.forEach(u => new App(u));
+  }
 }
