@@ -4,11 +4,12 @@
 'use strict';
 var net = require('net');
 require('../lib/socketEx');
+var constant_1 = require('../lib/constant');
 class App {
     constructor(options) {
         let dstAddr = options.dstAddr;
-        let dstPort = options.dstPort || 2015;
-        let localPort = options.localPort || 2015;
+        let dstPort = options.dstPort || constant_1.defaultServerPort;
+        let localPort = options.localPort || constant_1.defaultServerPort;
         let server = net.createServer((socket) => {
             let transitSocket = net.createConnection(dstPort, dstAddr, () => {
                 socket.pipe(transitSocket);
