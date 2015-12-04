@@ -70,6 +70,8 @@ export class LsServer {
     server.listen(this.port);
     server.on('error', (err) => console.error(err.message));
     this.server = server;
+    
+    setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
   }
   
   stop() {

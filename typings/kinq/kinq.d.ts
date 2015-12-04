@@ -177,7 +177,7 @@ declare interface _Linqable<T> {
     * Flattens a nested sequence (the nesting can be to any depth).
     * @param deep Default is true, If you pass false, the sequence will only be flattened a single level.
     */
-    flatten<U extends _Linqable<T>>(deep: boolean): _Linqable<T>;
+    flatten<U extends _Linqable<T>>(deep: boolean): _Linqable<any>;
     
   /**
     * Groups the elements of a sequence according to a specified key selector function and projects the elements for each group by using a specified function.
