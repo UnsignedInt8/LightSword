@@ -15,6 +15,17 @@
 | -b | --dontbypasslocal | 不绕过本地地址 |
 | -c | --config | 配置文件路径 |
 | -a | --any | 允许任意地址使用代理 |
+| -d | --daemon | 守护进程控制命令，支持: stop, restart |
+
+控制守护进程
+
+```
+// 重启
+lslocal -d restart
+
+// 停止
+lslocal -d stop
+```
 
 支持加密算法:
 ---
