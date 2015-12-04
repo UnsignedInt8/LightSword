@@ -5,6 +5,7 @@ var path = require('path');
 var child = require('child_process');
 var app_1 = require('../app');
 program
+    .version('0.1')
     .option('-s, --server <Address>', 'Next Node Address', String)
     .option('-p, --port <Number>', 'Next Node Server Port', Number.parseInt)
     .option('-l, --listenport <Number>', 'Local Port', Number.parseInt)

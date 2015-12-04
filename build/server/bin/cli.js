@@ -19,6 +19,7 @@ var fs = require('fs');
 var path = require('path');
 var child = require('child_process');
 program
+    .version('0.3')
     .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
     .option('-k, --password [password]', 'Cipher Password', String)
     .option('-m, --method [algorithm]', 'Cipher Algorithm', String)

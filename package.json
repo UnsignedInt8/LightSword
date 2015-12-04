@@ -5,6 +5,7 @@
   "main": "index.js",
   "bin": {
     "lslocal": "./build/client/bin/cli.js",
+    "lsclient": "./build/client/bin/cli.js",
     "lsserver": "./build/server/bin/cli.js",
     "lightsword-client": "./build/client/bin/cli.js",
     "lightsword-server": "./build/server/bin/cli.js",

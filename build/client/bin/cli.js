@@ -19,6 +19,7 @@ var path = require('path');
 var ipc = require('../../lib/ipc');
 var child = require('child_process');
 program
+    .version('0.3')
     .option('-s, --server <addr|domain>', 'Server Address', String)
     .option('-p, --port <number>', 'Server Port Number', Number.parseInt)
     .option('-l, --listenport <number>', 'Local Listening Port Number', Number.parseInt)

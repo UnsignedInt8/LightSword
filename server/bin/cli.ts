@@ -11,6 +11,7 @@ import * as path from 'path';
 import * as child from 'child_process';
 
 program
+  .version('0.3')
   .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
   .option('-k, --password [password]', 'Cipher Password', String)
   .option('-m, --method [algorithm]', 'Cipher Algorithm', String)
