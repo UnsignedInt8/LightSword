@@ -8,10 +8,10 @@ import * as program from 'commander';
 import { App } from '../app'
 import * as fs from 'fs';
 import * as path from 'path';
+import * as ipc from '../../lib/ipc';
 import * as child from 'child_process';
 
 program
-  .usage('[options]')
   .option('-s, --server <addr|domain>', 'Server Address', String)
   .option('-p, --port <number>', 'Server Port Number', Number.parseInt)
   .option('-l, --listenport <number>', 'Local Listening Port Number', Number.parseInt)
@@ -22,6 +22,7 @@ program
   .option('-t, --timeout [number]', 'Timeout (second)')
   .option('-f, --fork', 'Run as Daemon')
   .option('-b, --dontbypasslocal', "DON'T Bypass Local Address")
+  .option('-d, --daemon <command>', 'Daemon Control', String)
   .parse(process.argv);
   
 var args = <any>program;
@@ -62,7 +63,15 @@ if (args.fork && !process.env.__daemon) {
   process.exit(0);
 }
 
+if (process.env.__daemon) {
+  ipc.IpcServer.start('client');
+}
+
+if (args.daemon) {
+  return ipc.sendCommand('client', args.daemon);
+}
+
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);
-new App(argsOptions);
+if (!program.args.contains('service')) new App(argsOptions);
 
 process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Client';

@@ -11,7 +11,7 @@ export enum VPN_TYPE {
 
 export const defaultCipherAlgorithm = 'aes-256-cfb';
 export const defaultPassword = 'lightsword.neko';
-export const defaultServerPort = 2015;
+export const defaultServerPort = 9025;
 
 export type ISocks5Options = {
   decipher: Decipher,
