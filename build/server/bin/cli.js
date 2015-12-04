@@ -65,6 +65,7 @@ var argsOptions = {
     cipherAlgorithm: args.method,
     timeout: args.timeout
 };
+Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
 if (!users.length)
     users.push(argsOptions);
 if (args.fork && !process.env.__daemon) {
@@ -75,20 +76,22 @@ if (args.fork && !process.env.__daemon) {
     console.info('Child PID: ' + cp.pid);
     process.exit(0);
 }
-if (process.env.__daemon) {
-    ipc.IpcServer.start('server');
+function listenDaemonCommands() {
+    if (process.env.__daemon) {
+        ipc.IpcServer.start('server');
+    }
 }
 if (args.daemon && !process.env.__daemon) {
     ipc.sendCommand('server', args.daemon, (code) => process.exit(code));
 }
 else {
-    Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
-    process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
-    process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));
     if (args.cluster) {
-        cluster_1.runAsClusterMode(users);
+        cluster_1.runAsClusterMode(users, listenDaemonCommands);
     }
     else {
         users.forEach(u => new app_1.App(u));
+        listenDaemonCommands();
     }
+    process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
+    process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));
 }

@@ -18,13 +18,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var os = require('os');
 var cluster = require('cluster');
 var app_1 = require('./app');
-function runAsClusterMode(options) {
+function runAsClusterMode(options, callback) {
     if (cluster.isMaster) {
         os.cpus().forEach(() => {
             cluster.fork();
         });
         cluster.on('exit', () => cluster.fork());
-        return;
+        return callback();
     }
     options.forEach(o => new app_1.App(o));
 }
