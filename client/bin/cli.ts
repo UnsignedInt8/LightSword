@@ -69,10 +69,10 @@ if (process.env.__daemon) {
 }
 
 if (args.daemon && !process.env.__daemon) {
-  return ipc.sendCommand('client', args.daemon, (code) => process.exit(code));
+  ipc.sendCommand('client', args.daemon, (code) => process.exit(code));
+} else {  
+  Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);
+  if (!program.args.contains('service')) new App(argsOptions);
+  
+  process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Client';
 }
-
-Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);
-if (!program.args.contains('service')) new App(argsOptions);
-
-process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Client';

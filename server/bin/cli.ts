@@ -76,12 +76,12 @@ if (process.env.__daemon) {
 }
 
 if (args.daemon && !process.env.__daemon) {
-  return ipc.sendCommand('server', args.daemon, (code) => process.exit(code));
+  ipc.sendCommand('server', args.daemon, (code) => process.exit(code));
+} else {
+  Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
+  
+  process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
+  process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));
+  
+  users.forEach(u => new App(u));  
 }
-
-Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
-
-process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
-process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));
-
-users.forEach(u => new App(u));
