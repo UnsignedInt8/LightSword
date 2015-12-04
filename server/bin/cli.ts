@@ -5,6 +5,7 @@
 
 import * as program from 'commander';
 import { App } from '../app';
+import * as ipc from '../../lib/ipc';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as child from 'child_process';
@@ -17,6 +18,7 @@ program
   .option('-u, --users <path>', 'Mutli-users File Path', String)
   .option('-t, --timeout [number]', 'Timeout', Number.parseInt)
   .option('-f, --fork', 'Run as Daemon')
+  .option('-d, --daemon <command>', 'Daemon Control', String)
   .parse(process.argv);
   
 var args = <any>program;
@@ -66,6 +68,14 @@ if (args.fork && !process.env.__daemon) {
   cp.unref();
   console.info('Child PID: ' + cp.pid);
   process.exit(0);
+}
+
+if (process.env.__daemon) {
+  ipc.IpcServer.start('server');
+}
+
+if (args.daemon && !process.env.__daemon) {
+  return ipc.sendCommand('server', args.daemon, (code) => process.exit(code));
 }
 
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);

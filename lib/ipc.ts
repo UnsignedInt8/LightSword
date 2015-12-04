@@ -19,7 +19,7 @@ export class IpcServer {
   
   static start(tag: string) {
     let unixPath = util.format('/tmp/lightsword-%s.sock', tag);
-    fs.unlinkSync(unixPath);
+    if (fs.existsSync(unixPath)) fs.unlinkSync(unixPath);
     
     let server = net.createServer(async (client) => {
       let data = await client.readAsync();

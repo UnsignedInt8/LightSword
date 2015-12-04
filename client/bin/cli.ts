@@ -67,8 +67,8 @@ if (process.env.__daemon) {
   ipc.IpcServer.start('client');
 }
 
-if (args.daemon) {
-  return ipc.sendCommand('client', args.daemon);
+if (args.daemon && !process.env.__daemon) {
+  return ipc.sendCommand('client', args.daemon, (code) => process.exit(code));
 }
 
 Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);
