@@ -35,7 +35,6 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     await client.writeAsync(Buffer.concat([iv, el, pd, er]));
   });
   
-  let udpSet = new Set<dgram.Socket>();
   serverUdp.on('message', async (msg: Buffer, cinfo: dgram.RemoteInfo) => {
     let iv = new Buffer(ivLength);
     msg.copy(iv, 0, 0, ivLength);
@@ -63,8 +62,7 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
       proxyUdp.send(data, 0, data.length, cinfo.port, cinfo.address);
     });
     
-    proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(proxyUdp); });
-    udpSet.add(proxyUdp);
+    proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); });
   });
   
   function dispose() {
@@ -73,13 +71,6 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     serverUdp.unref();
     
     client.dispose();
-    
-    udpSet.forEach(udp => {
-      udp.removeAllListeners();
-      udp.close();
-    });
-    
-    udpSet.clear();
   }
   
   client.on('error', dispose);
