@@ -8,4 +8,4 @@
 var VPN_TYPE = exports.VPN_TYPE;
 exports.defaultCipherAlgorithm = 'aes-256-cfb';
 exports.defaultPassword = 'lightsword.neko';
-exports.defaultServerPort = 9025;
+exports.defaultServerPort = 8900;

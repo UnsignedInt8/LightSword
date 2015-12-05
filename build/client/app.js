@@ -18,6 +18,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 require('../lib/socketEx');
 require('kinq').enable();
 require('async-node');
+var constant_1 = require('../lib/constant');
 var localProxyServer_1 = require('./socks5/localProxyServer');
 var remoteProxyServer_1 = require('./socks5/remoteProxyServer');
 let localAddrs = ['127.0.0.1', 'localhost', undefined, null];
@@ -27,7 +28,7 @@ class App {
             listenAddr: 'localhost',
             listenPort: 1080,
             serverAddr: 'localhost',
-            serverPort: 2015,
+            serverPort: constant_1.defaultServerPort,
             cipherAlgorithm: 'aes-256-cfb',
             password: 'lightsword.neko',
             timeout: 60,
