@@ -32,7 +32,7 @@ export abstract class Socks5Server {
   public bypassLocal: boolean;
   
   private server: net.Server;
-  protected localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname().toLowerCase()];
+  protected localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname().toLowerCase(), '169.254.0.0'];
 
   constructor(options: ServerOptions) {
     let _this = this;

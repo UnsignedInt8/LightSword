@@ -22,3 +22,20 @@
 ```
 lsserver -f -m aes-256-cfb -p 4433 -k password
 ```
+
+配置文件:
+---
+
+配置文件是使用utf8编码的json格式文件，每个配置关键字和命令行完整参数相同。
+
+```
+{
+  "port": 4433,
+  "password": "abcabc",
+  "method": "aes-256-cfb",
+  "timeout": 60,
+  "fork": true,
+  "users": "/etc/lightsword-users.conf",
+  "cluster": true
+}
+```

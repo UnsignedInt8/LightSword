@@ -48,3 +48,22 @@ lslocal -d stop
 |rc4|
 |rc4-md5|
 |seed-cfb|
+
+配置文件:
+---
+
+配置文件是使用utf8编码的json格式文件，每个配置关键字和命令行完整参数相同。
+
+```
+{
+  "server": "xxx.xxx.xxx.xxx",
+  "port": 4433,
+  "listenport": 1080,
+  "password": "abcabc",
+  "method": "aes-256-cfb",
+  "timeout": 60,
+  "fork": true,
+  "dontbypasslocal", false
+  "any": false
+}
+```
