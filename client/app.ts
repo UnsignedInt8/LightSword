@@ -7,6 +7,7 @@
 require('../lib/socketEx');
 require('kinq').enable();
 require('async-node');
+import { defaultServerPort } from '../lib/constant';
 import { ServerOptions } from './socks5/socks5Server';
 import { LocalProxyServer } from './socks5/localProxyServer';
 import { RemoteProxyServer } from './socks5/remoteProxyServer';
@@ -20,7 +21,7 @@ export class App {
       listenAddr: 'localhost',
       listenPort: 1080,
       serverAddr: 'localhost',
-      serverPort: 2015,
+      serverPort: defaultServerPort,
       cipherAlgorithm: 'aes-256-cfb',
       password: 'lightsword.neko',
       timeout: 60,
