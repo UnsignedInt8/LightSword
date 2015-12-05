@@ -28,7 +28,7 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
     handleRequest(client, request) {
         let me = this;
         let req = socks5Helper.refineDestination(request);
-        if (this.localArea.any((a) => a.startsWith(req.addr.toLowerCase())) && this.bypassLocal) {
+        if (this.localArea.any((a) => req.addr.toLowerCase().startsWith(a)) && this.bypassLocal) {
             if (req.cmd === socks5Constant_1.REQUEST_CMD.CONNECT)
                 return localProxyServer_1.LocalProxyServer.connectServer(client, { addr: req.addr, port: req.port }, request, this.timeout);
             if (req.cmd === socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE)
