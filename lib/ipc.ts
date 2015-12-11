@@ -73,5 +73,6 @@ export function sendCommand(tag: string, cmd: string, callback: (code) => void) 
     callback(0);
   });
   
-  socket.on('error', (err) => { console.info(`${tag} is not running or unix socket error.`); callback(1); });
+  socket.on('error', (err: Error) => { console.info(`${tag} is not running or unix socket error.`); callback(1); });
+  socket.setTimeout(5 * 1000);
 }

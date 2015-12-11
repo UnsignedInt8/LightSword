@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
-    "outDir": "./build"
+    "outDir": "./build",
+    "declaration": true
   },
   "exclude": [
     ".vscode",
