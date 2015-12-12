@@ -19,7 +19,7 @@ export class LsServer {
   private blacklist = new Set<string>();
   private server: net.Server;
   
-  constructor(options: { cipherAlgorithm: string, password: string, port: number, plugin: string }) {
+  constructor(options: { cipherAlgorithm: string, password: string, port: number }) {
     let _this = this;
     Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
   }

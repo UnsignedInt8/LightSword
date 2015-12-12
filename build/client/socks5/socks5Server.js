@@ -28,20 +28,20 @@ class Socks5Server {
     start() {
         if (this.server)
             return;
-        let _this = this;
+        let me = this;
         let server = net.createServer((client) => __awaiter(this, void 0, Promise, function* () {
             let data = yield client.readAsync();
             if (!data)
                 return client.dispose();
-            let reply = _this.handleHandshake(data);
+            let reply = me.handleHandshake(data);
             yield client.writeAsync(reply.data);
             if (!reply.success)
                 return client.dispose();
             data = yield client.readAsync();
-            _this.handleRequest(client, data);
+            me.handleRequest(client, data);
         }));
-        server.listen(this.listenPort, this.listenAddr);
         server.on('error', (err) => console.error(err.message));
+        server.listen(this.listenPort, this.listenAddr);
         this.server = server;
     }
     stop() {
