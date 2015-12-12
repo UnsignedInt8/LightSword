@@ -19,8 +19,28 @@
 使用方法
 ---
 
+启动
+
 ```
 lsserver -f -m aes-256-cfb -p 4433 -k password
+```
+
+停止服务器
+
+```
+lsserver -d stop
+```
+
+重启服务器
+
+```
+lsserver -d restart
+```
+
+服务器状态
+
+```
+lsserver -d status
 ```
 
 配置文件:
