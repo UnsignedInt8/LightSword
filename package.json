@@ -35,7 +35,8 @@
   "dependencies": {
     "async-node": "0.0.5",
     "commander": "^2.9.0",
-    "kinq": "0.0.6"
+    "kinq": "0.0.6",
+    "pkcs7": "^0.2.3"
   },
   "devDependencies": {
     "mocha": "^2.3.4",
