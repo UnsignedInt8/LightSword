@@ -16,6 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var net = require('net');
+var pkcs7 = require('../lib/pkcs7');
 var crypto = require('../lib/cipher');
 var constant_1 = require('../lib/constant');
 var index_1 = require('./socks5/index');
@@ -35,19 +36,16 @@ class LsServer {
                 return client.dispose();
             let meta = crypto.SupportedCiphers[me.cipherAlgorithm];
             let ivLength = meta[1];
-            let iv = new Buffer(ivLength);
-            data.copy(iv, 0, 0, ivLength);
+            let iv = data.slice(0, ivLength);
             let decipher = crypto.createDecipher(me.cipherAlgorithm, me.password, iv);
-            let et = new Buffer(2);
-            data.copy(et, 0, ivLength, ivLength + 2);
-            let dt = decipher.update(et);
+            let et = data.slice(ivLength, ivLength + pkcs7.PKCS7Size);
+            let dt = pkcs7.unpad(decipher.update(et));
             let vpnType = dt[0];
             let paddingSize = dt[1];
-            let request = new Buffer(data.length - ivLength - 2 - paddingSize);
-            data.copy(request, 0, ivLength + 2 + paddingSize, data.length);
-            request = decipher.update(request);
+            let request = data.slice(ivLength + pkcs7.PKCS7Size + paddingSize, data.length);
+            request = new Buffer(pkcs7.unpad(decipher.update(request)));
             let options = {
-                decipher: decipher,
+                decipher,
                 password: me.password,
                 cipherAlgorithm: me.cipherAlgorithm,
                 timeout: me.timeout

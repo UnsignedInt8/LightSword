@@ -61,7 +61,7 @@ function refineDestination(rawData) {
     }
     let headerSize = 4 + (atyp === socks5Constant_1.ATYP.DN ? 1 : 0) + dnLength + 2;
     let port = rawData.readUInt16BE(headerSize - 2);
-    return { cmd: cmd, addr: addr, port: port, headerSize: headerSize };
+    return { cmd, addr, port, headerSize };
 }
 exports.refineDestination = refineDestination;
 // +----+-----+-------+------+----------+----------+
@@ -114,5 +114,5 @@ function parseAddrToBytes(fullAddr) {
             fullAddr.each((c, i) => addrBytes.push(fullAddr.charCodeAt(i)));
             break;
     }
-    return { addrBytes: addrBytes, type: type ? (type === 4 ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6) : socks5Constant_1.ATYP.DN };
+    return { addrBytes, type: type ? (type === 4 ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6) : socks5Constant_1.ATYP.DN };
 }

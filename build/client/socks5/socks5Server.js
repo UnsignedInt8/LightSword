@@ -54,7 +54,7 @@ class Socks5Server {
             ? socks5Constant_1.AUTHENTICATION.NOAUTH
             : socks5Constant_1.AUTHENTICATION.NONE;
         let success = code === socks5Constant_1.AUTHENTICATION.NOAUTH;
-        return { success: success, data: new Buffer([socks5Constant_1.SOCKS_VER.V5, code]) };
+        return { success, data: new Buffer([socks5Constant_1.SOCKS_VER.V5, code]) };
     }
 }
 exports.Socks5Server = Socks5Server;

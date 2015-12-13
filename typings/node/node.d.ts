@@ -393,6 +393,7 @@ interface NodeBuffer {
     writeDoubleLE(value: number, offset: number, noAssert?: boolean): number;
     writeDoubleBE(value: number, offset: number, noAssert?: boolean): number;
     fill(value: any, offset?: number, end?: number): Buffer;
+    subarray(begin: number, end?: number): Uint8Array;
 }
 
 /************************************************

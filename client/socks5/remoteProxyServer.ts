@@ -7,9 +7,10 @@
 import * as net from 'net';
 import * as dgram from 'dgram';
 import * as crypto from 'crypto';
+import * as pkcs7 from '../../lib/pkcs7';
 import * as cryptoEx from '../../lib/cipher';
-import { VPN_TYPE } from '../../lib/constant';
 import { Socks5Server } from './socks5Server';
+import { VPN_TYPE } from '../../lib/constant';
 import { LocalProxyServer } from './localProxyServer';
 import * as socks5Helper from '../../lib/socks5Helper';
 import { REQUEST_CMD, ATYP } from '../../lib/socks5Constant';
@@ -31,26 +32,23 @@ export class RemoteProxyServer extends Socks5Server {
       
       let iv = encryptor.iv;
       let pl = Number((Math.random() * 0xff).toFixed());
-      let et = cipher.update(new Buffer([VPN_TYPE.SOCKS5, pl]));
+      let et = cipher.update(new Buffer(pkcs7.pad(new Buffer([VPN_TYPE.SOCKS5, pl]))));
       let pa = crypto.randomBytes(pl);
-      let er = cipher.update(request);
+      let er = cipher.update(new Buffer(pkcs7.pad(request)));
 
       await proxySocket.writeAsync(Buffer.concat([iv, et, pa, er]));
       
       let data = await proxySocket.readAsync();
       if (!data) return proxySocket.dispose();
       
-      let riv = new Buffer(iv.length);
-      data.copy(riv, 0, 0, iv.length);
+      let riv = data.slice(0, iv.length);
       let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
       
-      let rlBuf = new Buffer(1);
-      data.copy(rlBuf, 0, iv.length, iv.length + 1);
-      let paddingSize = decipher.update(rlBuf)[0];
+      let rlBuf = data.slice(iv.length, iv.length + pkcs7.PKCS7Size);
+      let paddingSize = pkcs7.unpad(decipher.update(rlBuf))[0];
       
-      let reBuf = new Buffer(data.length - iv.length - 1 - paddingSize);
-      data.copy(reBuf, 0, iv.length + 1 + paddingSize, data.length);
-      let reply = decipher.update(reBuf);
+      let reBuf = data.slice(iv.length + pkcs7.PKCS7Size + paddingSize, data.length);
+      let reply = new Buffer(pkcs7.unpad(decipher.update(reBuf)));
       
       switch (req.cmd) {
         case REQUEST_CMD.CONNECT:
