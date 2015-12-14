@@ -26,6 +26,7 @@ export class IpcServer {
     let server = net.createServer(async (client) => {
       let data = await client.readAsync();
       let msg = '';
+      let mem: { rss: number, heapTotal: number, heapUsed: number };
       
       switch(data[0]) {
         case COMMAND.STOP:
@@ -39,13 +40,14 @@ export class IpcServer {
           process.exit(0);
           break;
         case COMMAND.STATUS:
-          let mem = process.memoryUsage();
+          mem = process.memoryUsage();
           msg = `${path.basename(process.argv[1])}d (PID: ${process.pid}) is running.`;
           msg = util.format('%s\nHeap total: %sMB, heap used: %sMB, rss: %sMB', msg, (mem.heapTotal / 1024 / 1024).toPrecision(2), (mem.heapUsed / 1024 / 1024).toPrecision(2), (mem.rss / 1024 / 1024).toPrecision(2));
           await client.writeAsync(new Buffer(msg));
           client.dispose();
           break;
         case COMMAND.STATUSJSON:
+          mem = process.memoryUsage();
           let obj = {
             process: process.argv[1] + 'd',
             pid: process.pid,
@@ -53,7 +55,7 @@ export class IpcServer {
             heapUsed: mem.heapUsed,
             rss: mem.rss
           };
-          await client.writeAsync(JSON.stringify(obj));
+          await client.writeAsync(new Buffer(JSON.stringify(obj)));
           client.dispose();
           break;
       }
