@@ -23,7 +23,8 @@ var child = require('child_process');
 (function (COMMAND) {
     COMMAND[COMMAND["STOP"] = 2] = "STOP";
     COMMAND[COMMAND["RESTART"] = 3] = "RESTART";
-    COMMAND[COMMAND["STATUS"] = 10] = "STATUS";
+    COMMAND[COMMAND["STATUS"] = 101] = "STATUS";
+    COMMAND[COMMAND["STATUSJSON"] = 102] = "STATUSJSON";
 })(exports.COMMAND || (exports.COMMAND = {}));
 var COMMAND = exports.COMMAND;
 class IpcServer {
@@ -46,7 +47,9 @@ class IpcServer {
                     process.exit(0);
                     break;
                 case COMMAND.STATUS:
+                    let mem = process.memoryUsage();
                     msg = `${path.basename(process.argv[1])}d (PID: ${process.pid}) is running.`;
+                    msg = util.format('%s\nHeap total: %sMB, heap used: %sMB, rss: %sMB', msg, (mem.heapTotal / 1024 / 1024).toPrecision(2), (mem.heapUsed / 1024 / 1024).toPrecision(2), (mem.rss / 1024 / 1024).toPrecision(2));
                     yield client.writeAsync(new Buffer(msg));
                     client.dispose();
                     break;

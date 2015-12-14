@@ -11,9 +11,10 @@ import * as util from 'util';
 import * as child from 'child_process';
 
 export enum COMMAND {
-  STOP = 0x2,
-  RESTART = 0x3,
-  STATUS = 0xa,
+  STOP = 2,
+  RESTART = 3,
+  STATUS = 101,
+  STATUSJSON = 102,
 }
 
 export class IpcServer {
@@ -38,8 +39,21 @@ export class IpcServer {
           process.exit(0);
           break;
         case COMMAND.STATUS:
+          let mem = process.memoryUsage();
           msg = `${path.basename(process.argv[1])}d (PID: ${process.pid}) is running.`;
+          msg = util.format('%s\nHeap total: %sMB, heap used: %sMB, rss: %sMB', msg, (mem.heapTotal / 1024 / 1024).toPrecision(2), (mem.heapUsed / 1024 / 1024).toPrecision(2), (mem.rss / 1024 / 1024).toPrecision(2));
           await client.writeAsync(new Buffer(msg));
+          client.dispose();
+          break;
+        case COMMAND.STATUSJSON:
+          let obj = {
+            process: process.argv[1] + 'd',
+            pid: process.pid,
+            heapTotal: mem.heapTotal,
+            heapUsed: mem.heapUsed,
+            rss: mem.rss
+          };
+          await client.writeAsync(JSON.stringify(obj));
           client.dispose();
           break;
       }
@@ -54,7 +68,8 @@ export function sendCommand(tag: string, cmd: string, callback: (code) => void) 
   let cmdMap = {
     'stop': COMMAND.STOP,
     'restart': COMMAND.RESTART,
-    'status': COMMAND.STATUS
+    'status': COMMAND.STATUS,
+    'statusjson': COMMAND.STATUSJSON,
   };
   
   let command = cmdMap[cmd.toLowerCase()];
