@@ -33,9 +33,10 @@ lslocal -d stop
 | 算法 |
 |----------|
 |aes-128-cfb|
+|aes-128-ofb|
 |aes-192-cfb|
+|aes-192-ofb|
 |aes-256-cfb|
-|aes-256-cbc|
 |aes-256-ofb|
 |bf-cfb|
 |camellia-128-cfb|

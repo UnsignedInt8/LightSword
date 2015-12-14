@@ -18,7 +18,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var net = require('net');
 var dgram = require('dgram');
 var crypto = require('crypto');
-var pkcs7 = require('../../lib/pkcs7');
 var cryptoEx = require('../../lib/cipher');
 var socks5Server_1 = require('./socks5Server');
 var constant_1 = require('../../lib/constant');
@@ -40,19 +39,19 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let cipher = encryptor.cipher;
             let iv = encryptor.iv;
             let pl = Number((Math.random() * 0xff).toFixed());
-            let et = cipher.update(new Buffer(pkcs7.pad(new Buffer([constant_1.VPN_TYPE.SOCKS5, pl]))));
+            let et = cipher.update(new Buffer([constant_1.VPN_TYPE.SOCKS5, pl]));
             let pa = crypto.randomBytes(pl);
-            let er = cipher.update(new Buffer(pkcs7.pad(request)));
+            let er = cipher.update(request);
             yield proxySocket.writeAsync(Buffer.concat([iv, et, pa, er]));
             let data = yield proxySocket.readAsync();
             if (!data)
                 return proxySocket.dispose();
             let riv = data.slice(0, iv.length);
             let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
-            let rlBuf = data.slice(iv.length, iv.length + pkcs7.PKCS7Size);
-            let paddingSize = pkcs7.unpad(decipher.update(rlBuf))[0];
-            let reBuf = data.slice(iv.length + pkcs7.PKCS7Size + paddingSize, data.length);
-            let reply = new Buffer(pkcs7.unpad(decipher.update(reBuf)));
+            let rlBuf = data.slice(iv.length, iv.length + 1);
+            let paddingSize = decipher.update(rlBuf)[0];
+            let reBuf = data.slice(iv.length + 1 + paddingSize, data.length);
+            let reply = decipher.update(reBuf);
             switch (req.cmd) {
                 case socks5Constant_1.REQUEST_CMD.CONNECT:
                     console.info(`connected: ${req.addr}:${req.port}`);

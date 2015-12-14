@@ -6,7 +6,6 @@
 
 
 import * as net from 'net';
-import * as pkcs7 from '../lib/pkcs7';
 import * as crypto from '../lib/cipher';
 import { VPN_TYPE } from '../lib/constant'
 import { handleSocks5 } from './socks5/index';
@@ -40,13 +39,13 @@ export class LsServer {
       
       let decipher = crypto.createDecipher(me.cipherAlgorithm, me.password, iv);
       
-      let et = data.slice(ivLength, ivLength + pkcs7.PKCS7Size);
-      let dt = pkcs7.unpad(decipher.update(et));
+      let et = data.slice(ivLength, ivLength + 2);
+      let dt = decipher.update(et);
       let vpnType = dt[0];
       let paddingSize = dt[1];
       
-      let request = data.slice(ivLength + pkcs7.PKCS7Size + paddingSize, data.length);
-      request = new Buffer(pkcs7.unpad(decipher.update(request)));
+      let request = data.slice(ivLength + 2 + paddingSize, data.length);
+      request = decipher.update(request);
       
       let options = {
         decipher,

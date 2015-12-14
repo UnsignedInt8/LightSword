@@ -8,9 +8,10 @@ import * as crypto from 'crypto';
 
 export const SupportedCiphers = {
   'aes-128-cfb': [16, 16],
+  'aes-128-ofb': [16, 16],
   'aes-192-cfb': [24, 16],
+  'aes-192-ofb': [24, 16],
   'aes-256-cfb': [32, 16],
-  'aes-256-cbc': [32, 16],
   'aes-256-ofb': [32, 16],
   'bf-cfb': [16, 8],
   'camellia-128-cfb': [16, 16],
@@ -37,7 +38,7 @@ export function createDecipher(algorithm: string, password: string, iv: Buffer):
 
 function createDeOrCipher(type: string, algorithm: string, password: string, iv?: Buffer): { cipher: crypto.Cipher | crypto.Decipher, iv: Buffer } {
   let cipherAlgorithm = algorithm.toLowerCase();
-  let keyIv = SupportedCiphers[cipherAlgorithm];
+  let keyIv = SupportedCiphers[cipherAlgorithm] || SupportedCiphers['aes-192-cfb'];
   
   let key = new Buffer(password);
   let keyLength = keyIv[0];

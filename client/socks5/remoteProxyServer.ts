@@ -7,7 +7,6 @@
 import * as net from 'net';
 import * as dgram from 'dgram';
 import * as crypto from 'crypto';
-import * as pkcs7 from '../../lib/pkcs7';
 import * as cryptoEx from '../../lib/cipher';
 import { Socks5Server } from './socks5Server';
 import { VPN_TYPE } from '../../lib/constant';
@@ -32,9 +31,9 @@ export class RemoteProxyServer extends Socks5Server {
       
       let iv = encryptor.iv;
       let pl = Number((Math.random() * 0xff).toFixed());
-      let et = cipher.update(new Buffer(pkcs7.pad(new Buffer([VPN_TYPE.SOCKS5, pl]))));
+      let et = cipher.update(new Buffer([VPN_TYPE.SOCKS5, pl]));
       let pa = crypto.randomBytes(pl);
-      let er = cipher.update(new Buffer(pkcs7.pad(request)));
+      let er = cipher.update(request);
 
       await proxySocket.writeAsync(Buffer.concat([iv, et, pa, er]));
       
@@ -44,11 +43,11 @@ export class RemoteProxyServer extends Socks5Server {
       let riv = data.slice(0, iv.length);
       let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
       
-      let rlBuf = data.slice(iv.length, iv.length + pkcs7.PKCS7Size);
-      let paddingSize = pkcs7.unpad(decipher.update(rlBuf))[0];
+      let rlBuf = data.slice(iv.length, iv.length + 1);
+      let paddingSize = decipher.update(rlBuf)[0];
       
-      let reBuf = data.slice(iv.length + pkcs7.PKCS7Size + paddingSize, data.length);
-      let reply = new Buffer(pkcs7.unpad(decipher.update(reBuf)));
+      let reBuf = data.slice(iv.length + 1 + paddingSize, data.length);
+      let reply = decipher.update(reBuf);
       
       switch (req.cmd) {
         case REQUEST_CMD.CONNECT:

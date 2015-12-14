@@ -5,9 +5,10 @@
 var crypto = require('crypto');
 exports.SupportedCiphers = {
     'aes-128-cfb': [16, 16],
+    'aes-128-ofb': [16, 16],
     'aes-192-cfb': [24, 16],
+    'aes-192-ofb': [24, 16],
     'aes-256-cfb': [32, 16],
-    'aes-256-cbc': [32, 16],
     'aes-256-ofb': [32, 16],
     'bf-cfb': [16, 8],
     'camellia-128-cfb': [16, 16],
@@ -32,7 +33,7 @@ function createDecipher(algorithm, password, iv) {
 exports.createDecipher = createDecipher;
 function createDeOrCipher(type, algorithm, password, iv) {
     let cipherAlgorithm = algorithm.toLowerCase();
-    let keyIv = exports.SupportedCiphers[cipherAlgorithm];
+    let keyIv = exports.SupportedCiphers[cipherAlgorithm] || exports.SupportedCiphers['aes-192-cfb'];
     let key = new Buffer(password);
     let keyLength = keyIv[0];
     if (key.length > keyLength)
