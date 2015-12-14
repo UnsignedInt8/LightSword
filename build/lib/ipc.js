@@ -57,7 +57,7 @@ class IpcServer {
                 case COMMAND.STATUSJSON:
                     mem = process.memoryUsage();
                     let obj = {
-                        process: process.argv[1] + 'd',
+                        process: path.basename(process.argv[1]) + 'd',
                         pid: process.pid,
                         heapTotal: mem.heapTotal,
                         heapUsed: mem.heapUsed,
