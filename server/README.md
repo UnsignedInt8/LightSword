@@ -12,7 +12,7 @@
 | -t   | --timeout  | 超时时长 |
 | -f   | --fork     | 作为守护进程运行 (不支持 Windows) |
 | -u   | --users    | 多用户配置文件路径 |
-| -d   | --daemon   | 守护进程控制命令，支持: stop, restart |
+| -d   | --daemon   | 守护进程控制命令，支持: stop, restart, status |
 | -r   | --cluster  | 以集群（多进程）模式运行 |
 
 
