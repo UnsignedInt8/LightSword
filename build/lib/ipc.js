@@ -53,6 +53,17 @@ class IpcServer {
                     yield client.writeAsync(new Buffer(msg));
                     client.dispose();
                     break;
+                case COMMAND.STATUSJSON:
+                    let obj = {
+                        process: process.argv[1] + 'd',
+                        pid: process.pid,
+                        heapTotal: mem.heapTotal,
+                        heapUsed: mem.heapUsed,
+                        rss: mem.rss
+                    };
+                    yield client.writeAsync(JSON.stringify(obj));
+                    client.dispose();
+                    break;
             }
         }));
         server.listen(unixPath);
@@ -64,7 +75,8 @@ function sendCommand(tag, cmd, callback) {
     let cmdMap = {
         'stop': COMMAND.STOP,
         'restart': COMMAND.RESTART,
-        'status': COMMAND.STATUS
+        'status': COMMAND.STATUS,
+        'statusjson': COMMAND.STATUSJSON,
     };
     let command = cmdMap[cmd.toLowerCase()];
     if (!command) {
