@@ -19,7 +19,7 @@ export class LsServer {
   private blacklist = new Set<string>();
   private server: net.Server;
   
-  constructor(options: { cipherAlgorithm: string, password: string, port: number, plugin: string }) {
+  constructor(options: { cipherAlgorithm: string, password: string, port: number }) {
     let _this = this;
     Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
   }
@@ -35,19 +35,16 @@ export class LsServer {
       
       let meta = crypto.SupportedCiphers[me.cipherAlgorithm];
       let ivLength = meta[1];
-      let iv = new Buffer(ivLength);
-      data.copy(iv, 0, 0, ivLength);
+      let iv = data.slice(0, ivLength);
       
       let decipher = crypto.createDecipher(me.cipherAlgorithm, me.password, iv);
       
-      let et = new Buffer(2);
-      data.copy(et, 0, ivLength, ivLength + 2);
+      let et = data.slice(ivLength, ivLength + 2);
       let dt = decipher.update(et);
       let vpnType = dt[0];
       let paddingSize = dt[1];
       
-      let request = new Buffer(data.length - ivLength - 2 - paddingSize);
-      data.copy(request, 0, ivLength + 2 + paddingSize, data.length);
+      let request = data.slice(ivLength + 2 + paddingSize, data.length);
       request = decipher.update(request);
       
       let options = {

@@ -393,6 +393,7 @@ interface NodeBuffer {
     writeDoubleLE(value: number, offset: number, noAssert?: boolean): number;
     writeDoubleBE(value: number, offset: number, noAssert?: boolean): number;
     fill(value: any, offset?: number, end?: number): Buffer;
+    subarray(begin: number, end?: number): Uint8Array;
 }
 
 /************************************************
@@ -967,7 +968,10 @@ declare module "net" {
         connectAsync(port: number, host: string): Promise<boolean>;
         writeAsync(data: Buffer): Promise<boolean>;
         writeAsync(data: Buffer, encoding: string): Promise<boolean>;
+        writeAsync(str: string): Promise<boolean>;
+        writeAsync(str: string, encoding?: string): Promise<boolean>;
         readAsync(): Promise<Buffer>;
+        
         // Extended base methods
         write(buffer: Buffer): boolean;
         write(buffer: Buffer, cb?: Function): boolean;

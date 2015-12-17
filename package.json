@@ -1,6 +1,6 @@
 {
   "name": "lightsword",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "LightSword Secure SOCKS5 Proxy",
   "main": "index.js",
   "bin": {
@@ -14,7 +14,7 @@
     "ilghtsword-bridge": "./build/bridge/bin/cli.js"
   },
   "scripts": {
-    "test": "mocha test/**/*.js test/*.js"
+    "test": "mocha --timeout 30000 test/**/*.js test/*.js build/test/*.js"
   },
   "repository": {
     "type": "git",
@@ -38,6 +38,7 @@
     "kinq": "0.0.6"
   },
   "devDependencies": {
-    "mocha": "^2.3.4"
+    "mocha": "^2.3.4",
+    "socks": "^1.1.8"
   }
 }

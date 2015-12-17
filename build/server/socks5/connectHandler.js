@@ -21,8 +21,7 @@ var cryptoEx = require('../../lib/cipher');
 function connect(client, rawData, dst, options) {
     let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {
         console.log(`connect: ${dst.addr}:${dst.port}`);
-        let reply = new Buffer(rawData.length);
-        rawData.copy(reply, 0, 0, rawData.length);
+        let reply = rawData.slice(0, rawData.length);
         reply[0] = 0x05;
         reply[1] = 0x00;
         let encryptor = cryptoEx.createCipher(options.cipherAlgorithm, options.password);

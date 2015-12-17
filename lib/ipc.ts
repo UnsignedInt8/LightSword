@@ -11,8 +11,10 @@ import * as util from 'util';
 import * as child from 'child_process';
 
 export enum COMMAND {
-  STOP = 0x2,
-  RESTART = 0x3,
+  STOP = 2,
+  RESTART = 3,
+  STATUS = 101,
+  STATUSJSON = 102,
 }
 
 export class IpcServer {
@@ -23,10 +25,12 @@ export class IpcServer {
     
     let server = net.createServer(async (client) => {
       let data = await client.readAsync();
+      let msg = '';
+      let mem: { rss: number, heapTotal: number, heapUsed: number };
       
       switch(data[0]) {
         case COMMAND.STOP:
-          let msg = `${path.basename(process.argv[1])}d(PID: ${process.pid}) is going to exit.`;
+          msg = `${path.basename(process.argv[1])}d (PID: ${process.pid}) is going to exit.`;
           await client.writeAsync(new Buffer(msg));
           process.exit(0);
           break;
@@ -34,6 +38,25 @@ export class IpcServer {
           let cp = child.spawn(process.argv[1], process.argv.skip(2).toArray(), { detached: true, stdio: 'ignore', env: process.env, cwd: process.cwd() });
           cp.unref();
           process.exit(0);
+          break;
+        case COMMAND.STATUS:
+          mem = process.memoryUsage();
+          msg = `${path.basename(process.argv[1])}d (PID: ${process.pid}) is running.`;
+          msg = util.format('%s\nHeap total: %sMB, heap used: %sMB, rss: %sMB', msg, (mem.heapTotal / 1024 / 1024).toPrecision(2), (mem.heapUsed / 1024 / 1024).toPrecision(2), (mem.rss / 1024 / 1024).toPrecision(2));
+          await client.writeAsync(new Buffer(msg));
+          client.dispose();
+          break;
+        case COMMAND.STATUSJSON:
+          mem = process.memoryUsage();
+          let obj = {
+            process: path.basename(process.argv[1]) + 'd',
+            pid: process.pid,
+            heapTotal: mem.heapTotal,
+            heapUsed: mem.heapUsed,
+            rss: mem.rss
+          };
+          await client.writeAsync(new Buffer(JSON.stringify(obj)));
+          client.dispose();
           break;
       }
     });
@@ -46,13 +69,15 @@ export class IpcServer {
 export function sendCommand(tag: string, cmd: string, callback: (code) => void) {
   let cmdMap = {
     'stop': COMMAND.STOP,
-    'restart': COMMAND.RESTART
+    'restart': COMMAND.RESTART,
+    'status': COMMAND.STATUS,
+    'statusjson': COMMAND.STATUSJSON,
   };
   
-  let command = cmdMap[cmd.toString()];
+  let command = cmdMap[cmd.toLowerCase()];
   
   if (!command) {
-    console.error('Command not be supported');
+    console.error('Command is not supported');
     return callback(1);
   }
   
@@ -65,5 +90,6 @@ export function sendCommand(tag: string, cmd: string, callback: (code) => void) 
     callback(0);
   });
   
-  socket.on('error', (err) => { console.error(err.message); callback(1); });
+  socket.on('error', (err: Error) => { console.info(`${tag} is not running or unix socket error.`); callback(1); });
+  socket.setTimeout(5 * 1000);
 }

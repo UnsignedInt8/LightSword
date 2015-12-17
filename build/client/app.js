@@ -29,7 +29,7 @@ class App {
             listenPort: 1080,
             serverAddr: 'localhost',
             serverPort: constant_1.defaultServerPort,
-            cipherAlgorithm: 'aes-256-cfb',
+            cipherAlgorithm: constant_1.defaultCipherAlgorithm,
             password: 'lightsword.neko',
             timeout: 60,
             bypassLocal: true

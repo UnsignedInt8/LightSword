@@ -23,6 +23,8 @@ var child = require('child_process');
 (function (COMMAND) {
     COMMAND[COMMAND["STOP"] = 2] = "STOP";
     COMMAND[COMMAND["RESTART"] = 3] = "RESTART";
+    COMMAND[COMMAND["STATUS"] = 101] = "STATUS";
+    COMMAND[COMMAND["STATUSJSON"] = 102] = "STATUSJSON";
 })(exports.COMMAND || (exports.COMMAND = {}));
 var COMMAND = exports.COMMAND;
 class IpcServer {
@@ -32,9 +34,11 @@ class IpcServer {
             fs.unlinkSync(unixPath);
         let server = net.createServer((client) => __awaiter(this, void 0, Promise, function* () {
             let data = yield client.readAsync();
+            let msg = '';
+            let mem;
             switch (data[0]) {
                 case COMMAND.STOP:
-                    let msg = `${path.basename(process.argv[1])}d(PID: ${process.pid}) is going to exit.`;
+                    msg = `${path.basename(process.argv[1])}d (PID: ${process.pid}) is going to exit.`;
                     yield client.writeAsync(new Buffer(msg));
                     process.exit(0);
                     break;
@@ -42,6 +46,25 @@ class IpcServer {
                     let cp = child.spawn(process.argv[1], process.argv.skip(2).toArray(), { detached: true, stdio: 'ignore', env: process.env, cwd: process.cwd() });
                     cp.unref();
                     process.exit(0);
+                    break;
+                case COMMAND.STATUS:
+                    mem = process.memoryUsage();
+                    msg = `${path.basename(process.argv[1])}d (PID: ${process.pid}) is running.`;
+                    msg = util.format('%s\nHeap total: %sMB, heap used: %sMB, rss: %sMB', msg, (mem.heapTotal / 1024 / 1024).toPrecision(2), (mem.heapUsed / 1024 / 1024).toPrecision(2), (mem.rss / 1024 / 1024).toPrecision(2));
+                    yield client.writeAsync(new Buffer(msg));
+                    client.dispose();
+                    break;
+                case COMMAND.STATUSJSON:
+                    mem = process.memoryUsage();
+                    let obj = {
+                        process: path.basename(process.argv[1]) + 'd',
+                        pid: process.pid,
+                        heapTotal: mem.heapTotal,
+                        heapUsed: mem.heapUsed,
+                        rss: mem.rss
+                    };
+                    yield client.writeAsync(new Buffer(JSON.stringify(obj)));
+                    client.dispose();
                     break;
             }
         }));
@@ -53,11 +76,13 @@ exports.IpcServer = IpcServer;
 function sendCommand(tag, cmd, callback) {
     let cmdMap = {
         'stop': COMMAND.STOP,
-        'restart': COMMAND.RESTART
+        'restart': COMMAND.RESTART,
+        'status': COMMAND.STATUS,
+        'statusjson': COMMAND.STATUSJSON,
     };
-    let command = cmdMap[cmd.toString()];
+    let command = cmdMap[cmd.toLowerCase()];
     if (!command) {
-        console.error('Command not be supported');
+        console.error('Command is not supported');
         return callback(1);
     }
     let path = util.format('/tmp/lightsword-%s.sock', tag);
@@ -68,6 +93,7 @@ function sendCommand(tag, cmd, callback) {
         socket.destroy();
         callback(0);
     }));
-    socket.on('error', (err) => { console.error(err.message); callback(1); });
+    socket.on('error', (err) => { console.info(`${tag} is not running or unix socket error.`); callback(1); });
+    socket.setTimeout(5 * 1000);
 }
 exports.sendCommand = sendCommand;

@@ -12,15 +12,35 @@
 | -t   | --timeout  | 超时时长 |
 | -f   | --fork     | 作为守护进程运行 (不支持 Windows) |
 | -u   | --users    | 多用户配置文件路径 |
-| -d   | --daemon   | 守护进程控制命令，支持: stop, restart |
+| -d   | --daemon   | 守护进程控制命令，支持: stop, restart, status |
 | -r   | --cluster  | 以集群（多进程）模式运行 |
 
 
 使用方法
 ---
 
+启动
+
 ```
 lsserver -f -m aes-256-cfb -p 4433 -k password
+```
+
+停止服务器
+
+```
+lsserver -d stop
+```
+
+重启服务器
+
+```
+lsserver -d restart
+```
+
+服务器状态
+
+```
+lsserver -d status
 ```
 
 配置文件:

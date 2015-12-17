@@ -15,7 +15,7 @@
 | -b | --dontbypasslocal | 不绕过本地地址 |
 | -c | --config | 配置文件路径 |
 | -a | --any | 允许任意地址使用代理 |
-| -d | --daemon | 守护进程控制命令，支持: stop, restart |
+| -d | --daemon | 守护进程控制命令，支持: stop, restart, status |
 
 控制守护进程
 
@@ -33,9 +33,10 @@ lslocal -d stop
 | 算法 |
 |----------|
 |aes-128-cfb|
+|aes-128-ofb|
 |aes-192-cfb|
+|aes-192-ofb|
 |aes-256-cfb|
-|aes-256-cbc|
 |aes-256-ofb|
 |bf-cfb|
 |camellia-128-cfb|

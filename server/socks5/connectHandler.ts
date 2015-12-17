@@ -13,8 +13,7 @@ export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string
   let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
     console.log(`connect: ${dst.addr}:${dst.port}`);
     
-    let reply = new Buffer(rawData.length);
-    rawData.copy(reply, 0, 0, rawData.length);
+    let reply = rawData.slice(0, rawData.length);
     reply[0] = 0x05;
     reply[1] = 0x00;
     

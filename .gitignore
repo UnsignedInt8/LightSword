@@ -28,3 +28,7 @@ build/Release
 node_modules
 *.js.map
 *.ignore
+
+# Typescript declaration files
+build/*.d.ts
+build/**/*.d.ts

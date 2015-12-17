@@ -35,19 +35,16 @@ class LsServer {
                 return client.dispose();
             let meta = crypto.SupportedCiphers[me.cipherAlgorithm];
             let ivLength = meta[1];
-            let iv = new Buffer(ivLength);
-            data.copy(iv, 0, 0, ivLength);
+            let iv = data.slice(0, ivLength);
             let decipher = crypto.createDecipher(me.cipherAlgorithm, me.password, iv);
-            let et = new Buffer(2);
-            data.copy(et, 0, ivLength, ivLength + 2);
+            let et = data.slice(ivLength, ivLength + 2);
             let dt = decipher.update(et);
             let vpnType = dt[0];
             let paddingSize = dt[1];
-            let request = new Buffer(data.length - ivLength - 2 - paddingSize);
-            data.copy(request, 0, ivLength + 2 + paddingSize, data.length);
+            let request = data.slice(ivLength + 2 + paddingSize, data.length);
             request = decipher.update(request);
             let options = {
-                decipher: decipher,
+                decipher,
                 password: me.password,
                 cipherAlgorithm: me.cipherAlgorithm,
                 timeout: me.timeout

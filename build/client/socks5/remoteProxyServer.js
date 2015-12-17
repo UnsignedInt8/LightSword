@@ -19,8 +19,8 @@ var net = require('net');
 var dgram = require('dgram');
 var crypto = require('crypto');
 var cryptoEx = require('../../lib/cipher');
-var constant_1 = require('../../lib/constant');
 var socks5Server_1 = require('./socks5Server');
+var constant_1 = require('../../lib/constant');
 var localProxyServer_1 = require('./localProxyServer');
 var socks5Helper = require('../../lib/socks5Helper');
 var socks5Constant_1 = require('../../lib/socks5Constant');
@@ -46,14 +46,11 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let data = yield proxySocket.readAsync();
             if (!data)
                 return proxySocket.dispose();
-            let riv = new Buffer(iv.length);
-            data.copy(riv, 0, 0, iv.length);
+            let riv = data.slice(0, iv.length);
             let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
-            let rlBuf = new Buffer(1);
-            data.copy(rlBuf, 0, iv.length, iv.length + 1);
+            let rlBuf = data.slice(iv.length, iv.length + 1);
             let paddingSize = decipher.update(rlBuf)[0];
-            let reBuf = new Buffer(data.length - iv.length - 1 - paddingSize);
-            data.copy(reBuf, 0, iv.length + 1 + paddingSize, data.length);
+            let reBuf = data.slice(iv.length + 1 + paddingSize, data.length);
             let reply = decipher.update(reBuf);
             switch (req.cmd) {
                 case socks5Constant_1.REQUEST_CMD.CONNECT:
