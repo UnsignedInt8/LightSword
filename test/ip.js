@@ -10,6 +10,13 @@ const crypto = require('crypto');
 const assert = require('assert');
 
 describe('ip test', () => {
+  it('should be ipv4', () => {
+    let rawData = [0x87, 0x58, 0x24, 0xef];
+    let addr = rawData.aggregate((c, n) => c.length > 1 ? c + util.format('.%d', n) : util.format('%d.%d', c, n));
+    assert(net.isIPv4(addr));
+    assert(addr === '135.88.36.239');
+  })
+  
   it('should be ipv6', () => {
     let bytes = Array.from(crypto.randomBytes(16));
     let addr = '';
