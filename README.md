@@ -58,4 +58,5 @@ lsbridge -s server_addr -f
 
 License
 ---
-GPLv2.0
+
+Licensed under GPLv2.0
