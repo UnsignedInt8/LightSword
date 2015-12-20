@@ -88,6 +88,7 @@ export class RemoteProxyServer extends Socks5Server {
       await client.writeAsync(reply);
     });
     
+    let udpSet = new Set<dgram.Socket>();
     listeningUdp.on('message', async (msg: Buffer, cinfo: dgram.RemoteInfo) => {
       
       let proxyUdp = dgram.createSocket(udpType);
@@ -113,13 +114,18 @@ export class RemoteProxyServer extends Socks5Server {
         listeningUdp.send(data, 0, data.length, cinfo.port, cinfo.address);
       });
       
-      proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); })
+      proxyUdp.on('error', (err) => console.log(err.message));
+      udpSet.add(proxyUdp);
     });
     
     function dispose() {
       listeningUdp.removeAllListeners();
       listeningUdp.close();
       listeningUdp.unref();
+      
+      udpSet.forEach(udp => {
+        udp.close();
+      });
     }
     
     client.once('error', dispose);

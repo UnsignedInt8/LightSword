@@ -47,36 +47,28 @@ class LocalProxyServer extends socks5Server_1.Socks5Server {
             let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
             yield client.writeAsync(reply);
         }));
-        let udpSet = new Map();
+        let udpSet = new Set();
         serverUdp.on('message', (msg, rinfo) => {
             let socketId = `${rinfo.address}:${rinfo.port}`;
             let dst = socks5Helper.refineDestination(msg);
-            let proxyUdp = udpSet.get(socketId) || dgram.createSocket(udpType);
+            let proxyUdp = dgram.createSocket(udpType);
             proxyUdp.unref();
             proxyUdp.on('message', (msg) => {
                 let header = socks5Helper.createSocks5UdpHeader(rinfo.address, rinfo.port);
                 let data = Buffer.concat([header, msg]);
                 serverUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
             });
-            proxyUdp.on('error', () => {
-                try {
-                    proxyUdp.close();
-                }
-                catch (ex) { }
-                proxyUdp.removeAllListeners();
-                udpSet.delete(socketId);
-            });
+            proxyUdp.on('error', (err) => console.log(err.message));
             proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
-            if (!udpSet.has(socketId))
-                udpSet.set(socketId, proxyUdp);
+            udpSet.add(proxyUdp);
         });
         function dispose() {
             client.dispose();
             serverUdp.removeAllListeners();
             serverUdp.close();
             udpSet.forEach(udp => {
-                udp.removeAllListeners();
                 udp.close();
+                udp.removeAllListeners();
             });
             udpSet.clear();
         }

@@ -86,6 +86,7 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
             yield client.writeAsync(reply);
         }));
+        let udpSet = new Set();
         listeningUdp.on('message', (msg, cinfo) => __awaiter(this, void 0, Promise, function* () {
             let proxyUdp = dgram.createSocket(udpType);
             proxyUdp.unref();
@@ -105,12 +106,16 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
                 let data = Buffer.concat([header, reply]);
                 listeningUdp.send(data, 0, data.length, cinfo.port, cinfo.address);
             });
-            proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); });
+            proxyUdp.on('error', (err) => console.log(err.message));
+            udpSet.add(proxyUdp);
         }));
         function dispose() {
             listeningUdp.removeAllListeners();
             listeningUdp.close();
             listeningUdp.unref();
+            udpSet.forEach(udp => {
+                udp.close();
+            });
         }
         client.once('error', dispose);
         client.once('end', dispose);

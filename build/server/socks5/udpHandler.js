@@ -39,6 +39,7 @@ function udpAssociate(client, rawData, dst, options) {
         let er = cipher.update(reply);
         yield client.writeAsync(Buffer.concat([iv, el, pd, er]));
     }));
+    let udpSet = new Set();
     serverUdp.on('message', (msg, cinfo) => __awaiter(this, void 0, Promise, function* () {
         let iv = new Buffer(ivLength);
         msg.copy(iv, 0, 0, ivLength);
@@ -56,13 +57,17 @@ function udpAssociate(client, rawData, dst, options) {
             let data = cipher.update(msg);
             proxyUdp.send(data, 0, data.length, cinfo.port, cinfo.address);
         });
-        proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); });
+        proxyUdp.on('error', (err) => console.log(err.message));
+        udpSet.add(proxyUdp);
     }));
     function dispose() {
         serverUdp.removeAllListeners();
         serverUdp.close();
         serverUdp.unref();
         client.dispose();
+        udpSet.forEach(udp => {
+            udp.close();
+        });
     }
     client.on('error', dispose);
     client.on('end', dispose);
