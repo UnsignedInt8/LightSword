@@ -44,9 +44,6 @@ export class LsServer {
       let vpnType = dt[0];
       let paddingSize = dt[1];
       
-      let request = data.slice(ivLength + 2 + paddingSize, data.length);
-      request = decipher.update(request);
-      
       let options = {
         decipher,
         password: me.password,
@@ -54,9 +51,16 @@ export class LsServer {
         timeout: me.timeout
       };
       
+      let request = data.slice(ivLength + 2 + paddingSize, data.length);
+      
       let handled = false;
-      if (vpnType === VPN_TYPE.SOCKS5) {
-        handled = handleSocks5(client, request, options);
+      switch (vpnType) {
+        case VPN_TYPE.SOCKS5:
+          request = decipher.update(request);
+          handled = handleSocks5(client, request, options);
+          break;
+        case VPN_TYPE.OSXCL5:
+          break;
       }
       
       if (handled) return;

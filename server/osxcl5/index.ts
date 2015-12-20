@@ -6,12 +6,11 @@
 
 import * as net from 'net';
 import { connect } from './connectHandler';
-import { udpAssociate } from './udpHandler';
 import { ISocks5Options } from '../../lib/constant';
 import { REQUEST_CMD } from '../../lib/socks5Constant';
 import * as socks5Helper from '../../lib/socks5Helper';
 
-export function handleSocks5(client: net.Socket, data: Buffer, options: ISocks5Options): boolean {
+export function handleOSXSocks5(client: net.Socket, data: Buffer, options: ISocks5Options): boolean {
   let dst = socks5Helper.refineDestination(data);
   
   switch (dst.cmd) {
@@ -21,8 +20,8 @@ export function handleSocks5(client: net.Socket, data: Buffer, options: ISocks5O
     case REQUEST_CMD.BIND:
       break;
     case REQUEST_CMD.UDP_ASSOCIATE:
-      udpAssociate(client, data, dst, options);
       break;
+      
     default:
       return false;
   }
