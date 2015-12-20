@@ -15,12 +15,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-var os = require('os');
 var net = require('net');
 var socks5Constant_1 = require('../../lib/socks5Constant');
 class Socks5Server {
     constructor(options) {
-        this.localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', os.hostname().toLowerCase(), '169.254.0.0'];
+        this.localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', '169.254.0.0'];
         let _this = this;
         if (options)
             Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);

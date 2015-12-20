@@ -34,10 +34,10 @@ function udpAssociate(client, rawData, dst, options) {
         let cipher = encryptor.cipher;
         let iv = encryptor.iv;
         let pl = Number((Math.random() * 0xff).toFixed());
+        let el = new Buffer([pl]);
         let pd = crypto.randomBytes(pl);
-        let el = cipher.update(new Buffer([pl]));
-        let er = cipher.update(reply);
-        yield client.writeAsync(Buffer.concat([iv, el, pd, er]));
+        let er = cipher.update(Buffer.concat([el, pd, reply]));
+        yield client.writeAsync(Buffer.concat([iv, er]));
     }));
     let udpSet = new Set();
     serverUdp.on('message', (msg, cinfo) => __awaiter(this, void 0, Promise, function* () {
@@ -46,6 +46,7 @@ function udpAssociate(client, rawData, dst, options) {
         let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, iv);
         let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
         let data = decipher.update(msg.slice(iv.length, msg.length));
+        console.log(data);
         let pl = data[0];
         let udpMsg = data.slice(1 + pl, data.length);
         let dst = socksHelper.refineDestination(udpMsg);

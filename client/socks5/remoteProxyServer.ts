@@ -90,7 +90,7 @@ export class RemoteProxyServer extends Socks5Server {
     
     let udpSet = new Set<dgram.Socket>();
     listeningUdp.on('message', async (msg: Buffer, cinfo: dgram.RemoteInfo) => {
-      
+      console.log(msg);
       let proxyUdp = dgram.createSocket(udpType);
       proxyUdp.unref();
       

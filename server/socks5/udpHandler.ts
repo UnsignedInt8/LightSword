@@ -28,11 +28,11 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     let iv = encryptor.iv;
     
     let pl = Number((Math.random() * 0xff).toFixed());
+    let el = new Buffer([pl]);
     let pd = crypto.randomBytes(pl);
-    let el = cipher.update(new Buffer([pl]));
-    let er = cipher.update(reply);
+    let er = cipher.update(Buffer.concat([el, pd, reply]));
     
-    await client.writeAsync(Buffer.concat([iv, el, pd, er]));
+    await client.writeAsync(Buffer.concat([iv, er]));
   });
   
   let udpSet = new Set<dgram.Socket>();
@@ -44,6 +44,7 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
     
     let data = decipher.update(msg.slice(iv.length, msg.length));
+    console.log(data);
     let pl = data[0];
     
     let udpMsg = data.slice(1 + pl, data.length);
