@@ -39,10 +39,10 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let cipher = encryptor.cipher;
             let iv = encryptor.iv;
             let pl = Number((Math.random() * 0xff).toFixed());
-            let et = cipher.update(new Buffer([constant_1.VPN_TYPE.SOCKS5, pl]));
+            let et = new Buffer([constant_1.VPN_TYPE.SOCKS5, pl]);
             let pa = crypto.randomBytes(pl);
-            let er = cipher.update(request);
-            yield proxySocket.writeAsync(Buffer.concat([iv, et, pa, er]));
+            let er = cipher.update(Buffer.concat([et, pa, request]));
+            yield proxySocket.writeAsync(Buffer.concat([iv, er]));
             let data = yield proxySocket.readAsync();
             if (!data)
                 return proxySocket.dispose();

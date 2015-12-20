@@ -40,7 +40,7 @@ export class LsServer {
       
       let decipher = crypto.createDecipher(me.cipherAlgorithm, me.password, iv);
       
-      let et = data.slice(ivLength, ivLength + 2);
+      let et = data.slice(ivLength, data.length);
       let dt = decipher.update(et);
       let vpnType = dt[0];
       let paddingSize = dt[1];
@@ -52,12 +52,11 @@ export class LsServer {
         timeout: me.timeout
       };
       
-      let request = data.slice(ivLength + 2 + paddingSize, data.length);
+      let request = dt.slice(2 + paddingSize, data.length);
       
       let handled = false;
       switch (vpnType) {
         case VPN_TYPE.SOCKS5:
-          request = decipher.update(request);
           handled = handleSocks5(client, request, options);
           break;
         case VPN_TYPE.OSXCL5:

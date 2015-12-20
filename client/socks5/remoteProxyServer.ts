@@ -31,11 +31,11 @@ export class RemoteProxyServer extends Socks5Server {
       
       let iv = encryptor.iv;
       let pl = Number((Math.random() * 0xff).toFixed());
-      let et = cipher.update(new Buffer([VPN_TYPE.SOCKS5, pl]));
+      let et = new Buffer([VPN_TYPE.SOCKS5, pl]);
       let pa = crypto.randomBytes(pl);
-      let er = cipher.update(request);
+      let er = cipher.update(Buffer.concat([et, pa, request]));
 
-      await proxySocket.writeAsync(Buffer.concat([iv, et, pa, er]));
+      await proxySocket.writeAsync(Buffer.concat([iv, er]));
       
       let data = await proxySocket.readAsync();
       if (!data) return proxySocket.dispose();
