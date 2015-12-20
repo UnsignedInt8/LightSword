@@ -9,6 +9,7 @@ import * as net from 'net';
 import * as crypto from '../lib/cipher';
 import { VPN_TYPE } from '../lib/constant'
 import { handleSocks5 } from './socks5/index';
+import { handleOSXSocks5 } from './osxcl5/index';
 
 export class LsServer {
   cipherAlgorithm: string;
@@ -60,6 +61,7 @@ export class LsServer {
           handled = handleSocks5(client, request, options);
           break;
         case VPN_TYPE.OSXCL5:
+          handled = handleOSXSocks5(client, request, options);
           break;
       }
       

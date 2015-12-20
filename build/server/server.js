@@ -19,6 +19,7 @@ var net = require('net');
 var crypto = require('../lib/cipher');
 var constant_1 = require('../lib/constant');
 var index_1 = require('./socks5/index');
+var index_2 = require('./osxcl5/index');
 class LsServer {
     constructor(options) {
         this.blacklist = new Set();
@@ -41,17 +42,22 @@ class LsServer {
             let dt = decipher.update(et);
             let vpnType = dt[0];
             let paddingSize = dt[1];
-            let request = data.slice(ivLength + 2 + paddingSize, data.length);
-            request = decipher.update(request);
             let options = {
                 decipher,
                 password: me.password,
                 cipherAlgorithm: me.cipherAlgorithm,
                 timeout: me.timeout
             };
+            let request = data.slice(ivLength + 2 + paddingSize, data.length);
             let handled = false;
-            if (vpnType === constant_1.VPN_TYPE.SOCKS5) {
-                handled = index_1.handleSocks5(client, request, options);
+            switch (vpnType) {
+                case constant_1.VPN_TYPE.SOCKS5:
+                    request = decipher.update(request);
+                    handled = index_1.handleSocks5(client, request, options);
+                    break;
+                case constant_1.VPN_TYPE.OSXCL5:
+                    handled = index_2.handleOSXSocks5(client, request, options);
+                    break;
             }
             if (handled)
                 return;

@@ -14,9 +14,9 @@ export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string
   let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
     console.log(`connected: ${dst.addr}:${dst.port}`);
     
-    let reply = new Buffer(rawData.length);
+    let reply = rawData.slice(0, rawData.length)
     reply[0] = 0x05;
-    reply[0] = 0x01;
+    reply[1] = 0x00;
     
     let encryptor = cryptoEx.createCipher(options.cipherAlgorithm, options.password);
     let cipher = encryptor.cipher;
