@@ -6,7 +6,7 @@ TCP
 ------------------Request---------------------
 
 +------+------+------+----------+------------+
-| IV   | TYPE | PLEN | RPADDING | SOCKS5DATA |
+| IV   | TYPE | PLEN | RPADDING | SOCKETDATA |
 +------+------+------+----------+------------+
 | 8-16 | 1    | 1    | 0-255    | VARIABLE   |
 +------+------+------+----------+------------+
@@ -22,12 +22,12 @@ SOCKS5DATA: Encrypted Socks5 Protocol Data, Variable Bytes.
 ---------------Response-----------------
 
 +------+------+----------+-------------+
-| IV   | PLEN | RPADDING | SOCKS5REPLY |
+| IV   | PLEN | RPADDING | SOCKETREPLY |
 +------+------+----------+-------------+
 | 8-16 | 1    | 0-255    | VARIABLE    |
 +------+------+----------+-------------+
-| RAW  | ENED | RAW      | ENCRYPTED   |
-+------+------+----------+-------------+
+| RAW  | ENCRYPTED                     |
++------+-------------------------------+
 
 IV: Initialization Vector, 8-16 Bytes.
 PLEN: Random Padding Length, 1 Byte.
@@ -44,13 +44,12 @@ UDP
 ----------------Request----------------
 
 +------+------+----------+------------+
-| IV   | PLEN | RPADDING | SOCKS5DATA |
+| IV   | PLEN | RPADDING | SOCKETDATA |
 +------+------+----------+------------+
 | 8-16 | 1    | 0-255    | VARIABLE   |
 +------+------+----------+------------+
-| RAW  | ENED | RAW      | ENCRYPTED  |
-+------+------+----------+------------+
-
+| RAW  | ENCRYPTED                    |
++------+------------------------------+
 
 
 ----------------Response---------------

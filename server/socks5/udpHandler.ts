@@ -42,14 +42,10 @@ export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: s
     let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, iv);
     let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
     
-    let el = new Buffer(1);
-    msg.copy(el, 0, ivLength, ivLength + 1);
-    let pl = decipher.update(el)[0];
+    let data = decipher.update(msg.slice(iv.length, msg.length));
+    let pl = data[0];
     
-    let udpMsg = new Buffer(msg.length - ivLength - 1 - pl);
-    msg.copy(udpMsg, 0, ivLength + 1 + pl, msg.length);
-    udpMsg = decipher.update(udpMsg);
-    
+    let udpMsg = data.slice(1 + pl, data.length);
     let dst = socksHelper.refineDestination(udpMsg);
     
     let socketId = `${cinfo.address}:${cinfo.port}`;

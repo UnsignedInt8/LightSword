@@ -53,13 +53,20 @@ class LocalProxyServer extends socks5Server_1.Socks5Server {
             let dst = socks5Helper.refineDestination(msg);
             let proxyUdp = udpSet.get(socketId) || dgram.createSocket(udpType);
             proxyUdp.unref();
-            proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
             proxyUdp.on('message', (msg) => {
                 let header = socks5Helper.createSocks5UdpHeader(rinfo.address, rinfo.port);
                 let data = Buffer.concat([header, msg]);
                 serverUdp.send(data, 0, data.length, rinfo.port, rinfo.address);
             });
-            proxyUdp.on('error', () => { proxyUdp.removeAllListeners(); proxyUdp.close(); udpSet.delete(socketId); });
+            proxyUdp.on('error', () => {
+                try {
+                    proxyUdp.close();
+                }
+                catch (ex) { }
+                proxyUdp.removeAllListeners();
+                udpSet.delete(socketId);
+            });
+            proxyUdp.send(msg, dst.headerSize, msg.length - dst.headerSize, dst.port, dst.addr);
             if (!udpSet.has(socketId))
                 udpSet.set(socketId, proxyUdp);
         });

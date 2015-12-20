@@ -94,10 +94,10 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let iv = encryptor.iv;
             let decipher = cryptoEx.createDecipher(cipherAlgorithm, password, iv);
             let pl = Number((Math.random() * 0xff).toFixed());
+            let el = new Buffer([pl]);
             let rp = crypto.randomBytes(pl);
-            let el = cipher.update(new Buffer([pl]));
-            let em = cipher.update(msg);
-            let data = Buffer.concat([iv, el, rp, em]);
+            let em = cipher.update(Buffer.concat([el, rp, msg]));
+            let data = Buffer.concat([iv, em]);
             proxyUdp.send(data, 0, data.length, udpServer.port, udpServer.addr);
             proxyUdp.on('message', (sMsg, sinfo) => {
                 let reply = decipher.update(sMsg);
