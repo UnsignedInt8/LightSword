@@ -43,11 +43,10 @@ export class RemoteProxyServer extends Socks5Server {
       let riv = data.slice(0, iv.length);
       let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
       
-      let rlBuf = data.slice(iv.length, iv.length + 1);
-      let paddingSize = decipher.update(rlBuf)[0];
+      let rlBuf = decipher.update(data.slice(iv.length, data.length));
+      let paddingSize = rlBuf[0];
       
-      let reBuf = data.slice(iv.length + 1 + paddingSize, data.length);
-      let reply = decipher.update(reBuf);
+      let reply = rlBuf.slice(1 + paddingSize, rlBuf.length);
       
       switch (req.cmd) {
         case REQUEST_CMD.CONNECT:
