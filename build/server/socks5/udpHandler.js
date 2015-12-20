@@ -46,7 +46,6 @@ function udpAssociate(client, rawData, dst, options) {
         let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, iv);
         let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
         let data = decipher.update(msg.slice(iv.length, msg.length));
-        console.log(data);
         let pl = data[0];
         let udpMsg = data.slice(1 + pl, data.length);
         let dst = socksHelper.refineDestination(udpMsg);

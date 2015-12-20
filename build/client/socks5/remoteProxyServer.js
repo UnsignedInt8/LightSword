@@ -88,7 +88,6 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
         }));
         let udpSet = new Set();
         listeningUdp.on('message', (msg, cinfo) => __awaiter(this, void 0, Promise, function* () {
-            console.log(msg);
             let proxyUdp = dgram.createSocket(udpType);
             proxyUdp.unref();
             let encryptor = cryptoEx.createCipher(cipherAlgorithm, password);
