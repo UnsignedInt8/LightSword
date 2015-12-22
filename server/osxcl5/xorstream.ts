@@ -8,7 +8,6 @@ import * as stream from 'stream';
 
 export class XorStream extends stream.Transform {
   xor: number;
-  xorBytes: number[] = [];
   
   constructor(x: number) {
     super()
@@ -16,9 +15,13 @@ export class XorStream extends stream.Transform {
   }
   
   _transform(chunk, encoding, done) {
+    let me = this;
+    
     if (Buffer.isBuffer(chunk)) {
       let data = <Buffer>chunk;
-      this.push(new Buffer(data.select(n => n ^ 7).toArray()));
+      this.push(new Buffer(data.select(n => n ^ me.xor).toArray()));
+    } else {
+      this.push(chunk);
     }
     done();
   }
