@@ -19,7 +19,7 @@ var net = require('net');
 var crypto = require('crypto');
 var cryptoEx = require('../../lib/cipher');
 var xorstream_1 = require('./xorstream');
-function connect(client, paddingSize, rawData, dst, options) {
+function connect(client, xorNum, rawData, dst, options) {
     let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {
         console.log(`connected: ${dst.addr}:${dst.port}`);
         let reply = rawData.slice(0, rawData.length);
@@ -33,7 +33,7 @@ function connect(client, paddingSize, rawData, dst, options) {
         let pd = crypto.randomBytes(pl);
         let er = cipher.update(Buffer.concat([el, pd, reply]));
         yield client.writeAsync(Buffer.concat([iv, er]));
-        let fromClientXorStream = new xorstream_1.XorStream(paddingSize);
+        let fromClientXorStream = new xorstream_1.XorStream(xorNum);
         let toClientXorStream = new xorstream_1.XorStream(pl);
         client.pipe(fromClientXorStream).pipe(proxySocket);
         proxySocket.pipe(toClientXorStream).pipe(client);
