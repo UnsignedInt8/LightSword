@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as assert from 'assert';
 import * as stream from 'stream';
 import * as ms from 'memory-stream';
-import { XorStream } from '../server/osxcl5/xorStream';
+import { XorStream } from '../lib/xorstream';
 
 describe('test XorStream', () => {
   

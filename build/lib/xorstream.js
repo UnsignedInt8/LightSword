@@ -15,21 +15,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-require('kinq').enable();
-var fs = require('fs');
-var assert = require('assert');
-var ms = require('memory-stream');
-var xorstream_1 = require('../lib/xorstream');
-describe('test XorStream', () => {
-    it('Compare XorStream', (done) => {
-        let mems = new ms();
-        let xor1Stream = new xorstream_1.XorStream(5);
-        let xor2Stream = new xorstream_1.XorStream(5);
-        mems.on('finish', () => {
-            let fc = fs.readFileSync('./README.md').toString();
-            assert(mems.toString() === fc);
-            done();
-        });
-        fs.createReadStream('./README.md').pipe(xor1Stream).pipe(xor2Stream).pipe(mems);
-    });
-});
+var stream = require('stream');
+class XorStream extends stream.Transform {
+    constructor(x) {
+        super();
+        this.xor = x;
+    }
+    _transform(chunk, encoding, done) {
+        let me = this;
+        if (Buffer.isBuffer(chunk)) {
+            let data = chunk;
+            this.push(new Buffer(data.select(n => n ^ me.xor).toArray()));
+        }
+        else {
+            this.push(chunk);
+        }
+        done();
+    }
+}
+exports.XorStream = XorStream;

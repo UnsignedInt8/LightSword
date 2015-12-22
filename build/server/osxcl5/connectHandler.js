@@ -18,7 +18,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var net = require('net');
 var crypto = require('crypto');
 var cryptoEx = require('../../lib/cipher');
-var xorstream_1 = require('./xorstream');
+var xorstream_1 = require('../../lib/xorstream');
 function connect(client, xorNum, rawData, dst, options) {
     let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {
         console.log(`connected: ${dst.addr}:${dst.port}`);

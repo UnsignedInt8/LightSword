@@ -7,7 +7,7 @@
 import * as net from 'net';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
-import { XorStream } from './xorstream';
+import { XorStream } from '../../lib/xorstream';
 import { ISocks5Options } from '../../lib/constant';
 
 export function connect(client: net.Socket, xorNum: number, rawData: Buffer, dst: { addr: string, port: number }, options: ISocks5Options) {
