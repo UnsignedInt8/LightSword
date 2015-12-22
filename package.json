@@ -38,6 +38,7 @@
     "kinq": "0.0.6"
   },
   "devDependencies": {
+    "memory-stream": "0.0.3",
     "mocha": "^2.3.4",
     "socks": "^1.1.8"
   }

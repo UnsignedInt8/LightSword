@@ -15,7 +15,7 @@ TCP
 
 IV: Initialization Vector, 8-16 Bytes.
 TYPE: VPN Type, 1 Byte.
-PLEN: Random Padding Length, 1 Byte.
+PLEN: Random Padding Length, 1 Byte. For OS X, it is used as XOR operator
 RPADDING: Random Padding Bytes, 0-255 Bytes.
 SOCKS5DATA: Encrypted Socks5 Protocol Data, Variable Bytes.
 
@@ -30,7 +30,7 @@ SOCKS5DATA: Encrypted Socks5 Protocol Data, Variable Bytes.
 +------+-------------------------------+
 
 IV: Initialization Vector, 8-16 Bytes.
-PLEN: Random Padding Length, 1 Byte.
+PLEN: Random Padding Length, 1 Byte. For OS X, it's used as XOR operator
 RPADDING: Random Padding Bytes, 0-255 Bytes.
 SOCKS5REPLAY: Encrypted Socks5 Reply Data, Variable Bytes.
 
