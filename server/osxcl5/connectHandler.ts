@@ -7,9 +7,10 @@
 import * as net from 'net';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
+import { XorStream } from './xorstream';
 import { ISocks5Options } from '../../lib/constant';
 
-export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: ISocks5Options) {
+export function connect(client: net.Socket, paddingSize: number, rawData: Buffer, dst: { addr: string, port: number }, options: ISocks5Options) {
   
   let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
     console.log(`connected: ${dst.addr}:${dst.port}`);
@@ -28,8 +29,12 @@ export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string
     let er = cipher.update(Buffer.concat([el, pd, reply]));
  
     await client.writeAsync(Buffer.concat([iv, er]));
-    client.pipe(proxySocket);
-    proxySocket.pipe(client);
+    
+    let fromClientXorStream = new XorStream(paddingSize);
+    let toClientXorStream = new XorStream(pl);
+     
+    client.pipe(fromClientXorStream).pipe(proxySocket);
+    proxySocket.pipe(toClientXorStream).pipe(client);
   });
     
   function dispose(err: Error) {

@@ -6,7 +6,7 @@
 
 import * as stream from 'stream';
 
-export class XorStream extends stream.Duplex {
+export class XorStream extends stream.Transform {
   xor: number;
   xorBytes: number[] = [];
   
@@ -15,21 +15,12 @@ export class XorStream extends stream.Duplex {
     this.xor = x;
   }
   
-  _write(chunk: any, encoding: string, callback: Function): void {
+  _transform(chunk, encoding, done) {
     if (Buffer.isBuffer(chunk)) {
       let data = <Buffer>chunk;
-      this.xorBytes = this.xorBytes.concat(data.select(n => n ^ this.xor).toArray())
-      console.log('xor', data.length);
+      this.push(new Buffer(data.select(n => n ^ 7).toArray()));
     }
-    
-    callback();
+    done();
   }
   
-  _read(size: number) {
-    while (this.xorBytes.length) {
-      if (!this.push(this.xorBytes.shift())) {
-        break;
-      }
-    }
-  }
 }

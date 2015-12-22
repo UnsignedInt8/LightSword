@@ -18,11 +18,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var connectHandler_1 = require('./connectHandler');
 var socks5Constant_1 = require('../../lib/socks5Constant');
 var socks5Helper = require('../../lib/socks5Helper');
-function handleOSXSocks5(client, data, options) {
+function handleOSXSocks5(client, paddingSize, data, options) {
     let dst = socks5Helper.refineDestination(data);
     switch (dst.cmd) {
         case socks5Constant_1.REQUEST_CMD.CONNECT:
-            connectHandler_1.connect(client, data, dst, options);
+            connectHandler_1.connect(client, paddingSize, data, dst, options);
             break;
         case socks5Constant_1.REQUEST_CMD.BIND:
             break;

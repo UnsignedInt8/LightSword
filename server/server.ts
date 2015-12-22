@@ -60,7 +60,7 @@ export class LsServer {
           handled = handleSocks5(client, request, options);
           break;
         case VPN_TYPE.OSXCL5:
-          handled = handleOSXSocks5(client, request, options);
+          handled = handleOSXSocks5(client, paddingSize, request, options);
           break;
       }
       

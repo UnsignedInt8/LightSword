@@ -16,26 +16,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var stream = require('stream');
-class XorStream extends stream.Duplex {
+class XorStream extends stream.Transform {
     constructor(x) {
         super();
         this.xorBytes = [];
         this.xor = x;
     }
-    _write(chunk, encoding, callback) {
+    _transform(chunk, encoding, done) {
         if (Buffer.isBuffer(chunk)) {
             let data = chunk;
-            this.xorBytes = this.xorBytes.concat(data.select(n => n ^ this.xor).toArray());
-            console.log('xor', data.length);
+            this.push(new Buffer(data.select(n => n ^ 7).toArray()));
         }
-        callback();
-    }
-    _read(size) {
-        while (this.xorBytes.length) {
-            if (!this.push(this.xorBytes.shift())) {
-                break;
-            }
-        }
+        done();
     }
 }
 exports.XorStream = XorStream;
