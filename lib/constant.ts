@@ -14,9 +14,13 @@ export const defaultCipherAlgorithm = 'aes-256-cfb';
 export const defaultPassword = 'lightsword.neko';
 export const defaultServerPort = 8900;
 
-export type ISocks5Options = {
-  decipher: Decipher,
-  password: string,
-  cipherAlgorithm: string,
+export abstract class Socks5Options  {
+  decipher: Decipher
+  password: string
+  cipherAlgorithm: string
   timeout: number
+}
+
+export abstract class OSXCl5Options extends Socks5Options  {
+  xorNum: number
 }

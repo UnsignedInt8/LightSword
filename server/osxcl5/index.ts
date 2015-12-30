@@ -6,16 +6,16 @@
 
 import * as net from 'net';
 import { connect } from './connectHandler';
-import { ISocks5Options } from '../../lib/constant';
+import { OSXCl5Options } from '../../lib/constant';
 import { REQUEST_CMD } from '../../lib/socks5Constant';
 import * as socks5Helper from '../../lib/socks5Helper';
 
-export function handleOSXSocks5(client: net.Socket, xorNum: number, data: Buffer, options: ISocks5Options): boolean {
+export function handleOSXSocks5(client: net.Socket, data: Buffer, options: OSXCl5Options): boolean {
   let dst = socks5Helper.refineDestination(data);
   
   switch (dst.cmd) {
     case REQUEST_CMD.CONNECT:
-      connect(client, xorNum, data, dst, options);
+      connect(client, data, dst, options);
       break;
     case REQUEST_CMD.BIND:
       break;

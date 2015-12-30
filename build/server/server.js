@@ -46,7 +46,8 @@ class LsServer {
                 decipher,
                 password: me.password,
                 cipherAlgorithm: me.cipherAlgorithm,
-                timeout: me.timeout
+                timeout: me.timeout,
+                xorNum: paddingSize
             };
             let request = dt.slice(2 + paddingSize, data.length);
             let handled = false;
@@ -55,7 +56,7 @@ class LsServer {
                     handled = index_1.handleSocks5(client, request, options);
                     break;
                 case constant_1.VPN_TYPE.OSXCL5:
-                    handled = index_2.handleOSXSocks5(client, paddingSize, request, options);
+                    handled = index_2.handleOSXSocks5(client, request, options);
                     break;
             }
             if (handled)

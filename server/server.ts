@@ -49,7 +49,8 @@ export class LsServer {
         decipher,
         password: me.password,
         cipherAlgorithm: me.cipherAlgorithm,
-        timeout: me.timeout
+        timeout: me.timeout,
+        xorNum: paddingSize
       };
       
       let request = dt.slice(2 + paddingSize, data.length);
@@ -60,7 +61,7 @@ export class LsServer {
           handled = handleSocks5(client, request, options);
           break;
         case VPN_TYPE.OSXCL5:
-          handled = handleOSXSocks5(client, paddingSize, request, options);
+          handled = handleOSXSocks5(client, request, options);
           break;
       }
       

@@ -7,9 +7,9 @@
 import * as net from 'net';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
-import { ISocks5Options } from '../../lib/constant';
+import { Socks5Options } from '../../lib/constant';
 
-export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: ISocks5Options) {
+export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: Socks5Options) {
   let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
     console.log(`connect: ${dst.addr}:${dst.port}`);
     

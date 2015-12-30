@@ -9,10 +9,10 @@ import * as dgram from 'dgram';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
 import { ATYP } from '../../lib/socks5Constant';
-import { ISocks5Options } from '../../lib/constant';
+import { Socks5Options } from '../../lib/constant';
 import * as socksHelper from '../../lib/socks5Helper';
 
-export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: ISocks5Options) {
+export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: Socks5Options) {
   let udpType = 'udp' + (net.isIP(dst.addr) || 4);
   let serverUdp = dgram.createSocket(udpType);
   let ivLength: number = cryptoEx.SupportedCiphers[options.cipherAlgorithm][1];

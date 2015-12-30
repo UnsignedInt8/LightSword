@@ -7,11 +7,11 @@
 import * as net from 'net';
 import { connect } from './connectHandler';
 import { udpAssociate } from './udpHandler';
-import { ISocks5Options } from '../../lib/constant';
+import { Socks5Options } from '../../lib/constant';
 import { REQUEST_CMD } from '../../lib/socks5Constant';
 import * as socks5Helper from '../../lib/socks5Helper';
 
-export function handleSocks5(client: net.Socket, data: Buffer, options: ISocks5Options): boolean {
+export function handleSocks5(client: net.Socket, data: Buffer, options: Socks5Options): boolean {
   let dst = socks5Helper.refineDestination(data);
   
   switch (dst.cmd) {

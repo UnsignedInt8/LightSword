@@ -26,6 +26,8 @@ export class App {
     let server = new LsServer(options);
     server.start();
   }
+  
+  
 }
 
 if (!module.parent) {
