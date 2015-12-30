@@ -23,6 +23,11 @@ function getUserCount(req, res) {
     res.json(data);
 }
 exports.getUserCount = getUserCount;
+function getUsers(req, res) {
+    let users = app_1.App.Users.select(item => { return { port: item[1].port, cipher: item[1].cipherAlgorithm, password: item[1].password }; }).toArray();
+    res.json(users);
+}
+exports.getUsers = getUsers;
 function addUser(req, res) {
     var body = req.body;
     let success = app_1.App.addUser(body);
@@ -32,3 +37,11 @@ function addUser(req, res) {
     res.json(data);
 }
 exports.addUser = addUser;
+function deleteUser(req, res) {
+    var port = req.params.port;
+    let success = app_1.App.removeUser(port);
+    if (!success)
+        return res.status(404).json({ msg: 'User Not Found' });
+    return res.json({ msg: 'ok' });
+}
+exports.deleteUser = deleteUser;

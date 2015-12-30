@@ -18,5 +18,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var express = require('express');
 var apiController = require('./apiController');
 let router = express.Router();
-router.get('/userCount', apiController.getUserCount);
+router.get('/users/count', apiController.getUserCount);
+router.get('/users', apiController.getUsers);
+router.post('/users', apiController.addUser);
+router.delete('/users/:port', apiController.deleteUser);
 module.exports = router;

@@ -92,10 +92,9 @@ else {
     else {
         users.forEach(u => new app_1.App(u));
         listenDaemonCommands();
-    }
-    if (args.management) {
-        require('../management/index');
+        if (args.management)
+            require('../management/index');
     }
     process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
-    process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));
+    process.on('uncaughtException', (err) => { console.error(err); process.exit(1); });
 }

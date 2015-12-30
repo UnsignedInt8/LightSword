@@ -10,7 +10,7 @@ import * as apiRouter from './apiRouter';
 
 let app = express();
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api', <express.IRouter<express.Router>>apiRouter);
 
-app.listen(3000, 'localhost');
+app.listen(5000, 'localhost');
