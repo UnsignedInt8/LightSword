@@ -32,8 +32,29 @@ class App {
         Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
         let server = new server_1.LsServer(options);
         server.start();
+        server.once('close', () => App.Users.delete(options.port));
+        App.Users.set(options.port, server);
+    }
+    static addUser(port, cipherAlgorithm, password) {
+        port = port || Number(Math.min(10000, Math.random() * 50000 + 10000).toFixed());
+        cipherAlgorithm = cipherAlgorithm || constant_1.defaultCipherAlgorithm;
+        password = password || constant_1.defaultPassword;
+        let option = {
+            cipherAlgorithm,
+            password,
+            port,
+            timeout: 10
+        };
+        new App(option);
+    }
+    static removeUser(port) {
+        if (!App.Users.has(port))
+            return;
+        let server = App.Users.get(port);
+        server.stop();
     }
 }
+App.Users = new Map();
 exports.App = App;
 if (!module.parent) {
     process.title = 'LightSword Server Debug Mode';

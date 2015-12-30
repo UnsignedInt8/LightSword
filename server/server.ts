@@ -6,12 +6,13 @@
 
 
 import * as net from 'net';
+import { EventEmitter } from 'events';
 import * as crypto from '../lib/cipher';
 import { VPN_TYPE } from '../lib/constant'
 import { handleSocks5 } from './socks5/index';
 import { handleOSXSocks5 } from './osxcl5/index';
 
-export class LsServer {
+export class LsServer extends EventEmitter {
   cipherAlgorithm: string;
   password: string;
   port: number;
@@ -21,6 +22,8 @@ export class LsServer {
   private server: net.Server;
   
   constructor(options: { cipherAlgorithm: string, password: string, port: number }) {
+    super()
+    
     let _this = this;
     Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
   }
@@ -70,9 +73,12 @@ export class LsServer {
       client.dispose();
     });
     
-    server.listen(this.port);
-    server.on('error', (err) => console.error(err.message));
     this.server = server;
+    server.listen(this.port);
+    server.on('error', (err) => { 
+      console.error(err.message);
+      me.stop(); 
+    });
     
     setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
   }
@@ -81,6 +87,7 @@ export class LsServer {
     this.server.end();
     this.server.close();
     this.server.destroy();
+    this.emit('close');
   }
-    
+
 }

@@ -25,9 +25,34 @@ export class App {
     
     let server = new LsServer(options);
     server.start();
+    server.once('close', () => App.Users.delete(options.port));
+    
+    App.Users.set(options.port, server);
   }
   
+  public static Users = new Map<number, LsServer>();
   
+  public static addUser(port: number, cipherAlgorithm: string, password: string) {
+    port = port || Number(Math.min(10000, Math.random() * 50000 + 10000).toFixed());
+    cipherAlgorithm = cipherAlgorithm || defaultCipherAlgorithm;
+    password = password || defaultPassword;
+    
+    let option = {
+      cipherAlgorithm,
+      password,
+      port,
+      timeout: 10
+    };
+    
+    new App(option)
+  }
+  
+  public static removeUser(port) {
+    if (!App.Users.has(port)) return;
+    
+    let server = App.Users.get(port);
+    server.stop();
+  }
 }
 
 if (!module.parent) {

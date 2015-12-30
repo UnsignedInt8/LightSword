@@ -16,12 +16,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var net = require('net');
+var events_1 = require('events');
 var crypto = require('../lib/cipher');
 var constant_1 = require('../lib/constant');
 var index_1 = require('./socks5/index');
 var index_2 = require('./osxcl5/index');
-class LsServer {
+class LsServer extends events_1.EventEmitter {
     constructor(options) {
+        super();
         this.blacklist = new Set();
         let _this = this;
         Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
@@ -64,15 +66,19 @@ class LsServer {
             me.blacklist.add(client.remoteAddress);
             client.dispose();
         }));
-        server.listen(this.port);
-        server.on('error', (err) => console.error(err.message));
         this.server = server;
+        server.listen(this.port);
+        server.on('error', (err) => {
+            console.error(err.message);
+            me.stop();
+        });
         setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
     }
     stop() {
         this.server.end();
         this.server.close();
         this.server.destroy();
+        this.emit('close');
     }
 }
 exports.LsServer = LsServer;
