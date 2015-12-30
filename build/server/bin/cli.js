@@ -87,7 +87,7 @@ if (args.daemon && !process.env.__daemon) {
 }
 else {
     if (args.cluster) {
-        cluster_1.runAsClusterMode(users, listenDaemonCommands);
+        cluster_1.runAsClusterMode(users, args.management, listenDaemonCommands);
     }
     else {
         users.forEach(u => new app_1.App(u));

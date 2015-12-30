@@ -86,7 +86,7 @@ if (args.daemon && !process.env.__daemon) {
   ipc.sendCommand('server', args.daemon, (code) => process.exit(code));
 } else {
   if (args.cluster) {
-    runAsClusterMode(users, listenDaemonCommands);
+    runAsClusterMode(users, args.management, listenDaemonCommands);
   } else {
     users.forEach(u => new App(u));
     listenDaemonCommands();

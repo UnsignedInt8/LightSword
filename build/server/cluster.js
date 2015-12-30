@@ -18,7 +18,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var os = require('os');
 var cluster = require('cluster');
 var app_1 = require('./app');
-function runAsClusterMode(options, callback) {
+function runAsClusterMode(users, management, callback) {
     if (cluster.isMaster) {
         os.cpus().forEach(() => {
             cluster.fork();
@@ -26,6 +26,8 @@ function runAsClusterMode(options, callback) {
         cluster.on('exit', () => cluster.fork());
         return callback();
     }
-    options.forEach(o => new app_1.App(o));
+    users.forEach(o => new app_1.App(o));
+    if (management)
+        require('./management/index');
 }
 exports.runAsClusterMode = runAsClusterMode;

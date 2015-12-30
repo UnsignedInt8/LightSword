@@ -8,7 +8,7 @@ import * as os from 'os';
 import * as cluster from 'cluster';
 import { App } from './app';
 
-export function runAsClusterMode(options: any[], callback: () => void) {
+export function runAsClusterMode(users: any[], management: Boolean, callback: () => void) {
   if (cluster.isMaster) {
     os.cpus().forEach(() => {
       cluster.fork();
@@ -18,5 +18,7 @@ export function runAsClusterMode(options: any[], callback: () => void) {
     return callback();
   } 
   
-  options.forEach(o => new App(o));
+  users.forEach(o => new App(o));
+  
+  if (management) require('./management/index');
 }
