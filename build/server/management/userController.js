@@ -15,11 +15,33 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-var express = require('express');
-var userController = require('./userController');
-let router = express.Router();
-router.get('/users/count', userController.getUserCount);
-router.get('/users', userController.getUsers);
-router.post('/users', userController.addUser);
-router.delete('/users/:port', userController.deleteUser);
-module.exports = router;
+var app_1 = require('../app');
+function getUserCount(req, res) {
+    let data = {
+        count: app_1.App.Users.size
+    };
+    res.json(data);
+}
+exports.getUserCount = getUserCount;
+function getUsers(req, res) {
+    let users = app_1.App.Users.select(item => { return { port: item[1].port, cipher: item[1].cipherAlgorithm, password: item[1].password }; }).toArray();
+    res.json(users);
+}
+exports.getUsers = getUsers;
+function addUser(req, res) {
+    var body = req.body;
+    let success = app_1.App.addUser(body);
+    let data = {
+        success
+    };
+    res.json(data);
+}
+exports.addUser = addUser;
+function deleteUser(req, res) {
+    var port = req.params.port;
+    let success = app_1.App.removeUser(port);
+    if (!success)
+        return res.status(404).json({ msg: 'User Not Found' });
+    return res.json({ msg: 'ok' });
+}
+exports.deleteUser = deleteUser;

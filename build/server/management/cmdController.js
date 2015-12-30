@@ -15,11 +15,3 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-var express = require('express');
-var userController = require('./userController');
-let router = express.Router();
-router.get('/users/count', userController.getUserCount);
-router.get('/users', userController.getUsers);
-router.post('/users', userController.addUser);
-router.delete('/users/:port', userController.deleteUser);
-module.exports = router;
