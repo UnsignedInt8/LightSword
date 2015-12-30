@@ -15,3 +15,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var express = require('express');
+var apiController = require('./apiController');
+let router = express.Router();
+router.get('/userCount', apiController.getUserCount);
+module.exports = router;

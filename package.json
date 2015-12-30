@@ -34,6 +34,7 @@
   "homepage": "https://github.com/SunshinyNeko/LightSword#readme",
   "dependencies": {
     "async-node": "0.0.5",
+    "body-parser": "^1.14.2",
     "commander": "^2.9.0",
     "express": "^4.13.3",
     "kinq": "0.0.6"

@@ -7,7 +7,7 @@
 require('async-node');
 require('kinq').enable();
 require('../lib/socketEx');
-import { LsServer } from './server';
+import { LsServer, ServerOptions } from './server';
 import { defaultCipherAlgorithm, defaultServerPort, defaultPassword } from '../lib/constant';
 
 export class App {
@@ -17,7 +17,7 @@ export class App {
       cipherAlgorithm: defaultCipherAlgorithm,
       password: defaultPassword,
       port: defaultServerPort,
-      timeout: 60
+      timeout: 10
     };
     
     options = options || defaultOptions;
@@ -32,19 +32,18 @@ export class App {
   
   public static Users = new Map<number, LsServer>();
   
-  public static addUser(port: number, cipherAlgorithm: string, password: string) {
-    port = port || Number(Math.min(10000, Math.random() * 50000 + 10000).toFixed());
-    cipherAlgorithm = cipherAlgorithm || defaultCipherAlgorithm;
-    password = password || defaultPassword;
+  public static addUser(options: ServerOptions): Boolean {
+    if (App.Users.has(options.port)) return false;
     
-    let option = {
-      cipherAlgorithm,
-      password,
-      port,
-      timeout: 10
+    let userOptions = {
+      port: options.port,
+      cipherAlgorithm: options.cipherAlgorithm || defaultCipherAlgorithm,
+      password: options.password || defaultPassword,
+      timeout: options.timeout || 10
     };
     
-    new App(option)
+    new App(userOptions);
+    return true;
   }
   
   public static removeUser(port) {

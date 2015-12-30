@@ -30,6 +30,7 @@ program
     .option('-f, --fork', 'Run as Daemon')
     .option('-d, --daemon <command>', 'Daemon Control', String)
     .option('-r, --cluster', 'Run as Cluster Mode')
+    .option('-a, --management', 'HTTP Management')
     .parse(process.argv);
 var args = program;
 function parseOptions(path) {
@@ -91,6 +92,9 @@ else {
     else {
         users.forEach(u => new app_1.App(u));
         listenDaemonCommands();
+    }
+    if (args.management) {
+        require('../management/index');
     }
     process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
     process.on('uncaughtException', (err) => fs.writeFileSync('~/lightsword.dump', err.toString()));

@@ -26,7 +26,7 @@ class App {
             cipherAlgorithm: constant_1.defaultCipherAlgorithm,
             password: constant_1.defaultPassword,
             port: constant_1.defaultServerPort,
-            timeout: 60
+            timeout: 10
         };
         options = options || defaultOptions;
         Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);
@@ -35,17 +35,17 @@ class App {
         server.once('close', () => App.Users.delete(options.port));
         App.Users.set(options.port, server);
     }
-    static addUser(port, cipherAlgorithm, password) {
-        port = port || Number(Math.min(10000, Math.random() * 50000 + 10000).toFixed());
-        cipherAlgorithm = cipherAlgorithm || constant_1.defaultCipherAlgorithm;
-        password = password || constant_1.defaultPassword;
-        let option = {
-            cipherAlgorithm,
-            password,
-            port,
-            timeout: 10
+    static addUser(options) {
+        if (App.Users.has(options.port))
+            return false;
+        let userOptions = {
+            port: options.port,
+            cipherAlgorithm: options.cipherAlgorithm || constant_1.defaultCipherAlgorithm,
+            password: options.password || constant_1.defaultPassword,
+            timeout: options.timeout || 10
         };
-        new App(option);
+        new App(userOptions);
+        return true;
     }
     static removeUser(port) {
         if (!App.Users.has(port))

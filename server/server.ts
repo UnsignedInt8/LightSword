@@ -12,6 +12,13 @@ import { VPN_TYPE } from '../lib/constant'
 import { handleSocks5 } from './socks5/index';
 import { handleOSXSocks5 } from './osxcl5/index';
 
+export type ServerOptions = {
+  cipherAlgorithm: string,
+  password: string,
+  port: number,
+  timeout?: number
+}
+
 export class LsServer extends EventEmitter {
   cipherAlgorithm: string;
   password: string;
@@ -21,7 +28,7 @@ export class LsServer extends EventEmitter {
   private blacklist = new Set<string>();
   private server: net.Server;
   
-  constructor(options: { cipherAlgorithm: string, password: string, port: number }) {
+  constructor(options: ServerOptions) {
     super()
     
     let _this = this;

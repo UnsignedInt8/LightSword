@@ -11,7 +11,7 @@ import { Socks5Options } from '../../lib/constant';
 
 export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: Socks5Options) {
   let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
-    console.log(`connect: ${dst.addr}:${dst.port}`);
+    console.log(`connecting: ${dst.addr}:${dst.port}`);
     
     let reply = rawData.slice(0, rawData.length);
     reply[0] = 0x05;
