@@ -51,7 +51,7 @@ function parseOptions(path: string) {
 }
 
 var fileOptions = parseOptions(args.config) || {};
-Object.getOwnPropertyNames(fileOptions).forEach(n => args[n] = args[n] === undefined ? fileOptions[n] : args[n]);
+if (fileOptions) Object.getOwnPropertyNames(fileOptions).forEach(n => args[n] = args[n] === undefined ? fileOptions[n] : args[n]);
 
 function parseUsers(path: string): {port: number, password: string, cipherAlgorithm: string, plugin?: string}[] {
   if (!path) return [];
@@ -73,7 +73,7 @@ var argsOptions = {
   timeout: args.timeout
 }
 
-Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] || fileOptions[n]);
+if (fileOptions) Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);
 
 if (!users.length) users.push(argsOptions);
 
