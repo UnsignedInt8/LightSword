@@ -20,7 +20,7 @@ var path = require('path');
 var child = require('child_process');
 var cluster_1 = require('../cluster');
 program
-    .version('0.3')
+    .version('0.5')
     .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
     .option('-k, --password [password]', 'Cipher Password', String)
     .option('-m, --method [algorithm]', 'Cipher Algorithm', String)
@@ -40,7 +40,16 @@ function parseOptions(path) {
         return;
     var content = fs.readFileSync(path).toString();
     try {
-        return JSON.parse(content);
+        var configs = JSON.parse(content);
+        return {
+            port: configs.port,
+            password: configs.password,
+            cipherAlgorithm: configs.method,
+            fork: configs.fork,
+            cluster: configs.cluster,
+            timeout: configs.timeout,
+            management: configs.management,
+        };
     }
     catch (ex) {
         console.warn('Configuration file error');
@@ -48,6 +57,7 @@ function parseOptions(path) {
     }
 }
 var fileOptions = parseOptions(args.config) || {};
+Object.getOwnPropertyNames(fileOptions).forEach(n => args[n] = args[n] === undefined ? fileOptions[n] : args[n]);
 function parseUsers(path) {
     if (!path)
         return [];

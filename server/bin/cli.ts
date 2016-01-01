@@ -12,7 +12,7 @@ import * as child from 'child_process';
 import { runAsClusterMode } from '../cluster';
 
 program
-  .version('0.3')
+  .version('0.5')
   .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
   .option('-k, --password [password]', 'Cipher Password', String)
   .option('-m, --method [algorithm]', 'Cipher Algorithm', String)
@@ -34,7 +34,16 @@ function parseOptions(path: string) {
   var content = fs.readFileSync(path).toString();
   
   try {
-    return JSON.parse(content);
+    var configs = JSON.parse(content);
+    return {
+      port: configs.port,
+      password: configs.password,
+      cipherAlgorithm: configs.method,
+      fork: configs.fork,
+      cluster: configs.cluster,
+      timeout: configs.timeout,
+      management: configs.management,
+    }
   } catch(ex) {
     console.warn('Configuration file error');
     console.warn(ex.message);
@@ -42,6 +51,7 @@ function parseOptions(path: string) {
 }
 
 var fileOptions = parseOptions(args.config) || {};
+Object.getOwnPropertyNames(fileOptions).forEach(n => args[n] = args[n] === undefined ? fileOptions[n] : args[n]);
 
 function parseUsers(path: string): {port: number, password: string, cipherAlgorithm: string, plugin?: string}[] {
   if (!path) return [];

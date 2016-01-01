@@ -30,7 +30,7 @@ export class IpcServer {
       
       switch(data[0]) {
         case COMMAND.STOP:
-          msg = `${path.basename(process.argv[1])}d (PID: ${process.pid}) is going to exit.`;
+          msg = `${path.basename(process.argv[1])}d (PID: ${process.pid}) is going to quit.`;
           await client.writeAsync(new Buffer(msg));
           process.exit(0);
           break;
