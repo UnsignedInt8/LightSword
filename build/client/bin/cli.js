@@ -48,6 +48,8 @@ function parseFile(path) {
     }
 }
 var fileOptions = parseFile(args.config) || {};
+if (fileOptions)
+    Object.getOwnPropertyNames(fileOptions).forEach(n => args[n] = args[n] === undefined ? fileOptions[n] : args[n]);
 var argsOptions = {
     listenAddr: args.any ? '' : 'localhost',
     listenPort: args.listenport,
