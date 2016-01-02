@@ -22,8 +22,10 @@ var socks5Helper = require('../../lib/socks5Helper');
 var addressHelper_1 = require('../lib/addressHelper');
 function handleSocks5(client, data, options) {
     let dst = socks5Helper.refineDestination(data);
-    if (addressHelper_1.isIllegalAddress(dst.addr))
+    if (addressHelper_1.isIllegalAddress(dst.addr)) {
+        client.dispose();
         return true;
+    }
     switch (dst.cmd) {
         case socks5Constant_1.REQUEST_CMD.CONNECT:
             connectHandler_1.connect(client, data, dst, options);
