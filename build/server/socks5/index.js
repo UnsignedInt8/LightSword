@@ -15,15 +15,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-var os = require('os');
 var connectHandler_1 = require('./connectHandler');
 var udpHandler_1 = require('./udpHandler');
 var socks5Constant_1 = require('../../lib/socks5Constant');
 var socks5Helper = require('../../lib/socks5Helper');
-const illegalAddresses = ['127.0.0.1', '::1', '0.0.0.0', '::0', os.hostname()];
+var addressHelper_1 = require('../lib/addressHelper');
 function handleSocks5(client, data, options) {
     let dst = socks5Helper.refineDestination(data);
-    if (illegalAddresses.any(a => a === dst.addr))
+    if (addressHelper_1.isIllegalAddress(dst.addr))
         return true;
     switch (dst.cmd) {
         case socks5Constant_1.REQUEST_CMD.CONNECT:

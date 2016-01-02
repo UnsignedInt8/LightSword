@@ -15,25 +15,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-var connectHandler_1 = require('./connectHandler');
-var socks5Constant_1 = require('../../lib/socks5Constant');
-var socks5Helper = require('../../lib/socks5Helper');
-var addressHelper_1 = require('../lib/addressHelper');
-function handleOSXSocks5(client, data, options) {
-    let dst = socks5Helper.refineDestination(data);
-    if (addressHelper_1.isIllegalAddress(dst.addr))
-        return true;
-    switch (dst.cmd) {
-        case socks5Constant_1.REQUEST_CMD.CONNECT:
-            connectHandler_1.connect(client, data, dst, options);
-            break;
-        case socks5Constant_1.REQUEST_CMD.BIND:
-            break;
-        case socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE:
-            break;
-        default:
-            return false;
-    }
-    return true;
+var os = require('os');
+const illegalAddresses = ['127.0.0.1', '::1', '0.0.0.0', '::0', os.hostname()];
+function isIllegalAddress(addr) {
+    return illegalAddresses.any(a => a === addr);
 }
-exports.handleOSXSocks5 = handleOSXSocks5;
+exports.isIllegalAddress = isIllegalAddress;
