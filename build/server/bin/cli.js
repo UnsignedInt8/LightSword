@@ -100,12 +100,12 @@ if (args.daemon && !process.env.__daemon) {
 }
 else {
     if (args.cluster) {
-        let options = {
+        var clusterOptions = {
             users,
             management: args.management,
             user: args.user
         };
-        cluster_1.runAsClusterMode(options, listenDaemonCommands);
+        cluster_1.runAsClusterMode(clusterOptions, listenDaemonCommands);
     }
     else {
         users.forEach(u => new app_1.App(u));
