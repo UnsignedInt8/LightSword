@@ -85,5 +85,5 @@ http://localhost:5000/api/xxx
 | GET    | /api/users       | 获取所有用户信息 |
 | GET    | /api/users/count | 获取用户总数 |
 | POST   | /api/users       | 新加用户 |
-| DELETE | /api/users/:port | 删除用户 |
+| DELETE | /api/users/:port | 通过端口号删除用户 |
 

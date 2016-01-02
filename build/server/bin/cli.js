@@ -30,7 +30,7 @@ program
     .option('-f, --fork', 'Run as Daemon')
     .option('-d, --daemon <command>', 'Daemon Control', String)
     .option('-r, --cluster', 'Run as Cluster Mode')
-    .option('-a, --management', 'HTTP Management')
+    .option('-a, --management', 'Enable HTTP Management')
     .option('-x, --user <username>', 'Run Under Specified Privilege')
     .parse(process.argv);
 var args = program;
