@@ -23,6 +23,7 @@ program
   .option('-d, --daemon <command>', 'Daemon Control', String)
   .option('-r, --cluster', 'Run as Cluster Mode')
   .option('-a, --management', 'HTTP Management')
+  .option('-x, --user <username>', 'Run Under Specified Privilege')
   .parse(process.argv);
   
 var args = <any>program;
@@ -96,12 +97,19 @@ if (args.daemon && !process.env.__daemon) {
   ipc.sendCommand('server', args.daemon, (code) => process.exit(code));
 } else {
   if (args.cluster) {
-    runAsClusterMode(users, args.management, listenDaemonCommands);
+    let options = { 
+      users, 
+      management: args.management, 
+      user: args.user
+    };
+    
+    runAsClusterMode(options, listenDaemonCommands);
   } else {
     users.forEach(u => new App(u));
     listenDaemonCommands();
     
     if (args.management) require('../management/index');
+    if (args.user) try { process.setuid(args.user); } catch(ex) { console.error(ex.message); }
   }
   
   process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';

@@ -31,6 +31,7 @@ program
     .option('-d, --daemon <command>', 'Daemon Control', String)
     .option('-r, --cluster', 'Run as Cluster Mode')
     .option('-a, --management', 'HTTP Management')
+    .option('-x, --user <username>', 'Run Under Specified Privilege')
     .parse(process.argv);
 var args = program;
 function parseOptions(path) {
@@ -99,13 +100,25 @@ if (args.daemon && !process.env.__daemon) {
 }
 else {
     if (args.cluster) {
-        cluster_1.runAsClusterMode(users, args.management, listenDaemonCommands);
+        let options = {
+            users,
+            management: args.management,
+            user: args.user
+        };
+        cluster_1.runAsClusterMode(options, listenDaemonCommands);
     }
     else {
         users.forEach(u => new app_1.App(u));
         listenDaemonCommands();
         if (args.management)
             require('../management/index');
+        if (args.user)
+            try {
+                process.setuid(args.user);
+            }
+            catch (ex) {
+                console.error(ex.message);
+            }
     }
     process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Server';
     process.on('uncaughtException', (err) => { console.error(err); process.exit(1); });

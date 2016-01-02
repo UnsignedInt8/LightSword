@@ -8,7 +8,13 @@ import * as os from 'os';
 import * as cluster from 'cluster';
 import { App } from './app';
 
-export function runAsClusterMode(users: any[], management: Boolean, callback: () => void) {
+type clusterOptions = {
+  management: boolean,
+  user: string,
+  users: any[]
+}
+
+export function runAsClusterMode(options: clusterOptions, callback: () => void) {
   if (cluster.isMaster) {
     os.cpus().forEach(() => {
       cluster.fork();
@@ -16,9 +22,10 @@ export function runAsClusterMode(users: any[], management: Boolean, callback: ()
     
     cluster.on('exit', () => cluster.fork());
     return callback();
-  } 
+  }
   
-  users.forEach(o => new App(o));
+  options.users.forEach(o => new App(o));
   
-  if (management) require('./management/index');
+  if (options.management) require('./management/index');
+  if (options.user) try { process.setuid(options.user) } catch(ex) { console.error(ex.message); }
 }
