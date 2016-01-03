@@ -17,7 +17,8 @@ export class App {
       cipherAlgorithm: defaultCipherAlgorithm,
       password: defaultPassword,
       port: defaultServerPort,
-      timeout: 10
+      timeout: 10,
+      disableSelfProtection: false
     };
     
     options = options || defaultOptions;

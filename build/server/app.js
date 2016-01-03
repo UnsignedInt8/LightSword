@@ -26,7 +26,8 @@ class App {
             cipherAlgorithm: constant_1.defaultCipherAlgorithm,
             password: constant_1.defaultPassword,
             port: constant_1.defaultServerPort,
-            timeout: 10
+            timeout: 10,
+            disableSelfProtection: false
         };
         options = options || defaultOptions;
         Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);

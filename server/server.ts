@@ -17,7 +17,8 @@ export type ServerOptions = {
   cipherAlgorithm: string,
   password: string,
   port: number,
-  timeout?: number
+  timeout?: number,
+  disableSelfProtection: boolean
 }
 
 export class LsServer extends EventEmitter {
@@ -25,6 +26,7 @@ export class LsServer extends EventEmitter {
   password: string;
   port: number;
   timeout: number;
+  disableSelfProtection = false;
   
   private blacklist = new Set<string>();
   private server: net.Server;
@@ -102,6 +104,7 @@ export class LsServer extends EventEmitter {
   }
 
   addToBlacklist(client: net.Socket) {
+    if (this.disableSelfProtection) return;
     this.blacklist.add(client.remoteAddress);
     client.dispose();
   }

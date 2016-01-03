@@ -32,6 +32,7 @@ program
     .option('-r, --cluster', 'Run as Cluster Mode')
     .option('-a, --management', 'Enable HTTP Management')
     .option('-x, --user <username>', 'Run Under Specified Privilege')
+    .option('--disableSelfProtection', 'Disable Self-Protection')
     .parse(process.argv);
 var args = program;
 function parseOptions(path) {
@@ -68,7 +69,7 @@ function parseUsers(path) {
     var content = fs.readFileSync(path).toString();
     return content.split('\n').select(l => {
         var info = l.split(' ');
-        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2] };
+        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], disableSelfProtection: args.disableSelfProtection };
     }).toArray();
 }
 var users = parseUsers(args.users);
@@ -76,7 +77,8 @@ var argsOptions = {
     port: args.port,
     password: args.password,
     cipherAlgorithm: args.method,
-    timeout: args.timeout
+    timeout: args.timeout,
+    disableSelfProtection: args.disableSelfProtection
 };
 if (fileOptions)
     Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);

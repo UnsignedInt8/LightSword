@@ -24,6 +24,7 @@ var index_2 = require('./osxcl5/index');
 class LsServer extends events_1.EventEmitter {
     constructor(options) {
         super();
+        this.disableSelfProtection = false;
         this.blacklist = new Set();
         this.requestHandlers = new Map();
         let me = this;
@@ -82,6 +83,8 @@ class LsServer extends events_1.EventEmitter {
         this.emit('close');
     }
     addToBlacklist(client) {
+        if (this.disableSelfProtection)
+            return;
         this.blacklist.add(client.remoteAddress);
         client.dispose();
     }
