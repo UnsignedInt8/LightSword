@@ -20,9 +20,9 @@ var socks5Constant_1 = require('../../lib/socks5Constant');
 class Socks5Server {
     constructor(options) {
         this.localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', '169.254.0.0'];
-        let _this = this;
+        let me = this;
         if (options)
-            Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
+            Object.getOwnPropertyNames(options).forEach(n => me[n] = options[n]);
     }
     start() {
         if (this.server)

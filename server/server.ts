@@ -9,7 +9,7 @@ import * as net from 'net';
 import { EventEmitter } from 'events';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../lib/cipher';
-import { VPN_TYPE } from '../lib/constant'
+import { VPN_TYPE, Socks5Options } from '../lib/constant'
 import { handleSocks5 } from './socks5/index';
 import { handleOSXSocks5 } from './osxcl5/index';
 
@@ -28,12 +28,16 @@ export class LsServer extends EventEmitter {
   
   private blacklist = new Set<string>();
   private server: net.Server;
+  private requestHandlers = new Map<VPN_TYPE, (client: net.Socket, data: Buffer, options: Socks5Options) => boolean>();
   
   constructor(options: ServerOptions) {
     super()
     
-    let _this = this;
-    Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
+    let me = this;
+    Object.getOwnPropertyNames(options).forEach(n => me[n] = options[n]);
+    
+    this.requestHandlers.set(VPN_TYPE.SOCKS5, handleSocks5);
+    this.requestHandlers.set(VPN_TYPE.OSXCL5, handleOSXSocks5);
   }
   
   start() {
@@ -71,15 +75,10 @@ export class LsServer extends EventEmitter {
       
       let request = dt.slice(2 + paddingSize, data.length);
       
-      let handled = false;
-      switch (vpnType) {
-        case VPN_TYPE.SOCKS5:
-          handled = handleSocks5(client, request, options);
-          break;
-        case VPN_TYPE.OSXCL5:
-          handled = handleOSXSocks5(client, request, options);
-          break;
-      }
+      let handler = me.requestHandlers.get(vpnType);
+      if (!handler) return me.addToBlacklist(client);
+      
+      let handled = handler(client, request, options);
       
       if (handled) return;
       me.addToBlacklist(client);

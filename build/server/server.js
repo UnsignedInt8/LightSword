@@ -25,8 +25,11 @@ class LsServer extends events_1.EventEmitter {
     constructor(options) {
         super();
         this.blacklist = new Set();
-        let _this = this;
-        Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
+        this.requestHandlers = new Map();
+        let me = this;
+        Object.getOwnPropertyNames(options).forEach(n => me[n] = options[n]);
+        this.requestHandlers.set(constant_1.VPN_TYPE.SOCKS5, index_1.handleSocks5);
+        this.requestHandlers.set(constant_1.VPN_TYPE.OSXCL5, index_2.handleOSXSocks5);
     }
     start() {
         let me = this;
@@ -56,15 +59,10 @@ class LsServer extends events_1.EventEmitter {
                 xorNum: paddingSize
             };
             let request = dt.slice(2 + paddingSize, data.length);
-            let handled = false;
-            switch (vpnType) {
-                case constant_1.VPN_TYPE.SOCKS5:
-                    handled = index_1.handleSocks5(client, request, options);
-                    break;
-                case constant_1.VPN_TYPE.OSXCL5:
-                    handled = index_2.handleOSXSocks5(client, request, options);
-                    break;
-            }
+            let handler = me.requestHandlers.get(vpnType);
+            if (!handler)
+                return me.addToBlacklist(client);
+            let handled = handler(client, request, options);
             if (handled)
                 return;
             me.addToBlacklist(client);

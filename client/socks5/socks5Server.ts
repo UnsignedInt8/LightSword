@@ -35,8 +35,8 @@ export abstract class Socks5Server {
   protected localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', '169.254.0.0'];
 
   constructor(options: ServerOptions) {
-    let _this = this;
-    if (options) Object.getOwnPropertyNames(options).forEach(n => _this[n] = options[n]);
+    let me = this;
+    if (options) Object.getOwnPropertyNames(options).forEach(n => me[n] = options[n]);
   }
   
   start() {
