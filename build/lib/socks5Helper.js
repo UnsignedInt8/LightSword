@@ -33,6 +33,9 @@ var socks5Constant_1 = require('./socks5Constant');
 // | 2  |  1   |  1   | Variable |    2     | Variable |
 // +----+------+------+----------+----------+----------+
 function refineDestination(rawData) {
+    if (rawData.length < 5) {
+        return null;
+    }
     let cmd = rawData[1];
     let atyp = rawData[3];
     let addr = '';

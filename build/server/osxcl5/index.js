@@ -21,6 +21,8 @@ var socks5Helper = require('../../lib/socks5Helper');
 var addressHelper_1 = require('../lib/addressHelper');
 function handleOSXSocks5(client, data, options) {
     let dst = socks5Helper.refineDestination(data);
+    if (!dst)
+        return false;
     if (addressHelper_1.isIllegalAddress(dst.addr)) {
         client.dispose();
         return true;

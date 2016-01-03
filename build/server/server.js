@@ -38,16 +38,12 @@ class LsServer extends events_1.EventEmitter {
                 return client.dispose();
             let meta = cryptoEx.SupportedCiphers[me.cipherAlgorithm];
             let ivLength = meta[1];
-            let iv = data.slice(0, ivLength);
-            let decipher;
-            try {
-                decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
-            }
-            catch (ex) {
+            if (data.length < ivLength) {
                 console.warn(client.remoteAddress, 'Harmful Access');
-                me.blacklist.add(client.remoteAddress);
-                return client.dispose();
+                return me.addToBlacklist(client);
             }
+            let iv = data.slice(0, ivLength);
+            let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
             let et = data.slice(ivLength, data.length);
             let dt = decipher.update(et);
             let vpnType = dt[0];
@@ -71,8 +67,7 @@ class LsServer extends events_1.EventEmitter {
             }
             if (handled)
                 return;
-            me.blacklist.add(client.remoteAddress);
-            client.dispose();
+            me.addToBlacklist(client);
         }));
         this.server = server;
         server.listen(this.port);
@@ -87,6 +82,10 @@ class LsServer extends events_1.EventEmitter {
         this.server.close();
         this.server.destroy();
         this.emit('close');
+    }
+    addToBlacklist(client) {
+        this.blacklist.add(client.remoteAddress);
+        client.dispose();
     }
 }
 exports.LsServer = LsServer;

@@ -24,6 +24,10 @@ import { ATYP, REQUEST_CMD } from './socks5Constant';
 // | 2  |  1   |  1   | Variable |    2     | Variable |
 // +----+------+------+----------+----------+----------+
 export function refineDestination(rawData: Buffer): { cmd: REQUEST_CMD, addr: string, port: number, headerSize: number } {
+  if (rawData.length < 5) {
+    return null;
+  }
+  
   let cmd = rawData[1];
   let atyp = rawData[3];
   let addr = '';

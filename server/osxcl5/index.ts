@@ -14,6 +14,8 @@ import { isIllegalAddress } from '../lib/addressHelper';
 export function handleOSXSocks5(client: net.Socket, data: Buffer, options: OSXCl5Options): boolean {
   let dst = socks5Helper.refineDestination(data);
   
+  if (!dst) return false;
+  
   if (isIllegalAddress(dst.addr)) {
     client.dispose();
     return true;
