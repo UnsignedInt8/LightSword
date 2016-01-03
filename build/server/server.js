@@ -17,7 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var net = require('net');
 var events_1 = require('events');
-var crypto = require('../lib/cipher');
+var cryptoEx = require('../lib/cipher');
 var constant_1 = require('../lib/constant');
 var index_1 = require('./socks5/index');
 var index_2 = require('./osxcl5/index');
@@ -36,10 +36,18 @@ class LsServer extends events_1.EventEmitter {
             let data = yield client.readAsync();
             if (!data)
                 return client.dispose();
-            let meta = crypto.SupportedCiphers[me.cipherAlgorithm];
+            let meta = cryptoEx.SupportedCiphers[me.cipherAlgorithm];
             let ivLength = meta[1];
             let iv = data.slice(0, ivLength);
-            let decipher = crypto.createDecipher(me.cipherAlgorithm, me.password, iv);
+            let decipher;
+            try {
+                decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
+            }
+            catch (ex) {
+                console.warn(client.remoteAddress, 'Harmful Access');
+                me.blacklist.add(client.remoteAddress);
+                return client.dispose();
+            }
             let et = data.slice(ivLength, data.length);
             let dt = decipher.update(et);
             let vpnType = dt[0];

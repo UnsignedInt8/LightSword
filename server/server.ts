@@ -7,7 +7,8 @@
 
 import * as net from 'net';
 import { EventEmitter } from 'events';
-import * as crypto from '../lib/cipher';
+import * as crypto from 'crypto';
+import * as cryptoEx from '../lib/cipher';
 import { VPN_TYPE } from '../lib/constant'
 import { handleSocks5 } from './socks5/index';
 import { handleOSXSocks5 } from './osxcl5/index';
@@ -44,11 +45,18 @@ export class LsServer extends EventEmitter {
       let data = await client.readAsync();
       if (!data) return client.dispose();
       
-      let meta = crypto.SupportedCiphers[me.cipherAlgorithm];
+      let meta = cryptoEx.SupportedCiphers[me.cipherAlgorithm];
       let ivLength = meta[1];
       let iv = data.slice(0, ivLength);
       
-      let decipher = crypto.createDecipher(me.cipherAlgorithm, me.password, iv);
+      let decipher: crypto.Decipher;
+      try {
+        decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv); 
+      } catch (ex) {
+        console.warn(client.remoteAddress, 'Harmful Access');
+        me.blacklist.add(client.remoteAddress);
+        return client.dispose();
+      }
       
       let et = data.slice(ivLength, data.length);
       let dt = decipher.update(et);
