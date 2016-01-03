@@ -27,7 +27,7 @@ program
     .option('-c, --config <path>', 'Configuration File Path', String)
     .option('-u, --users <path>', 'Mutli-users File Path', String)
     .option('-t, --timeout [number]', 'Timeout', Number.parseInt)
-    .option('-f, --fork', 'Run as Daemon')
+    .option('-f, --fork', 'Run as a Daemon')
     .option('-d, --daemon <command>', 'Daemon Control', String)
     .option('-r, --cluster', 'Run as Cluster Mode')
     .option('-a, --management', 'Enable HTTP Management')

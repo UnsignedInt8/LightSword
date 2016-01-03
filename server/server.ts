@@ -18,7 +18,7 @@ export type ServerOptions = {
   password: string,
   port: number,
   timeout?: number,
-  disableSelfProtection: boolean
+  disableSelfProtection?: boolean
 }
 
 export class LsServer extends EventEmitter {
@@ -90,7 +90,7 @@ export class LsServer extends EventEmitter {
     server.listen(this.port);
     server.on('error', (err) => { 
       console.error(err.message);
-      me.stop(); 
+      me.stop();
     });
     
     setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
