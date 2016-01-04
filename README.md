@@ -3,9 +3,9 @@
 [![Build Status](https://travis-ci.org/SunshinyNeko/LightSword.svg)](https://travis-ci.org/SunshinyNeko/LightSword)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/SunshinyNeko/LightSword?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-光刃——基于 Node.js 的 SOCKS5 代理。
+LightSword——基于 Node.js 的 SOCKS5 代理。
 
-光刃参考了 Shadowsocks 的协议，并用 Typescript 实现。光刃基于 Node.js 4.0＋，因此需要首先安装 Node.js 4.0  以上版本，点击访问[官方网址](https://nodejs.org)。
+LightSword 参考了 Shadowsocks 的协议，并用 Typescript 实现。LightSword 基于 Node.js 4.0＋，因此需要首先安装 Node.js 4.0  以上版本，点击访问[官方网址](https://nodejs.org)。
 
 
 Quick Start
@@ -52,7 +52,7 @@ lsbridge -s server_addr -f
 
 > 经本猫实测，中转服务器对 Shadowsocks 有效。理论上支持任何形式的TCP流量中转。
 
-配置你的浏览器及其它需要科学上网的软件使用光刃提供的 SOCKS5 代理。
+配置你的浏览器及其它需要科学上网的软件使用 LightSword 提供的 SOCKS5 代理。
 
 默认监听地址: localhost
 

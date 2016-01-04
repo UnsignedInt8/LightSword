@@ -22,7 +22,7 @@ $> lsbridge -s server_addr -p server_port -l listen_port -f
 
 2.指向中转站
 
-把LightSword 客户端指向中转服务器。把中转服务器搭建在墙内云提供商的主机上，可以加速访问墙外。
+把 LightSword 客户端指向中转服务器。把中转服务器搭建在墙内云提供商的主机上，可以加速访问墙外。
 
 ```
 $> lslocal -s bridge_address -p bridge_port -f
