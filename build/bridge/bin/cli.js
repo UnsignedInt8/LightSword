@@ -1,9 +1,23 @@
 #!/usr/bin/env node
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
+    return new Promise(function (resolve, reject) {
+        generator = generator.call(thisArg, _arguments);
+        function cast(value) { return value instanceof Promise && value.constructor === Promise ? value : new Promise(function (resolve) { resolve(value); }); }
+        function onfulfill(value) { try { step("next", value); } catch (e) { reject(e); } }
+        function onreject(value) { try { step("throw", value); } catch (e) { reject(e); } }
+        function step(verb, value) {
+            var result = generator[verb](value);
+            result.done ? resolve(result.value) : cast(result.value).then(onfulfill, onreject);
+        }
+        step("next", void 0);
+    });
+};
 require('kinq').enable();
 var program = require('commander');
 var path = require('path');
 var child = require('child_process');
 var app_1 = require('../app');
+var ipc = require('../../lib/ipc');
 program
     .version('0.1')
     .option('-s, --server <Address>', 'Next Node Address', String)
@@ -29,5 +43,13 @@ if (args.fork && !process.env.__daemon) {
     console.info('Child PID: ' + cp.pid);
     process.exit(0);
 }
-new app_1.App(options);
-process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Bridge';
+if (process.env.__daemon) {
+    ipc.IpcServer.start('bridge');
+}
+if (args.daemon && !process.env.__daemon) {
+    ipc.sendCommand('bridge', args.daemon, (code) => process.exit(code));
+}
+else {
+    new app_1.App(options);
+    process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Bridge';
+}

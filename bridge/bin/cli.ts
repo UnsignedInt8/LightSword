@@ -9,6 +9,7 @@ import * as program from 'commander';
 import * as path from 'path';
 import * as child from 'child_process';
 import { App } from '../app';
+import * as ipc from '../../lib/ipc';
 
 program
   .version('0.1')
@@ -39,6 +40,14 @@ if (args.fork && !process.env.__daemon) {
   process.exit(0);
 }
 
-new App(options);
+if (process.env.__daemon) {
+  ipc.IpcServer.start('bridge');
+}
 
-process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Bridge';
+if (args.daemon && !process.env.__daemon) {
+  ipc.sendCommand('bridge', args.daemon, (code) => process.exit(code));
+} else {
+  new App(options);
+
+  process.title = process.env.__daemon ? path.basename(process.argv[1]) + 'd' : 'LightSword Bridge'; 
+}
