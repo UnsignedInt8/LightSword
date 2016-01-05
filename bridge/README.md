@@ -8,6 +8,7 @@
 | -s | --server | 下个中转服务器地址或目标服务器地址 |
 | -p | --port | 下个中转服务器端口或目标服务器端口 |
 | -l | --listenport | 本地监听端口 (即客户端连接中转站的该端口) |
+| -d | --daemon | 控制命令，支持 restart, stop, status |
 | -f | --fork | 作为守护进程运行 (不支持 Windows) |
 
 使用方法
