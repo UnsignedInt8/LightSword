@@ -4,8 +4,10 @@
 
 'use strict'
 
-import * as net from 'net';
 require('../lib/socketEx');
+require('kinq').enable();
+require('async-node');
+import * as net from 'net';
 import { defaultServerPort } from '../lib/constant';
 
 export class App {
