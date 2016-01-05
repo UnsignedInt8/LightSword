@@ -50,7 +50,7 @@ lsbridge -s server_addr -f
 
 以上配置均使用内置默认设置，详细参数请参见源码文件夹中的 README.md 文件。
 
-> 经本猫实测，中转服务器对 Shadowsocks 有效。理论上支持任何形式的TCP流量中转。
+> 中转服务器对 Shadowsocks 有效。理论上支持任何形式的TCP流量中转。
 
 配置你的浏览器及其它需要科学上网的软件使用 LightSword 提供的 SOCKS5 代理。
 
