@@ -58,11 +58,14 @@ if (fileOptions) Object.getOwnPropertyNames(fileOptions).forEach(n => args[n] = 
 function parseUsers(path: string): {port: number, password: string, cipherAlgorithm: string, plugin?: string}[] {
   if (!path) return [];
   if (!fs.existsSync(path)) return [];
-  
-  var content = fs.readFileSync(path).toString();
-  return content.split('\n').select(l => {
+
+  var now: any = new Date();
+  var content: string = fs.readFileSync(path).toString();
+  return content.split('\n').where((l: string) => l.length > 0 && !l.startsWith('#')).select((l: string) => {
     var info = l.split(' ');
-    return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], disableSelfProtection: args.disableSelfProtection };
+    var expireDate: string = info[3];
+    
+    return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireTime: expireDate ? (<any>(new Date(expireDate)) - now) : undefined, disableSelfProtection: args.disableSelfProtection };
   }).toArray();
 }
 

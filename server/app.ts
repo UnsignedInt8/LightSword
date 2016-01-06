@@ -18,6 +18,7 @@ export class App {
       password: defaultPassword,
       port: defaultServerPort,
       timeout: 10,
+      expireTime: undefined,
       disableSelfProtection: false
     };
     

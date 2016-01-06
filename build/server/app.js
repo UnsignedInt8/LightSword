@@ -27,6 +27,7 @@ class App {
             password: constant_1.defaultPassword,
             port: constant_1.defaultServerPort,
             timeout: 10,
+            expireTime: undefined,
             disableSelfProtection: false
         };
         options = options || defaultOptions;

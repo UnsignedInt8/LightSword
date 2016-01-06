@@ -66,10 +66,12 @@ function parseUsers(path) {
         return [];
     if (!fs.existsSync(path))
         return [];
+    var now = new Date();
     var content = fs.readFileSync(path).toString();
-    return content.split('\n').select(l => {
+    return content.split('\n').where((l) => l.length > 0 && !l.startsWith('#')).select((l) => {
         var info = l.split(' ');
-        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], disableSelfProtection: args.disableSelfProtection };
+        var expireDate = info[3];
+        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireTime: expireDate ? ((new Date(expireDate)) - now) : undefined, disableSelfProtection: args.disableSelfProtection };
     }).toArray();
 }
 var users = parseUsers(args.users);

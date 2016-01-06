@@ -4,7 +4,6 @@
 
 'use strict'
 
-
 import * as net from 'net';
 import { EventEmitter } from 'events';
 import * as crypto from 'crypto';
@@ -18,6 +17,7 @@ export type ServerOptions = {
   password: string,
   port: number,
   timeout?: number,
+  expireTime?: number,
   disableSelfProtection?: boolean
 }
 
@@ -109,7 +109,7 @@ export class LsServer extends EventEmitter {
   
   stop() {
     this.server.end();
-    this.server.close();
+    this.server.close();  
     this.server.destroy();
     this.stopExpireTimer();
     this.emit('close');
