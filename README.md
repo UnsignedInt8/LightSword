@@ -48,7 +48,7 @@ lslocal -s server_addr -f
 lsbridge -s server_addr -f
 ```
 
-以上配置均使用内置默认设置，详细参数请参见源码文件夹中的 README.md 文件（参见: server, client, brdige 这三个文件夹）。
+以上配置均使用内置默认设置，详细参数请参见源码文件夹中的 README.md 文件（参见: server, client, bridge 这三个文件夹）。
 
 > 经实际测试，中转服务器对 Shadowsocks 有效。理论上支持任何形式的 TCP 流量中转。
 
