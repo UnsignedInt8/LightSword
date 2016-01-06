@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/SunshinyNeko/LightSword.svg)](https://travis-ci.org/SunshinyNeko/LightSword)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/SunshinyNeko/LightSword?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-LightSword——基于 Node.js 的 SOCKS5 代理。
+LightSword —— 基于 Node.js 的 SOCKS5 代理。
 
 LightSword 参考了 Shadowsocks 的协议，并用 Typescript 实现。LightSword 基于 Node.js 4.0＋，因此需要首先安装 Node.js 4.0  以上版本，点击访问[官方网址](https://nodejs.org)。
 
@@ -11,7 +11,7 @@ LightSword 参考了 Shadowsocks 的协议，并用 Typescript 实现。LightSwo
 Quick Start
 ---
 
-首先，安装Node.js 4.0+，安装好 Node.js 之后，即可使用 Node.js 的包管理器npm安装 LightSword 。目前中国并没有封杀 npmjs.org ，因此可以直接安装：
+首先，安装Node.js 4.0+，安装好 Node.js 之后，即可使用 Node.js 的包管理器 npm 安装 LightSword 。目前 npmjs.org 可以访问，因此可以直接安装：
 
 
 1.安装
@@ -29,7 +29,7 @@ Quick Start
 
 简单地说明下中转站的作用: 
 
-由于大家都懂的，访问境外IP时不时丢包非常严重，因此可以把中转站搭建在墙内的云提供商服务器上，作为墙内到墙外的中转，具有较好的效果。
+由于某些不为人知的原因，访问境外IP时不时丢包非常严重，因此可以把中转站搭建在云提供商服务器上，作为中转／中继使用，具有较好的效果（在一定程度上提高了匿名性）。
 
 2.运行
 
@@ -50,7 +50,7 @@ lsbridge -s server_addr -f
 
 以上配置均使用内置默认设置，详细参数请参见源码文件夹中的 README.md 文件。
 
-> 中转服务器对 Shadowsocks 有效。理论上支持任何形式的TCP流量中转。
+> 经实际测试，中转服务器对 Shadowsocks 有效。理论上支持任何形式的 TCP 流量中转。
 
 配置你的浏览器及其它需要科学上网的软件使用 LightSword 提供的 SOCKS5 代理。
 
@@ -61,4 +61,4 @@ lsbridge -s server_addr -f
 License
 ---
 
-Licensed under GPLv2.0
+GPLv2.0
