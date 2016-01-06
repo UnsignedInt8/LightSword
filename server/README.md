@@ -61,6 +61,20 @@ lsserver -d status
 }
 ```
 
+多用户管理:
+---
+
+使用 -u (--users) 参数提供多用户配置文件，配置文件请参见 ../misc/users.conf 文件提供的实例。
+
+配置文件为 utf8 编码的文本文件，格式如下:
+
+```
+＃ 注释行 <必填项> [可选项］
+<Port-Number> <Password> <Cipher-Algorithm> [ISO-8601-Extended-Date-Format-String]
+
+注意: 字段之间用半角空格分割，字段中不允许出现空格
+```
+
 管理
 ---
 

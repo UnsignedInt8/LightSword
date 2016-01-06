@@ -68,8 +68,8 @@ function parseUsers(path) {
         return [];
     var now = new Date();
     var content = fs.readFileSync(path).toString();
-    return content.split('\n').where((l) => l.length > 0 && !l.startsWith('#')).select((l) => {
-        var info = l.split(' ');
+    return content.split('\n').where((l) => l.length > 0 && !l.trim().startsWith('#')).select((l) => {
+        var info = l.trim().split(' ');
         var expireDate = info[3];
         return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireDate, expireTime: expireDate ? ((new Date(expireDate)) - now) : undefined, disableSelfProtection: args.disableSelfProtection };
     }).toArray();

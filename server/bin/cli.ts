@@ -61,8 +61,8 @@ function parseUsers(path: string): {port: number, password: string, cipherAlgori
 
   var now: any = new Date();
   var content: string = fs.readFileSync(path).toString();
-  return content.split('\n').where((l: string) => l.length > 0 && !l.startsWith('#')).select((l: string) => {
-    var info = l.split(' ');
+  return content.split('\n').where((l: string) => l.length > 0 && !l.trim().startsWith('#')).select((l: string) => {
+    var info = l.trim().split(' ');
     var expireDate: string = info[3];
     
     return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireDate, expireTime: expireDate ? (<any>(new Date(expireDate)) - now) : undefined, disableSelfProtection: args.disableSelfProtection };
