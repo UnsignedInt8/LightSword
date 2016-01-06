@@ -52,7 +52,7 @@ lsbridge -s server_addr -f
 
 > 经实际测试，中转服务器对 Shadowsocks 有效。理论上支持任何形式的 TCP 流量中转。
 
-配置你的浏览器及其它需要科学上网的软件使用 LightSword 提供的 SOCKS5 代理。
+最后配置你的浏览器及其它需要上网的软件使用 LightSword 提供的 SOCKS5 代理。
 
 默认监听地址: localhost
 
