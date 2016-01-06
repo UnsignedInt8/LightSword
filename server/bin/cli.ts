@@ -65,7 +65,7 @@ function parseUsers(path: string): {port: number, password: string, cipherAlgori
     var info = l.split(' ');
     var expireDate: string = info[3];
     
-    return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireTime: expireDate ? (<any>(new Date(expireDate)) - now) : undefined, disableSelfProtection: args.disableSelfProtection };
+    return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireDate, expireTime: expireDate ? (<any>(new Date(expireDate)) - now) : undefined, disableSelfProtection: args.disableSelfProtection };
   }).toArray();
 }
 

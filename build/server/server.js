@@ -83,9 +83,10 @@ class LsServer extends events_1.EventEmitter {
         this.startExpireTimer();
     }
     stop() {
-        this.server.end();
+        if (!this.server)
+            return;
         this.server.close();
-        this.server.destroy();
+        this.server = undefined;
         this.stopExpireTimer();
         this.emit('close');
         this.blacklist.clear();
@@ -109,14 +110,21 @@ class LsServer extends events_1.EventEmitter {
             return;
         this.stopExpireTimer();
         let me = this;
-        this.expireTimer = setTimeout(() => me.stop(), me.expireTime);
+        this.expireTimer = setInterval(() => {
+            me.expireTime -= LsServer.expireRefreshInterval;
+            if (me.expireTime > 0)
+                return;
+            console.info(`${me.port} expired. ${me.expireDate} ${me.expireTime}`);
+            me.stop();
+        }, LsServer.expireRefreshInterval);
         this.expireTimer.unref();
     }
     stopExpireTimer() {
         if (!this.expireTimer)
             return;
-        clearTimeout(this.expireTimer);
+        clearInterval(this.expireTimer);
         this.expireTimer = null;
     }
 }
+LsServer.expireRefreshInterval = 60 * 60 * 1000;
 exports.LsServer = LsServer;

@@ -18,17 +18,20 @@ export type ServerOptions = {
   port: number,
   timeout?: number,
   expireTime?: number,
+  expireDate?: string,
   disableSelfProtection?: boolean
 }
 
 export class LsServer extends EventEmitter {
+  disableSelfProtection = false;
   cipherAlgorithm: string;
   password: string;
   port: number;
   timeout: number;
-  disableSelfProtection = false;
   expireTime: number; // Unit: ms
+  expireDate: string;
   
+  private static expireRefreshInterval = 60 * 60 * 1000;
   private expireTimer: NodeJS.Timer;
   private blacklistIntervalTimer: NodeJS.Timer;
   private blacklist = new Map<string, Set<number>>();
@@ -108,9 +111,11 @@ export class LsServer extends EventEmitter {
   }
   
   stop() {
-    this.server.end();
-    this.server.close();  
-    this.server.destroy();
+    if (!this.server) return;
+    
+    this.server.close();
+    this.server = undefined;
+      
     this.stopExpireTimer();
     this.emit('close');
     this.blacklist.clear();
@@ -137,14 +142,21 @@ export class LsServer extends EventEmitter {
     this.stopExpireTimer();
     
     let me = this;
-    this.expireTimer = setTimeout(() => me.stop(), me.expireTime);
+    this.expireTimer = setInterval(() => {
+      me.expireTime -= LsServer.expireRefreshInterval;
+      if (me.expireTime > 0) return;
+      
+      console.info(`${me.port} expired. ${me.expireDate} ${me.expireTime}`);
+      me.stop();
+    }, LsServer.expireRefreshInterval);
+    
     this.expireTimer.unref();
   }
   
   private stopExpireTimer() {
     if (!this.expireTimer) return;
     
-    clearTimeout(this.expireTimer);
+    clearInterval(this.expireTimer);
     this.expireTimer = null;
   }
 }

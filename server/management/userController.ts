@@ -16,7 +16,7 @@ export function getUserCount(req: express.Request, res: express.Response) {
 }
 
 export function getUsers(req: express.Request, res: express.Response) {
-  let users = App.Users.select(item => { return { port: item[1].port, cipher: item[1].cipherAlgorithm, password: item[1].password } } ).toArray();
+  let users = App.Users.select(item => { return { port: item[1].port, cipher: item[1].cipherAlgorithm, password: item[1].password, expireDate: item[1].expireDate } } ).toArray();
   res.json(users);
 }
 

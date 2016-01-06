@@ -71,7 +71,7 @@ function parseUsers(path) {
     return content.split('\n').where((l) => l.length > 0 && !l.startsWith('#')).select((l) => {
         var info = l.split(' ');
         var expireDate = info[3];
-        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireTime: expireDate ? ((new Date(expireDate)) - now) : undefined, disableSelfProtection: args.disableSelfProtection };
+        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireDate, expireTime: expireDate ? ((new Date(expireDate)) - now) : undefined, disableSelfProtection: args.disableSelfProtection };
     }).toArray();
 }
 var users = parseUsers(args.users);
