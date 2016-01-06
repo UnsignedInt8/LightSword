@@ -25,7 +25,7 @@ class LsServer extends events_1.EventEmitter {
     constructor(options) {
         super();
         this.disableSelfProtection = false;
-        this.blacklist = new Set();
+        this.blacklist = new Map();
         this.requestHandlers = new Map();
         let me = this;
         Object.getOwnPropertyNames(options).forEach(n => me[n] = options[n]);
@@ -35,7 +35,7 @@ class LsServer extends events_1.EventEmitter {
     start() {
         let me = this;
         let server = net.createServer((client) => __awaiter(this, void 0, Promise, function* () {
-            if (me.blacklist.has(client.remoteAddress))
+            if (me.blacklist.has(client.remoteAddress) && me.blacklist.get(client.remoteAddress).size > 20)
                 return client.dispose();
             let data = yield client.readAsync();
             if (!data)
@@ -43,13 +43,17 @@ class LsServer extends events_1.EventEmitter {
             let meta = cryptoEx.SupportedCiphers[me.cipherAlgorithm];
             let ivLength = meta[1];
             if (data.length < ivLength) {
-                console.warn(client.remoteAddress, 'Harmful Access');
+                console.warn(client.remoteAddress, 'Malicious Access');
                 return me.addToBlacklist(client);
             }
             let iv = data.slice(0, ivLength);
             let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
             let et = data.slice(ivLength, data.length);
             let dt = decipher.update(et);
+            if (dt.length < 2) {
+                console.warn(client.remoteAddress, 'Malicious Access');
+                return me.addToBlacklist(client);
+            }
             let vpnType = dt[0];
             let paddingSize = dt[1];
             let options = {
@@ -74,19 +78,45 @@ class LsServer extends events_1.EventEmitter {
             console.error(err.message);
             me.stop();
         });
-        setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
+        this.blacklistIntervalTimer = setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
+        this.blacklistIntervalTimer.unref();
+        this.startExpireTimer();
     }
     stop() {
         this.server.end();
         this.server.close();
         this.server.destroy();
+        this.stopExpireTimer();
         this.emit('close');
+        this.blacklist.clear();
+        if (this.blacklistIntervalTimer)
+            clearInterval(this.blacklistIntervalTimer);
+        this.blacklistIntervalTimer = undefined;
     }
     addToBlacklist(client) {
         if (this.disableSelfProtection)
             return;
-        this.blacklist.add(client.remoteAddress);
+        let ports = this.blacklist.get(client.remoteAddress);
+        if (!ports) {
+            ports = new Set();
+            this.blacklist.set(client.remoteAddress, ports);
+        }
+        ports.add(client.remotePort);
         client.dispose();
+    }
+    startExpireTimer() {
+        if (!this.expireTime)
+            return;
+        this.stopExpireTimer();
+        let me = this;
+        this.expireTimer = setTimeout(() => me.stop(), me.expireTime);
+        this.expireTimer.unref();
+    }
+    stopExpireTimer() {
+        if (!this.expireTimer)
+            return;
+        clearTimeout(this.expireTimer);
+        this.expireTimer = null;
     }
 }
 exports.LsServer = LsServer;

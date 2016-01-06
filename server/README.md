@@ -87,3 +87,18 @@ http://localhost:5000/api/xxx
 | POST   | /api/users       | 新加用户 |
 | DELETE | /api/users/:port | 通过端口号删除用户 |
 
+*GET /api/users*
+
+```
+
+```
+
+*GET /api/users/count*
+
+```
+```
+
+*POST /api/users*
+
+```
+```

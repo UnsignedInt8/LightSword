@@ -27,8 +27,11 @@ export class LsServer extends EventEmitter {
   port: number;
   timeout: number;
   disableSelfProtection = false;
+  expireTime: number; // Unit: ms
   
-  private blacklist = new Set<string>();
+  private expireTimer: NodeJS.Timer;
+  private blacklistIntervalTimer: NodeJS.Timer;
+  private blacklist = new Map<string, Set<number>>();
   private server: net.Server;
   private requestHandlers = new Map<VPN_TYPE, (client: net.Socket, data: Buffer, options: Socks5Options) => boolean>();
   
@@ -46,7 +49,7 @@ export class LsServer extends EventEmitter {
     let me = this;
     
     let server = net.createServer(async (client) => {
-      if (me.blacklist.has(client.remoteAddress)) return client.dispose();
+      if (me.blacklist.has(client.remoteAddress) && me.blacklist.get(client.remoteAddress).size > 20) return client.dispose();
       
       let data = await client.readAsync();
       if (!data) return client.dispose();
@@ -55,7 +58,7 @@ export class LsServer extends EventEmitter {
       let ivLength = meta[1];
       
       if (data.length < ivLength) {
-        console.warn(client.remoteAddress, 'Harmful Access');
+        console.warn(client.remoteAddress, 'Malicious Access');
         return me.addToBlacklist(client);
       }
       
@@ -64,6 +67,12 @@ export class LsServer extends EventEmitter {
       
       let et = data.slice(ivLength, data.length);
       let dt = decipher.update(et);
+      
+      if (dt.length < 2) {
+        console.warn(client.remoteAddress, 'Malicious Access')
+        return me.addToBlacklist(client);
+      }
+      
       let vpnType = dt[0];
       let paddingSize = dt[1];
       
@@ -93,19 +102,49 @@ export class LsServer extends EventEmitter {
       me.stop();
     });
     
-    setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
+    this.blacklistIntervalTimer = setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
+    this.blacklistIntervalTimer.unref();
+    this.startExpireTimer();
   }
   
   stop() {
     this.server.end();
     this.server.close();
     this.server.destroy();
+    this.stopExpireTimer();
     this.emit('close');
+    this.blacklist.clear();
+    
+    if (this.blacklistIntervalTimer) clearInterval(this.blacklistIntervalTimer);
+    this.blacklistIntervalTimer = undefined;
   }
 
-  addToBlacklist(client: net.Socket) {
+  private addToBlacklist(client: net.Socket) {
     if (this.disableSelfProtection) return;
-    this.blacklist.add(client.remoteAddress);
+    
+    let ports = this.blacklist.get(client.remoteAddress);
+    if (!ports) {
+      ports = new Set<number>();
+      this.blacklist.set(client.remoteAddress, ports);
+    }
+    
+    ports.add(client.remotePort);
     client.dispose();
+  }
+  
+  private startExpireTimer() {
+    if (!this.expireTime) return;
+    this.stopExpireTimer();
+    
+    let me = this;
+    this.expireTimer = setTimeout(() => me.stop(), me.expireTime);
+    this.expireTimer.unref();
+  }
+  
+  private stopExpireTimer() {
+    if (!this.expireTimer) return;
+    
+    clearTimeout(this.expireTimer);
+    this.expireTimer = null;
   }
 }
