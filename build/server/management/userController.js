@@ -24,7 +24,7 @@ function getUserCount(req, res) {
 }
 exports.getUserCount = getUserCount;
 function getUsers(req, res) {
-    let users = app_1.App.Users.select(item => { return { port: item[1].port, cipher: item[1].cipherAlgorithm, password: item[1].password, expireDate: item[1].expireDate }; }).toArray();
+    let users = app_1.App.Users.select(item => { return { port: item[1].port, cipherAlgorithm: item[1].cipherAlgorithm, expireDate: item[1].expireDate }; }).toArray();
     res.json(users);
 }
 exports.getUsers = getUsers;
@@ -32,7 +32,8 @@ function addUser(req, res) {
     var body = req.body;
     let success = app_1.App.addUser(body);
     let data = {
-        success
+        success,
+        msg: success ? undefined : `Port Number: ${body.port} is used or access denied`
     };
     res.json(data);
 }

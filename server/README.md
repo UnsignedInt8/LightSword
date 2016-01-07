@@ -72,13 +72,16 @@ lsserver -d status
 ＃ 注释行 <必填项> [可选项］
 <Port-Number> <Password> <Cipher-Algorithm> [ISO-8601-Extended-Date-Format-String]
 
-注意: 字段之间用半角空格分割，字段中不允许出现空格
+25000 abc123 aes-256-cfb
+25001 abc123 aes-256-cfb 2016-01-04T03:01:54+09:00
+
+#注意: 字段之间用半角空格分割，字段中不允许出现空格
 ```
 
 管理
 ---
 
-从 0.5.0 版本开始，LightSword 加入 HTTP 管理功能，为多用户管理带来方便。LightSword 采用 HTTP 协议，并通过 Restful 风格交互，数据传输格式为 JSON。
+从 0.5.0 版本开始，LightSword 加入 HTTP 管理功能，为多用户管理带来方便。LightSword 采用 HTTP 协议，并通过 Restful 风格交互，数据传输格式为 JSON 。
 
 首先，启用 HTTP 管理:
 
@@ -97,22 +100,77 @@ http://localhost:5000/api/xxx
 | 方法 | 接口     | 解释  |
 |--------|------------------|---------------|
 | GET    | /api/users       | 获取所有用户信息 |
-| GET    | /api/users/count | 获取用户总数 |
+| GET    | /api/users/count | 获取有效用户总数 |
 | POST   | /api/users       | 新加用户 |
 | DELETE | /api/users/:port | 通过端口号删除用户 |
 
-*GET /api/users*
+**GET /api/users: 返回用户列表（数组）**
+
+| 字段 | 解释 |
+|-----|------|
+| port | 端口号 |
+| cipherAlgorithm | 加密算法 |
+| expireDate | 过期日期 |
+
+状态码: 200
 
 ```
-
+[{"port":25000,"cipherAlgorithm":"aes-256-cfb"},{"port":25001,"cipherAlgorithm":"bf-cfb","expireDate":"2017-01-04T03:01:54+09:00"}]
 ```
 
-*GET /api/users/count*
+**GET /api/users/count: 返回用户数**
+
+| 字段 | 解释 |
+|-|-|
+| count | 用户数 |
+
+状态码: 200
 
 ```
+{"count":2}
 ```
 
-*POST /api/users*
+**POST /api/users: 新增用户**
+
+| 字段 | 解释 |
+|-|-|
+| port | 端口号（必填）|
+| cipherAlgorithm | 加密算法（可选，默认: aes-256-cfb） |
+| password | 密码（必填） |
+| timeout | 超时（单位: 秒，可选，默认: 10秒） |
+| expireDate | 过期日期（ISO8601扩展日期格式，可选，默认: 空，表示永不过期） |
+| disableSelfProtection | 禁用黑名单机制（布尔值，可选，默认: false） |
+
+返回:
+
+| 字段 | 解释 |
+|-|-|
+| success | true 成功，false 失败 |
+| msg | 返回失败原因 |
 
 ```
+POST application/json
+
+{
+  "cipherAlgorithm": "aes-256-cfb",
+  "port": 28000,
+  "password": "abc123",
+  "timeout": 30,
+  "expireDate": "2017-01-04T03:01:54+09:00",
+  "disableSelfProtection": true
+}
+
+Succeed =>
+
+{
+  "success": true
+}
+
+Failed =>
+
+{
+  "success": false,
+  "msg": "Port Number: 28000 is used or access denied"
+}
+
 ```
