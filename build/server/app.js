@@ -40,13 +40,7 @@ class App {
     static addUser(options) {
         if (App.Users.has(options.port))
             return false;
-        let userOptions = {
-            port: options.port,
-            cipherAlgorithm: options.cipherAlgorithm || constant_1.defaultCipherAlgorithm,
-            password: options.password || constant_1.defaultPassword,
-            timeout: options.timeout || 10
-        };
-        new App(userOptions);
+        new App(options);
         return true;
     }
     static removeUser(port) {

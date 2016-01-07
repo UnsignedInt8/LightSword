@@ -28,9 +28,9 @@ export class LsServer extends EventEmitter {
   port: number;
   timeout: number;
   expireDate: string;
-  remainingTime: number; // Unit: ms
   
   private static expireRefreshInterval = 60 * 60 * 1000;
+  private remainingTime: number; // Unit: ms
   private remainingTimer: NodeJS.Timer;
   private blacklistIntervalTimer: NodeJS.Timer;
   private blacklist = new Map<string, Set<number>>();
@@ -112,6 +112,7 @@ export class LsServer extends EventEmitter {
   stop() {
     if (!this.server) return;
     
+    this.server.removeAllListeners();
     this.server.close();
     this.server = undefined;
       

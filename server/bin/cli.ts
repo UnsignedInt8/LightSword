@@ -55,7 +55,7 @@ function parseOptions(path: string) {
 var fileOptions = parseOptions(args.config) || {};
 if (fileOptions) Object.getOwnPropertyNames(fileOptions).forEach(n => args[n] = args[n] === undefined ? fileOptions[n] : args[n]);
 
-function parseUsers(path: string): {port: number, password: string, cipherAlgorithm: string, plugin?: string}[] {
+function parseUsers(path: string): { port: number, password: string, cipherAlgorithm: string, expireDate?: string, disableSelfProtection?: boolean }[] {
   if (!path) return [];
   if (!fs.existsSync(path)) return [];
 

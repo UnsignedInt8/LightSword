@@ -37,14 +37,7 @@ export class App {
   public static addUser(options: ServerOptions): Boolean {
     if (App.Users.has(options.port)) return false;
     
-    let userOptions = {
-      port: options.port,
-      cipherAlgorithm: options.cipherAlgorithm || defaultCipherAlgorithm,
-      password: options.password || defaultPassword,
-      timeout: options.timeout || 10
-    };
-    
-    new App(userOptions);
+    new App(options);
     return true;
   }
   

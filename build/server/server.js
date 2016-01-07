@@ -85,6 +85,7 @@ class LsServer extends events_1.EventEmitter {
     stop() {
         if (!this.server)
             return;
+        this.server.removeAllListeners();
         this.server.close();
         this.server = undefined;
         this.stopRemainingTimer();
