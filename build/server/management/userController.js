@@ -17,10 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var app_1 = require('../app');
 function getUserCount(req, res) {
-    let data = {
-        count: app_1.App.Users.size
-    };
-    res.json(data);
+    res.json({ count: app_1.App.Users.size });
 }
 exports.getUserCount = getUserCount;
 function getUsers(req, res) {
@@ -31,28 +28,33 @@ exports.getUsers = getUsers;
 function addUser(req, res) {
     var body = req.body;
     let success = app_1.App.addUser(body);
+    let statusCode = success ? 200 : 400;
     let data = {
         success,
         msg: success ? undefined : `Port number: ${body.port} is used or access denied`
     };
-    res.json(data);
+    res.status(statusCode).json(data);
 }
 exports.addUser = addUser;
 function updateUser(req, res) {
     var body = req.body;
     let success = app_1.App.updateUser(Number(req.params.port), body);
+    let statusCode = success ? 200 : 404;
     let data = {
         success,
         msg: success ? undefined : 'User Not Found'
     };
-    res.json(data);
+    res.status(statusCode).json(data);
 }
 exports.updateUser = updateUser;
 function deleteUser(req, res) {
-    var port = req.params.port;
+    var port = Number(req.params.port);
     let success = app_1.App.removeUser(port);
-    if (!success)
-        return res.status(404).json({ msg: 'User Not Found' });
-    return res.json({ msg: 'ok' });
+    let statusCode = success ? 200 : 404;
+    let data = {
+        success,
+        msg: success ? undefined : 'User Not Found'
+    };
+    res.status(404).json(data);
 }
 exports.deleteUser = deleteUser;

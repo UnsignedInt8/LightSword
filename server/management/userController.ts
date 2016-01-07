@@ -8,11 +8,7 @@ import { App } from '../app';
 import * as express from 'express';
 
 export function getUserCount(req: express.Request, res: express.Response) {
-  let data = {
-    count: App.Users.size
-  }
-  
-  res.json(data);
+  res.json({ count: App.Users.size });
 }
 
 export function getUsers(req: express.Request, res: express.Response) {
@@ -24,30 +20,37 @@ export function addUser(req: express.Request, res: express.Response) {
   var body = req.body;
   
   let success = App.addUser(body);
+  let statusCode = success ? 200 : 400;
   let data = {
     success,
     msg: success ? undefined : `Port number: ${body.port} is used or access denied`
   };
   
-  res.json(data);
+  res.status(statusCode).json(data);
 }
 
 export function updateUser(req: express.Request, res: express.Response) {
   var body = req.body;
   
   let success = App.updateUser(Number(req.params.port), body);
+  let statusCode = success ? 200 : 404;
   let data = {
     success,
     msg: success ? undefined : 'User Not Found'
   };
   
-  res.json(data);
+  res.status(statusCode).json(data);
 }
 
 export function deleteUser(req: express.Request, res: express.Response) {
-  var port = req.params.port;
+  var port = Number(req.params.port);
   
   let success = App.removeUser(port);
-  if (!success) return res.status(404).json({ msg: 'User Not Found'});
-  return res.json({ msg: 'ok' });
+  let statusCode = success ? 200 : 404;
+  let data = {
+    success,
+    msg: success ? undefined : 'User Not Found'
+  };
+  
+  res.status(404).json(data);
 }

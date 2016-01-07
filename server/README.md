@@ -49,7 +49,7 @@ lsserver -d status
 配置文件:
 ---
 
-配置文件是使用utf8编码的json格式文件，每个配置关键字和命令行完整参数相同。
+配置文件是使用 utf-8 编码的 JSON 格式文件，配置字段和命令行完整参数相同。
 
 ```
 {
@@ -66,9 +66,9 @@ lsserver -d status
 多用户支持:
 ---
 
-使用 -u (--users) 参数提供多用户配置文件，配置文件请参见 ../misc/users.conf 文件提供的实例。
+使用 -u (--users) 参数指定多用户配置文件路径，配置文件请参见 ../misc/users.conf 文件提供的实例。
 
-配置文件为 utf8 编码的文本文件，格式如下:
+配置文件为 utf-8 编码的文本文件，格式如下:
 
 ```
 ＃ 注释行 <必填项> [可选项］
@@ -83,7 +83,7 @@ lsserver -d status
 HTTP 管理
 ---
 
-从 0.5.0 版本开始，LightSword 加入 HTTP 管理功能，为多用户管理带来方便。LightSword 采用 HTTP 协议，并通过 Restful 风格交互，数据传输格式为 JSON 。
+从 0.5.0 版本开始，LightSword 加入 HTTP 管理功能，为多用户管理带来方便。LightSword 采用 HTTP 协议，并通过 RESTful 风格交互，数据传输格式为 JSON 。
 
 首先，启用 HTTP 管理:
 
@@ -185,6 +185,10 @@ Failed =>
 | expireDate | 过期日期（ISO8601扩展日期格式，如果不填写该参数，则取消时间限制） |
 | disableSelfProtection | 是否禁用黑名单机制（布尔值，可选） |
 
+返回:
+
+同上
+
 ```
 POST application/json
 
@@ -192,6 +196,31 @@ POST application/json
   "expireDate": "2015-01-04T03:01:54+09:00",
   "disableSelfProtection": true
 }
+
+Succeed =>
+
+{
+  "success": true
+}
+
+Failed =>
+
+{
+  "success": false,
+  "msg": "User Not Found"
+}
+
+```
+
+**DELETE /api/users/:port 删除用户**
+
+通过使用 DELETE 方法，删除已存在用户。
+
+返回:
+
+同上
+
+```
 
 Succeed =>
 

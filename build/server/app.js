@@ -51,9 +51,10 @@ class App {
     }
     static removeUser(port) {
         if (!App.Users.has(port))
-            return;
+            return false;
         let server = App.Users.get(port);
         server.stop();
+        return true;
     }
 }
 App.Users = new Map();

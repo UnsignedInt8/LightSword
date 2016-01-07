@@ -49,10 +49,11 @@ export class App {
   }
   
   public static removeUser(port) {
-    if (!App.Users.has(port)) return;
+    if (!App.Users.has(port)) return false;
     
     let server = App.Users.get(port);
     server.stop();
+    return true;
   }
 }
 
