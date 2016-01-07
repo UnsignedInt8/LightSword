@@ -80,14 +80,14 @@ class LsServer extends events_1.EventEmitter {
         });
         this.blacklistIntervalTimer = setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
         this.blacklistIntervalTimer.unref();
-        this.startExpireTimer();
+        this.startRemainingTimer();
     }
     stop() {
         if (!this.server)
             return;
         this.server.close();
         this.server = undefined;
-        this.stopExpireTimer();
+        this.stopRemainingTimer();
         this.emit('close');
         this.blacklist.clear();
         if (this.blacklistIntervalTimer)
@@ -105,25 +105,32 @@ class LsServer extends events_1.EventEmitter {
         ports.add(client.remotePort);
         client.dispose();
     }
-    startExpireTimer() {
-        if (!this.expireTime)
-            return;
-        this.stopExpireTimer();
+    startRemainingTimer() {
         let me = this;
-        this.expireTimer = setInterval(() => {
-            me.expireTime -= LsServer.expireRefreshInterval;
-            if (me.expireTime > 0)
+        this.remainingTime = this.expireDate ? ((new Date(this.expireDate)) - new Date()) : undefined;
+        if (!this.remainingTime)
+            return;
+        if (this.remainingTime <= 0) {
+            return process.nextTick(() => {
+                console.info(`${me.port} expired. ${me.expireDate} ${me.remainingTime}`);
+                me.stop();
+            });
+        }
+        this.stopRemainingTimer();
+        this.remainingTimer = setInterval(() => {
+            me.remainingTime -= LsServer.expireRefreshInterval;
+            if (me.remainingTime > 0)
                 return;
-            console.info(`${me.port} expired. ${me.expireDate} ${me.expireTime}`);
+            console.info(`${me.port} expired. ${me.expireDate} ${me.remainingTime}`);
             me.stop();
         }, LsServer.expireRefreshInterval);
-        this.expireTimer.unref();
+        this.remainingTimer.unref();
     }
-    stopExpireTimer() {
-        if (!this.expireTimer)
+    stopRemainingTimer() {
+        if (!this.remainingTimer)
             return;
-        clearInterval(this.expireTimer);
-        this.expireTimer = null;
+        clearInterval(this.remainingTimer);
+        this.remainingTimer = undefined;
     }
 }
 LsServer.expireRefreshInterval = 60 * 60 * 1000;

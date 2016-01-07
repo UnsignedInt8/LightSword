@@ -66,12 +66,10 @@ function parseUsers(path) {
         return [];
     if (!fs.existsSync(path))
         return [];
-    var now = new Date();
     var content = fs.readFileSync(path).toString();
     return content.split('\n').where((l) => l.length > 0 && !l.trim().startsWith('#')).select((l) => {
         var info = l.trim().split(' ');
-        var expireDate = info[3];
-        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireDate, expireTime: expireDate ? ((new Date(expireDate)) - now) : undefined, disableSelfProtection: args.disableSelfProtection };
+        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireDate: info[3], disableSelfProtection: args.disableSelfProtection };
     }).toArray();
 }
 var users = parseUsers(args.users);
@@ -86,6 +84,7 @@ if (fileOptions)
     Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);
 if (!users.length)
     users.push(argsOptions);
+users = users.distinct((u1, u2) => u1.port === u2.port).toArray();
 if (args.fork && !process.env.__daemon) {
     console.info('Run as daemon');
     process.env.__daemon = true;

@@ -17,7 +17,6 @@ export type ServerOptions = {
   password: string,
   port: number,
   timeout?: number,
-  expireTime?: number,
   expireDate?: string,
   disableSelfProtection?: boolean
 }
@@ -28,11 +27,11 @@ export class LsServer extends EventEmitter {
   password: string;
   port: number;
   timeout: number;
-  expireTime: number; // Unit: ms
   expireDate: string;
+  remainingTime: number; // Unit: ms
   
   private static expireRefreshInterval = 60 * 60 * 1000;
-  private expireTimer: NodeJS.Timer;
+  private remainingTimer: NodeJS.Timer;
   private blacklistIntervalTimer: NodeJS.Timer;
   private blacklist = new Map<string, Set<number>>();
   private server: net.Server;
@@ -107,7 +106,7 @@ export class LsServer extends EventEmitter {
     
     this.blacklistIntervalTimer = setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
     this.blacklistIntervalTimer.unref();
-    this.startExpireTimer();
+    this.startRemainingTimer();
   }
   
   stop() {
@@ -116,7 +115,7 @@ export class LsServer extends EventEmitter {
     this.server.close();
     this.server = undefined;
       
-    this.stopExpireTimer();
+    this.stopRemainingTimer();
     this.emit('close');
     this.blacklist.clear();
     
@@ -137,26 +136,35 @@ export class LsServer extends EventEmitter {
     client.dispose();
   }
   
-  private startExpireTimer() {
-    if (!this.expireTime) return;
-    this.stopExpireTimer();
-    
+  private startRemainingTimer() {
     let me = this;
-    this.expireTimer = setInterval(() => {
-      me.expireTime -= LsServer.expireRefreshInterval;
-      if (me.expireTime > 0) return;
+    this.remainingTime = this.expireDate ? (<any>(new Date(this.expireDate)) - <any>new Date()) : undefined
+    if (!this.remainingTime) return;
+    
+    if (this.remainingTime <= 0) {
+      return process.nextTick(() => {
+        console.info(`${me.port} expired. ${me.expireDate} ${me.remainingTime}`);
+        me.stop();
+      });
+    }
+    
+    this.stopRemainingTimer();
+    
+    this.remainingTimer = setInterval(() => {
+      me.remainingTime -= LsServer.expireRefreshInterval;
+      if (me.remainingTime > 0) return;
       
-      console.info(`${me.port} expired. ${me.expireDate} ${me.expireTime}`);
+      console.info(`${me.port} expired. ${me.expireDate} ${me.remainingTime}`);
       me.stop();
     }, LsServer.expireRefreshInterval);
     
-    this.expireTimer.unref();
+    this.remainingTimer.unref();
   }
   
-  private stopExpireTimer() {
-    if (!this.expireTimer) return;
+  private stopRemainingTimer() {
+    if (!this.remainingTimer) return;
     
-    clearInterval(this.expireTimer);
-    this.expireTimer = null;
+    clearInterval(this.remainingTimer);
+    this.remainingTimer = undefined;
   }
 }
