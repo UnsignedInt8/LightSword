@@ -7,7 +7,7 @@
 require('async-node');
 require('kinq').enable();
 require('../lib/socketEx');
-import { LsServer, ServerOptions } from './server';
+import { LsServer, ServerOptions, UpdateServerOptions } from './server';
 import { defaultCipherAlgorithm, defaultServerPort, defaultPassword } from '../lib/constant';
 
 export class App {
@@ -38,6 +38,13 @@ export class App {
     if (App.Users.has(options.port)) return false;
     
     new App(options);
+    return true;
+  }
+  
+  public static updateUser(port: number, options: UpdateServerOptions) {
+    if (!App.Users.has(port)) return false;
+    
+    App.Users.get(port).updateConfiguration(options);
     return true;
   }
   

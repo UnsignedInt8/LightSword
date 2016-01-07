@@ -43,6 +43,12 @@ class App {
         new App(options);
         return true;
     }
+    static updateUser(port, options) {
+        if (!App.Users.has(port))
+            return false;
+        App.Users.get(port).updateConfiguration(options);
+        return true;
+    }
     static removeUser(port) {
         if (!App.Users.has(port))
             return;

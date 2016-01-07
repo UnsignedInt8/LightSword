@@ -21,6 +21,11 @@ export type ServerOptions = {
   disableSelfProtection?: boolean
 }
 
+export type UpdateServerOptions = {
+  expireDate?: string,
+  disableSelfProtection?: boolean
+}
+
 export class LsServer extends EventEmitter {
   disableSelfProtection = false;
   cipherAlgorithm: string;
@@ -123,6 +128,13 @@ export class LsServer extends EventEmitter {
     if (this.blacklistIntervalTimer) clearInterval(this.blacklistIntervalTimer);
     this.blacklistIntervalTimer = undefined;
   }
+  
+  updateConfiguration(options: UpdateServerOptions) {
+    this.disableSelfProtection = options.disableSelfProtection;
+    this.expireDate = options.expireDate;
+    
+    this.startRemainingTimer();
+  }
 
   private addToBlacklist(client: net.Socket) {
     if (this.disableSelfProtection) return;
@@ -139,8 +151,9 @@ export class LsServer extends EventEmitter {
   
   private startRemainingTimer() {
     let me = this;
-    this.remainingTime = this.expireDate ? (<any>(new Date(this.expireDate)) - <any>new Date()) : undefined
-    if (!this.remainingTime) return;
+    
+    this.remainingTime = this.expireDate ? (<any>(new Date(this.expireDate)) - <any>new Date()) : undefined;
+    if (!this.remainingTime) return me.stopRemainingTimer();
     
     if (this.remainingTime <= 0) {
       return process.nextTick(() => {

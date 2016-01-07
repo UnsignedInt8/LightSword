@@ -21,5 +21,6 @@ let router = express.Router();
 router.get('/users/count', userController.getUserCount);
 router.get('/users', userController.getUsers);
 router.post('/users', userController.addUser);
+router.put('/users/:port', userController.updateUser);
 router.delete('/users/:port', userController.deleteUser);
 module.exports = router;

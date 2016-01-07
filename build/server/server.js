@@ -95,6 +95,11 @@ class LsServer extends events_1.EventEmitter {
             clearInterval(this.blacklistIntervalTimer);
         this.blacklistIntervalTimer = undefined;
     }
+    updateConfiguration(options) {
+        this.disableSelfProtection = options.disableSelfProtection;
+        this.expireDate = options.expireDate;
+        this.startRemainingTimer();
+    }
     addToBlacklist(client) {
         if (this.disableSelfProtection)
             return;
@@ -110,7 +115,7 @@ class LsServer extends events_1.EventEmitter {
         let me = this;
         this.remainingTime = this.expireDate ? ((new Date(this.expireDate)) - new Date()) : undefined;
         if (!this.remainingTime)
-            return;
+            return me.stopRemainingTimer();
         if (this.remainingTime <= 0) {
             return process.nextTick(() => {
                 console.info(`${me.port} expired. ${me.expireDate} ${me.remainingTime}`);

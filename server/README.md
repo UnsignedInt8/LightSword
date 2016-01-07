@@ -102,9 +102,10 @@ http://localhost:5000/api/xxx
 | GET    | /api/users       | 获取所有用户信息 |
 | GET    | /api/users/count | 获取有效用户总数 |
 | POST   | /api/users       | 新加用户 |
-| DELETE | /api/users/:port | 通过端口号删除用户 |
+| PUT    | /api/users/:port | 更新用户服务器配置 |
+| DELETE | /api/users/:port | 删除用户 |
 
-**GET /api/users: 返回用户列表（数组）**
+**GET /api/users 返回用户列表（数组）**
 
 | 字段 | 解释 |
 |-----|------|
@@ -112,25 +113,25 @@ http://localhost:5000/api/xxx
 | cipherAlgorithm | 加密算法 |
 | expireDate | 过期日期 |
 
-状态码: 200
+返回:
 
 ```
 [{"port":25000,"cipherAlgorithm":"aes-256-cfb"},{"port":25001,"cipherAlgorithm":"bf-cfb","expireDate":"2017-01-04T03:01:54+09:00"}]
 ```
 
-**GET /api/users/count: 返回用户数**
+**GET /api/users/count 返回用户数**
 
 | 字段 | 解释 |
 |-|-|
 | count | 用户数 |
 
-状态码: 200
+返回:
 
 ```
 {"count":2}
 ```
 
-**POST /api/users: 新增用户**
+**POST /api/users 新增用户**
 
 | 字段 | 解释 |
 |-|-|
@@ -146,7 +147,7 @@ http://localhost:5000/api/xxx
 | 字段 | 解释 |
 |-|-|
 | success | true 成功，false 失败 |
-| msg | 返回失败原因 |
+| msg | 失败原因 |
 
 ```
 POST application/json
@@ -171,6 +172,36 @@ Failed =>
 {
   "success": false,
   "msg": "Port Number: 28000 is used or access denied"
+}
+
+```
+
+**PUT /api/users/:port 更新用户服务器配置**
+
+| 字段 | 解释 |
+|-|-|
+| expireDate | 过期日期（ISO8601扩展日期格式，如果不填写该参数，则取消时间限制） |
+| disableSelfProtection | 是否禁用黑名单机制（布尔值，可选） |
+
+```
+POST application/json
+
+{
+  "expireDate": "2015-01-04T03:01:54+09:00",
+  "disableSelfProtection": true
+}
+
+Succeed =>
+
+{
+  "success": true
+}
+
+Failed =>
+
+{
+  "success": false,
+  "msg": "User Not Found"
 }
 
 ```

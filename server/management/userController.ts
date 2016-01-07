@@ -26,7 +26,19 @@ export function addUser(req: express.Request, res: express.Response) {
   let success = App.addUser(body);
   let data = {
     success,
-    msg: success ? undefined : `Port Number: ${body.port} is used or access denied`
+    msg: success ? undefined : `Port number: ${body.port} is used or access denied`
+  };
+  
+  res.json(data);
+}
+
+export function updateUser(req: express.Request, res: express.Response) {
+  var body = req.body;
+  
+  let success = App.updateUser(Number(req.params.port), body);
+  let data = {
+    success,
+    msg: success ? undefined : 'User Not Found'
   };
   
   res.json(data);

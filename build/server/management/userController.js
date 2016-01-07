@@ -33,11 +33,21 @@ function addUser(req, res) {
     let success = app_1.App.addUser(body);
     let data = {
         success,
-        msg: success ? undefined : `Port Number: ${body.port} is used or access denied`
+        msg: success ? undefined : `Port number: ${body.port} is used or access denied`
     };
     res.json(data);
 }
 exports.addUser = addUser;
+function updateUser(req, res) {
+    var body = req.body;
+    let success = app_1.App.updateUser(Number(req.params.port), body);
+    let data = {
+        success,
+        msg: success ? undefined : 'User Not Found'
+    };
+    res.json(data);
+}
+exports.updateUser = updateUser;
 function deleteUser(req, res) {
     var port = req.params.port;
     let success = app_1.App.removeUser(port);
