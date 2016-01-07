@@ -79,7 +79,7 @@ var argsOptions = {
 if (fileOptions) Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);
 
 if (!users.length) users.push(argsOptions);
-users = users.distinct((u1, u2) => u1.port === u2.port).toArray();
+users = users.where(u => !Number.isNaN(u.port)).distinct((u1, u2) => u1.port === u2.port).toArray();
 
 if (args.fork && !process.env.__daemon) {
   console.info('Run as daemon');

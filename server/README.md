@@ -61,7 +61,7 @@ lsserver -d status
 }
 ```
 
-多用户管理:
+多用户支持:
 ---
 
 使用 -u (--users) 参数提供多用户配置文件，配置文件请参见 ../misc/users.conf 文件提供的实例。
@@ -78,7 +78,7 @@ lsserver -d status
 #注意: 字段之间用半角空格分割，字段中不允许出现空格
 ```
 
-管理
+HTTP 管理
 ---
 
 从 0.5.0 版本开始，LightSword 加入 HTTP 管理功能，为多用户管理带来方便。LightSword 采用 HTTP 协议，并通过 Restful 风格交互，数据传输格式为 JSON 。
