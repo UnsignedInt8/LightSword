@@ -1,5 +1,7 @@
 # LightSword 服务器端
 
+LightSword 服务器基于 Node.js 4.0+。支持 SOCKS5 代理，多用户支持，HTTP 管理。
+
 运行参数
 ---
 
@@ -122,7 +124,7 @@ http://localhost:5000/api/xxx
 **GET /api/users/count 返回用户数**
 
 | 字段 | 解释 |
-|-|-|
+|-----|------|
 | count | 用户数 |
 
 返回:
@@ -134,7 +136,7 @@ http://localhost:5000/api/xxx
 **POST /api/users 新增用户**
 
 | 字段 | 解释 |
-|-|-|
+|-----|------|
 | port | 端口号（必填）|
 | cipherAlgorithm | 加密算法（可选，默认: aes-256-cfb） |
 | password | 密码（必填） |
@@ -145,7 +147,7 @@ http://localhost:5000/api/xxx
 返回:
 
 | 字段 | 解释 |
-|-|-|
+|-----|------|
 | success | true 成功，false 失败 |
 | msg | 失败原因 |
 
@@ -179,7 +181,7 @@ Failed =>
 **PUT /api/users/:port 更新用户服务器配置**
 
 | 字段 | 解释 |
-|-|-|
+|-----|------|
 | expireDate | 过期日期（ISO8601扩展日期格式，如果不填写该参数，则取消时间限制） |
 | disableSelfProtection | 是否禁用黑名单机制（布尔值，可选） |
 
