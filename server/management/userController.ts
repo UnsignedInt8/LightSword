@@ -19,7 +19,7 @@ export function getUsers(req: express.Request, res: express.Response) {
 export function addUser(req: express.Request, res: express.Response) {
   var body = req.body;
   
-  let success = App.addUser(body);
+  let success = Array.isArray(body) ? App.addUsers(body) : App.addUser(body);
   let statusCode = success ? 200 : 400;
   let data = {
     success,

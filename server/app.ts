@@ -34,11 +34,16 @@ export class App {
   
   public static Users = new Map<number, LsServer>();
   
-  public static addUser(options: ServerOptions): Boolean {
+  public static addUser(options: ServerOptions): boolean {
     if (App.Users.has(options.port)) return false;
     
     new App(options);
     return true;
+  }
+  
+  public static addUsers(options: ServerOptions[]): boolean {
+    let results = options.map(o => App.addUser(o));
+    return results.all(r => r === true);
   }
   
   public static updateUser(port: number, options: UpdateServerOptions) {

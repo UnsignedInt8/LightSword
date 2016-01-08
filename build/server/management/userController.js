@@ -27,7 +27,7 @@ function getUsers(req, res) {
 exports.getUsers = getUsers;
 function addUser(req, res) {
     var body = req.body;
-    let success = app_1.App.addUser(body);
+    let success = Array.isArray(body) ? app_1.App.addUsers(body) : app_1.App.addUser(body);
     let statusCode = success ? 200 : 400;
     let data = {
         success,

@@ -43,6 +43,10 @@ class App {
         new App(options);
         return true;
     }
+    static addUsers(options) {
+        let results = options.map(o => App.addUser(o));
+        return results.all(r => r === true);
+    }
     static updateUser(port, options) {
         if (!App.Users.has(port))
             return false;
