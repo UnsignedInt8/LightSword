@@ -68,6 +68,8 @@ lsserver -d status
 
 使用 -u (--users) 参数指定多用户配置文件路径，配置文件请参见 ../misc/users.conf 文件提供的实例。
 
+其中，每个用户对应一个端口号，因此端口号不可以重复，如有重复，则选择最开始的一个。
+
 配置文件为 utf-8 编码的文本文件，格式如下:
 
 ```
@@ -143,6 +145,8 @@ http://localhost:5000/api/xxx
 | timeout | 超时（单位: 秒，可选，默认: 10秒） |
 | expireDate | 过期日期（ISO8601扩展日期格式，可选，默认: 空，表示永不过期） |
 | disableSelfProtection | 禁用黑名单机制（布尔值，可选，默认: false） |
+
+支持 POST JSON 数组，同时创建多用户
 
 返回:
 
