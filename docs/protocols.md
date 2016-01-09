@@ -6,7 +6,7 @@ TCP
 ------------------Request---------------------
 
 +------+------+------+----------+------------+
-| IV   | TYPE | PLEN | RPADDING | SOCKETDATA |
+| IV   | TYPE | PLEN | RPADDING | PAYLOAD    |
 +------+------+------+----------+------------+
 | 8-16 | 1    | 1    | 0-255    | VARIABLE   |
 +------+------+------+----------+------------+
@@ -22,7 +22,7 @@ SOCKS5DATA: Encrypted Socks5 Protocol Data, Variable Bytes.
 ---------------Response-----------------
 
 +------+------+----------+-------------+
-| IV   | PLEN | RPADDING | SOCKETREPLY |
+| IV   | PLEN | RPADDING | PAYLOAD     |
 +------+------+----------+-------------+
 | 8-16 | 1    | 0-255    | VARIABLE    |
 +------+------+----------+-------------+
