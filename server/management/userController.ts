@@ -60,3 +60,8 @@ export function getBlacklist(req: express.Request, res: express.Response) {
   let data = kinq.toLinqable(App.Users.values()).select(server => server.blackIPs).flatten(false).toArray();
   res.status(data.length > 0 ? 200 : 404).json(data);
 }
+
+export function getBlacklistCount(req: express.Request, res: express.Response) {
+  let count = kinq.toLinqable(App.Users.values()).select(s => s.blackIPs.size).sum();
+  res.json({ count });
+}
