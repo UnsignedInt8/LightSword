@@ -11,7 +11,7 @@
     "lightsword-server": "./build/server/bin/cli.js",
     "lightsword": "./build/server/bin/cli.js",
     "lsbridge": "./build/bridge/bin/cli.js",
-    "ilghtsword-bridge": "./build/bridge/bin/cli.js"
+    "lightsword-bridge": "./build/bridge/bin/cli.js"
   },
   "scripts": {
     "test": "mocha --timeout 30000 test/**/*.js test/*.js build/test/*.js"
