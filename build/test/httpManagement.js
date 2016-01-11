@@ -147,6 +147,32 @@ describe('HTTP Management Test Cases', () => {
         httpReq.write(data);
         httpReq.end();
     });
+    it('update not exist user expiring', (done) => {
+        let data = JSON.stringify({
+            expireDate: "2017-01-04T03:01:54+09:00"
+        });
+        let options = {
+            host: 'localhost',
+            path: '/api/users/350500',
+            port: 5000,
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(data)
+            }
+        };
+        let httpReq = http.request(options, res => {
+            let msg = '';
+            res.on('data', d => msg += d);
+            res.on('end', () => {
+                let obj = JSON.parse(msg);
+                assert(obj.success === false);
+                done();
+            });
+        });
+        httpReq.write(data);
+        httpReq.end();
+    });
     after((done) => {
         http.get('http://localhost:5000/api/users/count', res => {
             let msg = '';
