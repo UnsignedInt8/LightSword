@@ -33,11 +33,11 @@
   },
   "homepage": "https://github.com/SunshinyNeko/LightSword#readme",
   "dependencies": {
-    "async-node": "0.0.5",
+    "async-node": "",
     "body-parser": "^1.14.2",
     "commander": "^2.9.0",
     "express": "^4.13.3",
-    "kinq": "0.0.6"
+    "kinq": "^0.0.8"
   },
   "devDependencies": {
     "memory-stream": "0.0.3",

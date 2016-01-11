@@ -5,6 +5,7 @@
 'use strict'
 
 import { App } from '../app';
+import { LsServer } from '../server';
 import * as express from 'express';
 import * as kinq from 'kinq';
 
@@ -64,4 +65,24 @@ export function getBlacklist(req: express.Request, res: express.Response) {
 export function getBlacklistCount(req: express.Request, res: express.Response) {
   let count = kinq.toLinqable(App.Users.values()).select(s => s.blackIPs.size).sum();
   res.json({ count });
+}
+
+export function getServerOfPort(req: express.Request, res: express.Response, next: Function) {
+  let server = kinq.toLinqable(App.Users.values()).singleOrDefault(s => s.port === Number(req.params.port), undefined);
+  if (!server) {
+    return res.status(404).json({ success: false, msg: 'User Not Found' });
+  }
+  
+  req.user = server;
+  next();
+}
+
+export function getBlacklistOfPort(req: express.Request, res: express.Response) {
+  let server = <LsServer>req.user;
+  res.json(server.blackIPs.toArray());
+}
+
+export function getBlacklistCountOfPort(req: express.Request, res: express.Response) {
+  let server = <LsServer>req.user;
+  res.json({ count: server.blackIPs.size });
 }

@@ -25,4 +25,6 @@ router.put('/users/:port', userController.updateUser);
 router.delete('/users/:port', userController.deleteUser);
 router.get('/blacklist', userController.getBlacklist);
 router.get('/blacklist/count', userController.getBlacklistCount);
+router.get('/blacklist/:port', userController.getServerOfPort, userController.getBlacklistOfPort);
+router.get('/blacklist/:port/count', userController.getServerOfPort, userController.getBlacklistCountOfPort);
 module.exports = router;

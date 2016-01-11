@@ -69,3 +69,22 @@ function getBlacklistCount(req, res) {
     res.json({ count });
 }
 exports.getBlacklistCount = getBlacklistCount;
+function getServerOfPort(req, res, next) {
+    let server = kinq.toLinqable(app_1.App.Users.values()).singleOrDefault(s => s.port === Number(req.params.port), undefined);
+    if (!server) {
+        return res.status(404).json({ success: false, msg: 'User Not Found' });
+    }
+    req.user = server;
+    next();
+}
+exports.getServerOfPort = getServerOfPort;
+function getBlacklistOfPort(req, res) {
+    let server = req.user;
+    res.json(server.blackIPs.toArray());
+}
+exports.getBlacklistOfPort = getBlacklistOfPort;
+function getBlacklistCountOfPort(req, res) {
+    let server = req.user;
+    res.json({ count: server.blackIPs.size });
+}
+exports.getBlacklistCountOfPort = getBlacklistCountOfPort;

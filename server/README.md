@@ -102,12 +102,14 @@ http://localhost:5000/api/xxx
 支持的接口:
 
 | 方法 | 接口     | 解释  |
-|--------|------------------|---------------|
-| GET    | /api/users       | 获取所有用户信息 |
-| GET    | /api/users/count | 获取有效用户总数 |
-| POST   | /api/users       | 新加用户 |
-| PUT    | /api/users/:port | 更新用户服务器配置 |
-| DELETE | /api/users/:port | 删除用户 |
+|--------|----------------------|---------------|
+| GET    | /api/users           | 获取所有用户信息 |
+| GET    | /api/users/count     | 获取有效用户总数 |
+| POST   | /api/users           | 新加用户 |
+| PUT    | /api/users/:port     | 更新用户服务器配置 |
+| DELETE | /api/users/:port     | 删除用户 |
+| GET    | /api/blacklist       | 获取黑名单IP |
+| GET    | /api/blacklist/count | 获取黑名单IP总数 |
 
 **GET /api/users 返回用户列表（数组）**
 
@@ -240,3 +242,22 @@ Failed =>
 }
 
 ```
+
+**GET /api/blacklist 获取黑名单IP列表**
+
+返回IP地址（IPv4, IPv6）字符串数组
+
+```
+=> ["::ffff:127.0.0.1","::1"]
+```
+
+**GET /api/blacklist/count 获取黑名单IP总数**
+
+| 字段 | 解释 |
+|-----|------|
+| count | 黑名单IP总数 |
+
+```
+=> {"count":2}
+```
+
