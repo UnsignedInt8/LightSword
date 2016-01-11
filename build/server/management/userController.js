@@ -16,6 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var app_1 = require('../app');
+var kinq = require('kinq');
 function getUserCount(req, res) {
     res.json({ count: app_1.App.Users.size });
 }
@@ -58,3 +59,8 @@ function deleteUser(req, res) {
     res.status(404).json(data);
 }
 exports.deleteUser = deleteUser;
+function getBlacklist(req, res) {
+    let data = kinq.toLinqable(app_1.App.Users.values()).select(server => server.blackIPs).flatten(false).toArray();
+    res.status(data.length > 0 ? 200 : 404).json(data);
+}
+exports.getBlacklist = getBlacklist;

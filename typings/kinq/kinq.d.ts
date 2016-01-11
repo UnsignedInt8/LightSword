@@ -125,7 +125,7 @@ declare interface _Linqable<T> {
   /**
     * Alias of forEach
     */
-    each(callback: (T, index: number) => void): void;
+    each(callback: (item: T, index: number) => void): void;
     
   /**
     * Returns the element at a specified index in a sequence.
@@ -167,17 +167,17 @@ declare interface _Linqable<T> {
     * @param defaultValue The default value.
     * @return The first element which satisfy condition or default value.
     */
-    first(predicate: (T) => boolean): T;
+    first(predicate: (item: T) => boolean): T;
     first(): T;
     
-    firstOrDefault(predicate: (T) => boolean, defaultValue: T): T;
+    firstOrDefault(predicate: (item: T) => boolean, defaultValue: T): T;
     firstOrDefault(): T;
     
   /**
     * Flattens a nested sequence (the nesting can be to any depth).
     * @param deep Default is true, If you pass false, the sequence will only be flattened a single level.
     */
-    flatten<U extends _Linqable<T>>(deep: boolean): _Linqable<any>;
+    flatten<U extends _Linqable<T>>(deep: boolean): T;
     
   /**
     * Groups the elements of a sequence according to a specified key selector function and projects the elements for each group by using a specified function.
@@ -460,7 +460,7 @@ declare module 'kinq' {
   * @param An object which implemented iterable interface.
   * @return Linqable object.
   */
-  export function toLinqable<T>(iterable: any): _Linqable<T>;
+  export function toLinqable<T>(iterable: IterableIterator<T>): _Linqable<T>;
   
   /**
    * Enable KINQ

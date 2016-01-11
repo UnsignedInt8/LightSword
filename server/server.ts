@@ -11,6 +11,7 @@ import * as cryptoEx from '../lib/cipher';
 import { VPN_TYPE, Socks5Options } from '../lib/constant'
 import { handleSocks5 } from './socks5/index';
 import { handleOSXSocks5 } from './osxcl5/index';
+import * as kinq from 'kinq';
 
 export type ServerOptions = {
   cipherAlgorithm: string,
@@ -33,6 +34,7 @@ export class LsServer extends EventEmitter {
   port: number;
   timeout: number;
   expireDate: string;
+  blackIPs = new Set<string>();
   
   private static expireRefreshInterval = 60 * 60 * 1000;
   private remainingTime: number; // Unit: ms
@@ -111,6 +113,8 @@ export class LsServer extends EventEmitter {
     
     this.blacklistIntervalTimer = setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
     this.blacklistIntervalTimer.unref();
+    setInterval(() => me.blackIPs.clear(), 24 * 60 * 60 * 1000).unref();
+    
     this.startRemainingTimer();
   }
   
@@ -147,6 +151,8 @@ export class LsServer extends EventEmitter {
     
     ports.add(client.remotePort);
     client.dispose();
+    
+    this.blackIPs.add(client.remoteAddress);
   }
   
   private startRemainingTimer() {
@@ -181,4 +187,5 @@ export class LsServer extends EventEmitter {
     clearInterval(this.remainingTimer);
     this.remainingTimer = undefined;
   }
+
 }

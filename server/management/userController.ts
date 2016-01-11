@@ -6,6 +6,7 @@
 
 import { App } from '../app';
 import * as express from 'express';
+import * as kinq from 'kinq';
 
 export function getUserCount(req: express.Request, res: express.Response) {
   res.json({ count: App.Users.size });
@@ -53,4 +54,9 @@ export function deleteUser(req: express.Request, res: express.Response) {
   };
   
   res.status(404).json(data);
+}
+
+export function getBlacklist(req: express.Request, res: express.Response) {
+  let data = kinq.toLinqable(App.Users.values()).select(server => server.blackIPs).flatten(false).toArray();
+  res.status(data.length > 0 ? 200 : 404).json(data);
 }

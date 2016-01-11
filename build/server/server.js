@@ -25,6 +25,7 @@ class LsServer extends events_1.EventEmitter {
     constructor(options) {
         super();
         this.disableSelfProtection = false;
+        this.blackIPs = new Set();
         this.blacklist = new Map();
         this.requestHandlers = new Map();
         let me = this;
@@ -80,6 +81,7 @@ class LsServer extends events_1.EventEmitter {
         });
         this.blacklistIntervalTimer = setInterval(() => me.blacklist.clear(), 10 * 60 * 1000);
         this.blacklistIntervalTimer.unref();
+        setInterval(() => me.blackIPs.clear(), 24 * 60 * 60 * 1000).unref();
         this.startRemainingTimer();
     }
     stop() {
@@ -110,6 +112,7 @@ class LsServer extends events_1.EventEmitter {
         }
         ports.add(client.remotePort);
         client.dispose();
+        this.blackIPs.add(client.remoteAddress);
     }
     startRemainingTimer() {
         let me = this;
