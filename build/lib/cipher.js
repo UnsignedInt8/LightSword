@@ -16,7 +16,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var crypto = require('crypto');
-var chacha20stream_1 = require('./chacha20stream');
 exports.SupportedCiphers = {
     'aes-128-cfb': [16, 16],
     'aes-128-ofb': [16, 16],
@@ -35,7 +34,6 @@ exports.SupportedCiphers = {
     'rc4': [16, 0],
     'rc4-md5': [16, 16],
     'seed-cfb': [16, 16],
-    'chacha20': [32, 8]
 };
 Object.freeze(exports.SupportedCiphers);
 function createCipher(algorithm, password, iv) {
@@ -48,7 +46,11 @@ function createDecipher(algorithm, password, iv) {
 exports.createDecipher = createDecipher;
 function createDeOrCipher(type, algorithm, password, iv) {
     let cipherAlgorithm = algorithm.toLowerCase();
-    let keyIv = exports.SupportedCiphers[cipherAlgorithm] || exports.SupportedCiphers['aes-192-cfb'];
+    let keyIv = exports.SupportedCiphers[cipherAlgorithm];
+    if (!keyIv) {
+        cipherAlgorithm = 'aes-256-cfb';
+        keyIv = exports.SupportedCiphers[cipherAlgorithm];
+    }
     let key = new Buffer(password);
     let keyLength = keyIv[0];
     if (key.length > keyLength)
@@ -56,14 +58,6 @@ function createDeOrCipher(type, algorithm, password, iv) {
     if (key.length < keyLength)
         key = new Buffer(password.repeat(keyLength / password.length + 1)).slice(0, keyLength);
     iv = iv || crypto.randomBytes(keyIv[1]);
-    let cipher;
-    switch (cipherAlgorithm) {
-        case 'chacha20':
-            cipher = new chacha20stream_1.Chacha20Stream(key, iv);
-            break;
-        default:
-            cipher = type === 'cipher' ? crypto.createCipheriv(algorithm, key, iv) : crypto.createDecipheriv(algorithm, key, iv);
-            break;
-    }
+    let cipher = type === 'cipher' ? crypto.createCipheriv(cipherAlgorithm, key, iv) : crypto.createDecipheriv(cipherAlgorithm, key, iv);
     return { cipher, iv };
 }

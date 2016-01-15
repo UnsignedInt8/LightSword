@@ -5,7 +5,6 @@
 'use strict'
 
 import * as crypto from 'crypto';
-import { Chacha20Stream } from './chacha20stream';
 
 export const SupportedCiphers = {
   'aes-128-cfb': [16, 16],
@@ -25,7 +24,6 @@ export const SupportedCiphers = {
   'rc4': [16, 0],
   'rc4-md5': [16, 16],
   'seed-cfb': [16, 16],
-  'chacha20': [32, 8]
 }
 
 Object.freeze(SupportedCiphers);
@@ -40,7 +38,12 @@ export function createDecipher(algorithm: string, password: string, iv: Buffer):
 
 function createDeOrCipher(type: string, algorithm: string, password: string, iv?: Buffer): { cipher: crypto.Cipher | crypto.Decipher, iv: Buffer } {
   let cipherAlgorithm = algorithm.toLowerCase();
-  let keyIv = SupportedCiphers[cipherAlgorithm] || SupportedCiphers['aes-192-cfb'];
+  let keyIv = SupportedCiphers[cipherAlgorithm];
+  
+  if (!keyIv) {
+    cipherAlgorithm = 'aes-256-cfb';
+    keyIv = SupportedCiphers[cipherAlgorithm];
+  }
   
   let key = new Buffer(password);
   let keyLength = keyIv[0];
@@ -50,15 +53,7 @@ function createDeOrCipher(type: string, algorithm: string, password: string, iv?
   
   iv = iv || crypto.randomBytes(keyIv[1]);
   
-  let cipher: any;
-  switch (cipherAlgorithm) {
-    case 'chacha20':
-      cipher = new Chacha20Stream(key, iv);
-      break;
-    default:
-      cipher = type === 'cipher' ? crypto.createCipheriv(algorithm, key, iv) : crypto.createDecipheriv(algorithm, key, iv);
-      break;
-  }
+  let cipher = type === 'cipher' ? crypto.createCipheriv(cipherAlgorithm, key, iv) : crypto.createDecipheriv(cipherAlgorithm, key, iv);
   
   return { cipher, iv };
 }

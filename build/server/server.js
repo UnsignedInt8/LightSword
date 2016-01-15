@@ -42,6 +42,8 @@ class LsServer extends events_1.EventEmitter {
             if (!data)
                 return client.dispose();
             let meta = cryptoEx.SupportedCiphers[me.cipherAlgorithm];
+            if (!meta)
+                meta = cryptoEx.SupportedCiphers[constant_1.defaultCipherAlgorithm];
             let ivLength = meta[1];
             if (data.length < ivLength) {
                 console.warn(client.remoteAddress, 'Malicious Access');

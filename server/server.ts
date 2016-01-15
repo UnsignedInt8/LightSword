@@ -8,7 +8,7 @@ import * as net from 'net';
 import { EventEmitter } from 'events';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../lib/cipher';
-import { VPN_TYPE, Socks5Options } from '../lib/constant'
+import { VPN_TYPE, Socks5Options, defaultCipherAlgorithm } from '../lib/constant'
 import { handleSocks5 } from './socks5/index';
 import { handleOSXSocks5 } from './osxcl5/index';
 import * as kinq from 'kinq';
@@ -64,6 +64,7 @@ export class LsServer extends EventEmitter {
       if (!data) return client.dispose();
       
       let meta = cryptoEx.SupportedCiphers[me.cipherAlgorithm];
+      if (!meta) meta = cryptoEx.SupportedCiphers[defaultCipherAlgorithm];
       let ivLength = meta[1];
       
       if (data.length < ivLength) {
