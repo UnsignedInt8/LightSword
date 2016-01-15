@@ -24,16 +24,26 @@ function connect(client, rawData, dst, options) {
         let reply = rawData.slice(0, rawData.length);
         reply[0] = 0x05;
         reply[1] = 0x00;
-        let encryptor = cryptoEx.createCipher(options.cipherAlgorithm, options.password);
-        let cipher = encryptor.cipher;
+        var encryptor = cryptoEx.createCipher(options.cipherAlgorithm, options.password);
+        let cipherHandshake = encryptor.cipher;
         let iv = encryptor.iv;
         let pl = Number((Math.random() * 0xff).toFixed());
         let el = new Buffer([pl]);
         let pd = crypto.randomBytes(pl);
-        let er = cipher.update(Buffer.concat([el, pd, reply]));
+        let er = cipherHandshake.update(Buffer.concat([el, pd, reply]));
         yield client.writeAsync(Buffer.concat([iv, er]));
-        client.pipe(options.decipher).pipe(proxySocket);
-        proxySocket.pipe(cipher).pipe(client);
+        let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
+        let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
+        // client.pipe(decipher).pipe(proxySocket);
+        // proxySocket.pipe(cipher).pipe(client);
+        client.on('data', (d) => {
+            let tmp = decipher.update(d);
+            proxySocket.write(tmp);
+        });
+        proxySocket.on('data', (data) => {
+            let d = cipher.update(data);
+            client.write(d);
+        });
     }));
     function dispose(err) {
         if (err)

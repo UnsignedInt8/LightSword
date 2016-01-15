@@ -5,6 +5,7 @@
 'use strict'
 
 import * as crypto from 'crypto';
+import { Chacha20Stream } from './chacha20stream';
 
 export const SupportedCiphers = {
   'aes-128-cfb': [16, 16],
@@ -23,7 +24,8 @@ export const SupportedCiphers = {
   'rc2-cfb': [16, 8],
   'rc4': [16, 0],
   'rc4-md5': [16, 16],
-  'seed-cfb': [16, 16]
+  'seed-cfb': [16, 16],
+  'chacha20': [32, 8]
 }
 
 Object.freeze(SupportedCiphers);
@@ -47,6 +49,16 @@ function createDeOrCipher(type: string, algorithm: string, password: string, iv?
   if (key.length < keyLength) key = new Buffer(password.repeat(keyLength / password.length + 1)).slice(0, keyLength);
   
   iv = iv || crypto.randomBytes(keyIv[1]);
-  let cipher = type === 'cipher' ? crypto.createCipheriv(algorithm, key, iv) : crypto.createDecipheriv(algorithm, key, iv);
+  
+  let cipher: any;
+  switch (cipherAlgorithm) {
+    case 'chacha20':
+      cipher = new Chacha20Stream(key, iv);
+      break;
+    default:
+      cipher = type === 'cipher' ? crypto.createCipheriv(algorithm, key, iv) : crypto.createDecipheriv(algorithm, key, iv);
+      break;
+  }
+  
   return { cipher, iv };
 }

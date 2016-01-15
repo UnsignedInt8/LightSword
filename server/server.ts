@@ -75,7 +75,7 @@ export class LsServer extends EventEmitter {
       let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
       
       let et = data.slice(ivLength, data.length);
-      let dt = decipher.update(et);
+      let dt = Buffer.concat([decipher.update(et), decipher.final()]);
       
       if (dt.length < 2) {
         console.warn(client.remoteAddress, 'Malicious Access')
@@ -86,7 +86,7 @@ export class LsServer extends EventEmitter {
       let paddingSize = dt[1];
       
       let options = {
-        decipher,
+        iv,
         password: me.password,
         cipherAlgorithm: me.cipherAlgorithm,
         timeout: me.timeout,

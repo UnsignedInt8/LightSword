@@ -50,7 +50,7 @@ class LsServer extends events_1.EventEmitter {
             let iv = data.slice(0, ivLength);
             let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, iv);
             let et = data.slice(ivLength, data.length);
-            let dt = decipher.update(et);
+            let dt = Buffer.concat([decipher.update(et), decipher.final()]);
             if (dt.length < 2) {
                 console.warn(client.remoteAddress, 'Malicious Access');
                 return me.addToBlacklist(client);
@@ -58,7 +58,7 @@ class LsServer extends events_1.EventEmitter {
             let vpnType = dt[0];
             let paddingSize = dt[1];
             let options = {
-                decipher,
+                iv,
                 password: me.password,
                 cipherAlgorithm: me.cipherAlgorithm,
                 timeout: me.timeout,

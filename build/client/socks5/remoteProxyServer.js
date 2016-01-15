@@ -36,25 +36,27 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
         }
         let proxySocket = net.createConnection(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
             let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
-            let cipher = encryptor.cipher;
+            let handshakeCipher = encryptor.cipher;
             let iv = encryptor.iv;
             let pl = Number((Math.random() * 0xff).toFixed());
             let et = new Buffer([constant_1.VPN_TYPE.SOCKS5, pl]);
             let pa = crypto.randomBytes(pl);
-            let er = cipher.update(Buffer.concat([et, pa, request]));
+            let er = Buffer.concat([handshakeCipher.update(Buffer.concat([et, pa, request])), handshakeCipher.final()]);
             yield proxySocket.writeAsync(Buffer.concat([iv, er]));
             let data = yield proxySocket.readAsync();
             if (!data)
                 return proxySocket.dispose();
             let riv = data.slice(0, iv.length);
-            let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
-            let rlBuf = decipher.update(data.slice(iv.length, data.length));
+            let handshakeDecipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
+            let rlBuf = Buffer.concat([handshakeDecipher.update(data.slice(iv.length, data.length)), handshakeDecipher.final()]);
             let paddingSize = rlBuf[0];
             let reply = rlBuf.slice(1 + paddingSize, rlBuf.length);
             switch (req.cmd) {
                 case socks5Constant_1.REQUEST_CMD.CONNECT:
                     console.info(`connected: ${req.addr}:${req.port}`);
                     yield client.writeAsync(reply);
+                    let cipher = cryptoEx.createCipher(me.cipherAlgorithm, me.password, iv).cipher;
+                    let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
                     client.pipe(cipher).pipe(proxySocket);
                     proxySocket.pipe(decipher).pipe(client);
                     break;

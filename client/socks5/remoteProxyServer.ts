@@ -27,13 +27,13 @@ export class RemoteProxyServer extends Socks5Server {
     
     let proxySocket = net.createConnection(this.serverPort, this.serverAddr, async () => {
       let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
-      let cipher = encryptor.cipher;
+      let handshakeCipher = encryptor.cipher;
       
       let iv = encryptor.iv;
       let pl = Number((Math.random() * 0xff).toFixed());
       let et = new Buffer([VPN_TYPE.SOCKS5, pl]);
       let pa = crypto.randomBytes(pl);
-      let er = cipher.update(Buffer.concat([et, pa, request]));
+      let er = Buffer.concat([handshakeCipher.update(Buffer.concat([et, pa, request])), handshakeCipher.final()]);
 
       await proxySocket.writeAsync(Buffer.concat([iv, er]));
       
@@ -41,9 +41,9 @@ export class RemoteProxyServer extends Socks5Server {
       if (!data) return proxySocket.dispose();
       
       let riv = data.slice(0, iv.length);
-      let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
+      let handshakeDecipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
       
-      let rlBuf = decipher.update(data.slice(iv.length, data.length));
+      let rlBuf = Buffer.concat([handshakeDecipher.update(data.slice(iv.length, data.length)), handshakeDecipher.final()]);
       let paddingSize = rlBuf[0];
       
       let reply = rlBuf.slice(1 + paddingSize, rlBuf.length);
@@ -52,6 +52,10 @@ export class RemoteProxyServer extends Socks5Server {
         case REQUEST_CMD.CONNECT:
           console.info(`connected: ${req.addr}:${req.port}`);
           await client.writeAsync(reply);
+          
+          let cipher = cryptoEx.createCipher(me.cipherAlgorithm, me.password, iv).cipher;
+          let decipher = cryptoEx.createDecipher(me.cipherAlgorithm, me.password, riv);
+          
           client.pipe(cipher).pipe(proxySocket);
           proxySocket.pipe(decipher).pipe(client);
           break;
