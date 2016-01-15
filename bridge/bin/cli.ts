@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 //-----------------------------------
-// Copyright(c) 2015 猫王子
+// Copyright(c) 2015 Neko
 //-----------------------------------
 
 import * as program from 'commander';

@@ -1,5 +1,5 @@
 //--------------------------------------------- 
-// Copyright(c) 2015 猫王子
+// Copyright(c) 2015 Neko
 //--------------------------------------------- 
 'use strict';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {

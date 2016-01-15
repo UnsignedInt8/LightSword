@@ -1,6 +1,6 @@
 {
   "name": "lightsword",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "description": "LightSword Secure SOCKS5 Proxy",
   "main": "index.js",
   "bin": {
@@ -26,7 +26,7 @@
     "GFW",
     "Secure"
   ],
-  "author": "猫王子",
+  "author": "Neko",
   "license": "GPL-2.0",
   "bugs": {
     "url": "https://github.com/SunshinyNeko/LightSword/issues"
