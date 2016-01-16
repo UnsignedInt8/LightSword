@@ -15,12 +15,13 @@ export const defaultPassword = 'lightsword.neko';
 export const defaultServerPort = 8900;
 
 export abstract class Socks5Options  {
-  password: string
-  cipherAlgorithm: string
-  timeout: number
-  iv: Buffer
+  password: string;
+  cipherAlgorithm: string;
+  timeout: number;
+  iv: Buffer;
+  speed: number;
 }
 
 export abstract class OSXCl5Options extends Socks5Options  {
-  xorNum: number
+  xorNum: number;
 }
