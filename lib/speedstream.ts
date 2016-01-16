@@ -12,9 +12,12 @@ export class SpeedStream extends stream.Transform {
   private chunkCount = 0;
   private interval = 0;
   
-  // speed: KB/s
+  /**
+   * speed: KB/s
+   */
   constructor(speed: number) {
     super()
+    
     if (speed < 1) throw Error('can be negative speed');
     
     this.bytesPerSecond = speed * 1024;
@@ -22,6 +25,7 @@ export class SpeedStream extends stream.Transform {
   
   _transform(chunk: Buffer, encoding, done: Function) {
     let me = this;
+    
     if (!me.writable) return;
     
     setTimeout(() => {
@@ -41,6 +45,7 @@ export class SpeedStream extends stream.Transform {
         me.sentBytes = 0;
         me.chunkCount = 0;
       }
+      
     }, me.interval).unref();
     
     me.sentBytes += chunk.length;
