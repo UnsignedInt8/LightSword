@@ -65,5 +65,5 @@ export class App {
 
 if (!module.parent) {
   process.title = 'LightSword Server Debug Mode';
-  new App();
+  new App({ speed: 20 });
 }

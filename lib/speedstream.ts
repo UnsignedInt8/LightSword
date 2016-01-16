@@ -8,9 +8,8 @@ import * as stream from 'stream';
 
 export class SpeedStream extends stream.Transform {
   private bytesPerSecond = 0;
-  private queue: { data: Buffer, callback: Function }[] = [];
-  private intervalTimer: NodeJS.Timer;
-  private isDataDelivering = false;
+  private sentBytes = 0;
+  private interval = 0;
   
   // speed: KB/s
   constructor(speed: number) {
@@ -20,36 +19,23 @@ export class SpeedStream extends stream.Transform {
     this.bytesPerSecond = speed * 1024;
   }
   
-  _transform(data: Buffer, encoding, callback: Function) {
+  _transform(data: Buffer, encoding, done: Function) {
     let me = this;
-    this.queue.push({ data, callback });
+    if (!me.writable) return;
     
-    if (!this.intervalTimer) this.intervalTimer = setInterval(this.deliverData, 1000);
-  }
-  
-  private deliverData() {
-    if (this.isDataDelivering) return;
+    me.push(data, encoding);
     
-    this.isDataDelivering = true;
-    let sentBytes = 0;
-    
-    do {
+    setTimeout(() => {
+      done();
+      me.interval = 0;
       
-      let tuple = this.queue.shift();
-      if (!tuple) {
-        clearInterval(this.intervalTimer);
-        this.intervalTimer.unref();
-        this.intervalTimer = undefined;
-        return;
+      if (me.sentBytes > me.bytesPerSecond) {
+        me.interval = me.sentBytes / me.bytesPerSecond * 1000;
+        me.sentBytes = 0;
       }
-      
-      this.push(tuple.data);
-      tuple.callback();
-      
-      sentBytes += tuple.data.length;
-        
-    } while (sentBytes < this.bytesPerSecond);
+    }, me.interval).unref();
     
-    this.isDataDelivering = false;
+    me.sentBytes += data.length;
   }
+
 } 

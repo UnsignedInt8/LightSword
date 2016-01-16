@@ -18,6 +18,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var net = require('net');
 var crypto = require('crypto');
 var cryptoEx = require('../../lib/cipher');
+var speedstream_1 = require('../../lib/speedstream');
 function connect(client, rawData, dst, options) {
     let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {
         console.log(`connecting: ${dst.addr}:${dst.port}`);
@@ -34,8 +35,11 @@ function connect(client, rawData, dst, options) {
         yield client.writeAsync(Buffer.concat([iv, er]));
         let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
         let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
-        client.pipe(decipher).pipe(proxySocket);
-        proxySocket.pipe(cipher).pipe(client);
+        let speed = options.speed;
+        let streamIn = speed > 0 ? client.pipe(new speedstream_1.SpeedStream(speed)) : client;
+        streamIn.pipe(decipher).pipe(proxySocket);
+        let streamOut = speed > 0 ? proxySocket.pipe(new speedstream_1.SpeedStream(speed)) : proxySocket;
+        streamOut.pipe(cipher).pipe(client);
     }));
     function dispose(err) {
         if (err)

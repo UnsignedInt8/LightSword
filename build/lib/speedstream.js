@@ -21,36 +21,26 @@ class SpeedStream extends stream.Transform {
     constructor(speed) {
         super();
         this.bytesPerSecond = 0;
-        this.queue = [];
-        this.isDataDelivering = false;
+        this.sentBytes = 0;
+        this.interval = 0;
         if (speed < 1)
             throw Error('can be negative speed');
         this.bytesPerSecond = speed * 1024;
     }
-    _transform(data, encoding, callback) {
+    _transform(data, encoding, done) {
         let me = this;
-        this.queue.push({ data, callback });
-        if (!this.intervalTimer)
-            this.intervalTimer = setInterval(this.deliverData, 1000);
-    }
-    deliverData() {
-        if (this.isDataDelivering)
+        if (!me.writable)
             return;
-        this.isDataDelivering = true;
-        let sentBytes = 0;
-        do {
-            let tuple = this.queue.shift();
-            if (!tuple) {
-                clearInterval(this.intervalTimer);
-                this.intervalTimer.unref();
-                this.intervalTimer = undefined;
-                return;
+        me.push(data, encoding);
+        setTimeout(() => {
+            done();
+            me.interval = 0;
+            if (me.sentBytes > me.bytesPerSecond) {
+                me.interval = me.sentBytes / me.bytesPerSecond * 1000;
+                me.sentBytes = 0;
             }
-            this.push(tuple.data);
-            tuple.callback();
-            sentBytes += tuple.data.length;
-        } while (sentBytes < this.bytesPerSecond);
-        this.isDataDelivering = false;
+        }, me.interval).unref();
+        me.sentBytes += data.length;
     }
 }
 exports.SpeedStream = SpeedStream;

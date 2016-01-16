@@ -8,6 +8,7 @@ import * as net from 'net';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
 import { Socks5Options } from '../../lib/constant';
+import { SpeedStream } from '../../lib/speedstream';
 
 export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: Socks5Options) {
   let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
@@ -31,8 +32,13 @@ export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string
     let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
     let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
     
-    client.pipe(decipher).pipe(proxySocket);
-    proxySocket.pipe(cipher).pipe(client);
+    let speed = options.speed;
+    
+    let streamIn = speed > 0 ? client.pipe(new SpeedStream(speed)) : client;
+    streamIn.pipe(decipher).pipe(proxySocket);
+    
+    let streamOut = speed > 0 ? proxySocket.pipe(new SpeedStream(speed)) : proxySocket;
+    streamOut.pipe(cipher).pipe(client);
 
   });
   
