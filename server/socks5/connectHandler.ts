@@ -31,18 +31,9 @@ export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string
     let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
     let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
     
-    // client.pipe(decipher).pipe(proxySocket);
-    // proxySocket.pipe(cipher).pipe(client);
-    
-    client.on('data', (d: Buffer) => {
-      let tmp = decipher.update(d);
-      proxySocket.write(tmp);
-    });
-    
-    proxySocket.on('data', (data: Buffer) => {
-      let d = cipher.update(data);
-      client.write(d);
-    });
+    client.pipe(decipher).pipe(proxySocket);
+    proxySocket.pipe(cipher).pipe(client);
+
   });
   
   function dispose(err: Error) {

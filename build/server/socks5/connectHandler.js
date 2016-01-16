@@ -34,16 +34,8 @@ function connect(client, rawData, dst, options) {
         yield client.writeAsync(Buffer.concat([iv, er]));
         let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
         let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
-        // client.pipe(decipher).pipe(proxySocket);
-        // proxySocket.pipe(cipher).pipe(client);
-        client.on('data', (d) => {
-            let tmp = decipher.update(d);
-            proxySocket.write(tmp);
-        });
-        proxySocket.on('data', (data) => {
-            let d = cipher.update(data);
-            client.write(d);
-        });
+        client.pipe(decipher).pipe(proxySocket);
+        proxySocket.pipe(cipher).pipe(client);
     }));
     function dispose(err) {
         if (err)
