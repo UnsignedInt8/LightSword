@@ -19,6 +19,7 @@ var net = require('net');
 var crypto = require('crypto');
 var cryptoEx = require('../../lib/cipher');
 var xorstream_1 = require('../../lib/xorstream');
+var speedstream_1 = require('../../lib/speedstream');
 function connect(client, rawData, dst, options) {
     let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {
         console.log(`connected: ${dst.addr}:${dst.port}`);
@@ -35,8 +36,11 @@ function connect(client, rawData, dst, options) {
         yield client.writeAsync(Buffer.concat([iv, er]));
         let fromClientXorStream = new xorstream_1.XorStream(options.xorNum);
         let toClientXorStream = new xorstream_1.XorStream(pl);
-        client.pipe(fromClientXorStream).pipe(proxySocket);
-        proxySocket.pipe(toClientXorStream).pipe(client);
+        let speed = options.speed;
+        let streamIn = speed > 0 ? client.pipe(new speedstream_1.SpeedStream(speed)) : client;
+        streamIn.pipe(fromClientXorStream).pipe(proxySocket);
+        let streamOut = speed > 0 ? proxySocket.pipe(new speedstream_1.SpeedStream(speed)) : proxySocket;
+        streamOut.pipe(toClientXorStream).pipe(client);
     }));
     function dispose(err) {
         if (err)

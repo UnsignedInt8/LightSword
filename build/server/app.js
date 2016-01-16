@@ -28,7 +28,8 @@ class App {
             port: constant_1.defaultServerPort,
             timeout: 10,
             expireTime: undefined,
-            disableSelfProtection: false
+            disableSelfProtection: false,
+            speed: NaN
         };
         options = options || defaultOptions;
         Object.getOwnPropertyNames(defaultOptions).forEach(n => options[n] = options[n] || defaultOptions[n]);

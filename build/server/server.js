@@ -64,7 +64,8 @@ class LsServer extends events_1.EventEmitter {
                 password: me.password,
                 cipherAlgorithm: me.cipherAlgorithm,
                 timeout: me.timeout,
-                xorNum: paddingSize
+                xorNum: paddingSize,
+                speed: me.speed
             };
             let request = dt.slice(2 + paddingSize, data.length);
             let handler = me.requestHandlers.get(vpnType);

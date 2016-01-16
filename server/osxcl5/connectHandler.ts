@@ -8,6 +8,7 @@ import * as net from 'net';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
 import { XorStream } from '../../lib/xorstream';
+import { SpeedStream } from '../../lib/speedstream';
 import { OSXCl5Options } from '../../lib/constant';
 
 export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: OSXCl5Options) {
@@ -32,9 +33,15 @@ export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string
     
     let fromClientXorStream = new XorStream(options.xorNum);
     let toClientXorStream = new XorStream(pl);
-     
-    client.pipe(fromClientXorStream).pipe(proxySocket);
-    proxySocket.pipe(toClientXorStream).pipe(client);
+    
+    let speed = options.speed;
+    
+    let streamIn = speed > 0 ? client.pipe(new SpeedStream(speed)) : client; 
+    streamIn.pipe(fromClientXorStream).pipe(proxySocket);
+    
+    let streamOut = speed > 0 ? proxySocket.pipe(new SpeedStream(speed)) : proxySocket; 
+    streamOut.pipe(toClientXorStream).pipe(client);
+    
   });
     
   function dispose(err: Error) {

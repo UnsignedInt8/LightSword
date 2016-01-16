@@ -33,6 +33,7 @@ program
     .option('-a, --management', 'Enable HTTP Management')
     .option('-x, --user <username>', 'Run Under Specified Privilege')
     .option('--disableSelfProtection', 'Disable Self-Protection')
+    .option('-e, --speed', 'Speed Limitation (KB/s)')
     .parse(process.argv);
 var args = program;
 function parseOptions(path) {
@@ -69,7 +70,7 @@ function parseUsers(path) {
     var content = fs.readFileSync(path).toString();
     return content.split('\n').where((l) => l.length > 0 && !l.trim().startsWith('#')).select((l) => {
         var info = l.trim().split(' ');
-        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireDate: info[3], disableSelfProtection: args.disableSelfProtection };
+        return { port: Number(info[0]), password: info[1], cipherAlgorithm: info[2], expireDate: info[3], speed: Number(info[4]), disableSelfProtection: args.disableSelfProtection };
     }).toArray();
 }
 var users = parseUsers(args.users);
@@ -78,7 +79,8 @@ var argsOptions = {
     password: args.password,
     cipherAlgorithm: args.method,
     timeout: args.timeout,
-    disableSelfProtection: args.disableSelfProtection
+    disableSelfProtection: args.disableSelfProtection,
+    speed: args.speed
 };
 if (fileOptions)
     Object.getOwnPropertyNames(argsOptions).forEach(n => argsOptions[n] = argsOptions[n] === undefined ? fileOptions[n] : argsOptions[n]);

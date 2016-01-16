@@ -19,7 +19,8 @@ export class App {
       port: defaultServerPort,
       timeout: 10,
       expireTime: undefined,
-      disableSelfProtection: false
+      disableSelfProtection: false,
+      speed: NaN
     };
     
     options = options || defaultOptions;

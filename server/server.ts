@@ -19,12 +19,14 @@ export type ServerOptions = {
   port: number,
   timeout?: number,
   expireDate?: string,
-  disableSelfProtection?: boolean
+  disableSelfProtection?: boolean,
+  speed?: number
 }
 
 export type UpdateServerOptions = {
   expireDate?: string,
-  disableSelfProtection?: boolean
+  disableSelfProtection?: boolean,
+  speed?: number
 }
 
 export class LsServer extends EventEmitter {
@@ -34,6 +36,7 @@ export class LsServer extends EventEmitter {
   port: number;
   timeout: number;
   expireDate: string;
+  speed: number;
   blackIPs = new Set<string>();
   
   private static expireRefreshInterval = 60 * 60 * 1000;
@@ -91,7 +94,8 @@ export class LsServer extends EventEmitter {
         password: me.password,
         cipherAlgorithm: me.cipherAlgorithm,
         timeout: me.timeout,
-        xorNum: paddingSize
+        xorNum: paddingSize,
+        speed: me.speed
       };
       
       let request = dt.slice(2 + paddingSize, data.length);
