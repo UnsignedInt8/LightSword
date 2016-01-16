@@ -1,6 +1,6 @@
 {
   "name": "lightsword",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "LightSword Secure SOCKS5 Proxy",
   "main": "index.js",
   "bin": {
