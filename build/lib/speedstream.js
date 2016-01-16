@@ -17,7 +17,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var stream = require('stream');
 class SpeedStream extends stream.Transform {
-    // speed: KB/s
+    /**
+     * speed: KB/s
+     */
     constructor(speed) {
         super();
         this.bytesPerSecond = 0;
