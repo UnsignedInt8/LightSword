@@ -11,7 +11,7 @@ import * as ipc from '../../lib/ipc';
 import * as child from 'child_process';
 
 program
-  .version('0.1')
+  .version('0.6.0')
   .option('-s, --server <Address>', 'Next Node Address', String)
   .option('-p, --port <Number>', 'Next Node Server Port', Number.parseInt)
   .option('-l, --listenport <Number>', 'Local Port', Number.parseInt)

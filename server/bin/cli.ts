@@ -12,7 +12,7 @@ import * as child from 'child_process';
 import { runAsClusterMode } from '../cluster';
 
 program
-  .version('0.5')
+  .version('0.6.0')
   .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
   .option('-k, --password [password]', 'Cipher Password', String)
   .option('-m, --method [algorithm]', 'Cipher Algorithm', String)

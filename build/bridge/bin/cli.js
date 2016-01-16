@@ -18,7 +18,7 @@ var path = require('path');
 var ipc = require('../../lib/ipc');
 var child = require('child_process');
 program
-    .version('0.1')
+    .version('0.6.0')
     .option('-s, --server <Address>', 'Next Node Address', String)
     .option('-p, --port <Number>', 'Next Node Server Port', Number.parseInt)
     .option('-l, --listenport <Number>', 'Local Port', Number.parseInt)

@@ -12,7 +12,7 @@ import * as ipc from '../../lib/ipc';
 import * as child from 'child_process';
 
 program
-  .version('0.3')
+  .version('0.6.0')
   .option('-s, --server <addr|domain>', 'Server Address', String)
   .option('-p, --port <number>', 'Server Port Number', Number.parseInt)
   .option('-l, --listenport <number>', 'Local Listening Port Number', Number.parseInt)
