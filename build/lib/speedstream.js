@@ -28,7 +28,7 @@ class SpeedStream extends stream.Transform {
             throw Error('can be negative speed');
         this.bytesPerSecond = speed * 1024;
     }
-    _transform(data, encoding, done) {
+    _transform(chunk, encoding, done) {
         let me = this;
         if (!me.writable)
             return;
@@ -39,7 +39,7 @@ class SpeedStream extends stream.Transform {
                 me.chunkCount = 0;
                 return;
             }
-            me.push(data, encoding);
+            me.push(chunk, encoding);
             done();
             if (me.sentBytes > me.bytesPerSecond) {
                 let avgChunkSize = me.sentBytes / me.chunkCount;
@@ -48,7 +48,7 @@ class SpeedStream extends stream.Transform {
                 me.chunkCount = 0;
             }
         }, me.interval).unref();
-        me.sentBytes += data.length;
+        me.sentBytes += chunk.length;
         me.chunkCount++;
     }
 }

@@ -20,7 +20,7 @@ export class SpeedStream extends stream.Transform {
     this.bytesPerSecond = speed * 1024;
   }
   
-  _transform(data: Buffer, encoding, done: Function) {
+  _transform(chunk: Buffer, encoding, done: Function) {
     let me = this;
     if (!me.writable) return;
     
@@ -32,7 +32,7 @@ export class SpeedStream extends stream.Transform {
         return;
       }
       
-      me.push(data, encoding);
+      me.push(chunk, encoding);
       done();
       
       if (me.sentBytes > me.bytesPerSecond) {
@@ -43,7 +43,7 @@ export class SpeedStream extends stream.Transform {
       }
     }, me.interval).unref();
     
-    me.sentBytes += data.length;
+    me.sentBytes += chunk.length;
     me.chunkCount++;
   }
 
