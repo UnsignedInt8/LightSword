@@ -9,6 +9,7 @@ import * as stream from 'stream';
 export class SpeedStream extends stream.Transform {
   private bytesPerSecond = 0;
   private sentBytes = 0;
+  private chunkCount = 0;
   private interval = 0;
   
   // speed: KB/s
@@ -27,15 +28,17 @@ export class SpeedStream extends stream.Transform {
     
     setTimeout(() => {
       done();
-      me.interval = 0;
       
       if (me.sentBytes > me.bytesPerSecond) {
-        me.interval = me.sentBytes / me.bytesPerSecond * 1000;
+        let avgChunkSize = me.sentBytes / me.chunkCount;
+        me.interval = avgChunkSize / me.bytesPerSecond * 1000;
         me.sentBytes = 0;
+        me.chunkCount = 0;
       }
     }, me.interval).unref();
     
     me.sentBytes += data.length;
+    me.chunkCount++;
   }
 
 } 

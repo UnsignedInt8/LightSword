@@ -24,7 +24,7 @@ program
   .option('-r, --cluster', 'Run as Cluster Mode')
   .option('-a, --management', 'Enable HTTP Management')
   .option('-x, --user <username>', 'Run Under Specified Privilege')
-  .option('-e, --speed <number>', 'Speed Limitation \(KB\/s\)', Number.parseInt)
+  .option('-s, --speed <number>', 'Speed Limitation \(KB\/s\)', Number.parseInt)
   .option('--disableSelfProtection', 'Disable Self-Protection')
   .parse(process.argv);
   
