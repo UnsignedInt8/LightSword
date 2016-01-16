@@ -32,8 +32,14 @@ class SpeedStream extends stream.Transform {
         let me = this;
         if (!me.writable)
             return;
-        me.push(data, encoding);
         setTimeout(() => {
+            if (!me.writable) {
+                me.interval = 0;
+                me.sentBytes = 0;
+                me.chunkCount = 0;
+                return;
+            }
+            me.push(data, encoding);
             done();
             if (me.sentBytes > me.bytesPerSecond) {
                 let avgChunkSize = me.sentBytes / me.chunkCount;
