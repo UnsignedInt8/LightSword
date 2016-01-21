@@ -6,8 +6,9 @@
 import { Decipher } from 'crypto';
 
 export enum VPN_TYPE {
+  APLVPN = 0x01,
   SOCKS5 = 0x05,
-  OSXCL5 = 0xa5
+  OSXCL5 = 0xa5,
 }
 
 export const defaultCipherAlgorithm = 'aes-256-cfb';
