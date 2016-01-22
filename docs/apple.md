@@ -27,7 +27,7 @@ IV: Client Required IV
 | 1      | 1      |
 +--------+--------+
 
-RESULT: Connection result. SUCCEED, FAILED
+RESULT: Connection result. SUCCEED(0x01), FAILED(0x00)
 REASON: The reason of failure
 ```
 
