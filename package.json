@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SunshinyNeko/LightSword.git"
+    "url": "git+https://github.com/UnsignedInt8/LightSword.git"
   },
   "keywords": [
     "SOCK5",
@@ -29,9 +29,9 @@
   "author": "Neko",
   "license": "GPL-2.0",
   "bugs": {
-    "url": "https://github.com/SunshinyNeko/LightSword/issues"
+    "url": "https://github.com/UnsignedInt8/LightSword/issues"
   },
-  "homepage": "https://github.com/SunshinyNeko/LightSword#readme",
+  "homepage": "https://github.com/UnsignedInt8/LightSword#readme",
   "dependencies": {
     "async-node": "",
     "body-parser": "^1.14.2",
