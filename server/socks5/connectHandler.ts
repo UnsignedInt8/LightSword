@@ -6,7 +6,7 @@
 
 import * as net from 'net';
 import * as crypto from 'crypto';
-import * as cryptoEx from '../../lib/cipher';
+import * as cryptoEx from '../../common/cipher';
 import { Socks5Options } from '../../common/constant';
 import { SpeedStream } from '../../lib/speedstream';
 

@@ -18,7 +18,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var net = require('net');
 var dgram = require('dgram');
 var crypto = require('crypto');
-var cryptoEx = require('../../lib/cipher');
+var cryptoEx = require('../../common/cipher');
 var socks5constant_1 = require('../../common/socks5constant');
 var socksHelper = require('../../common/socks5helper');
 function udpAssociate(client, rawData, dst, options) {

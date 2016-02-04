@@ -16,7 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var net = require('net');
-var socks5Constant_1 = require('../../lib/socks5Constant');
+var socks5constant_1 = require('../../common/socks5constant');
 class Socks5Server {
     constructor(options) {
         this.localArea = ['10.', '192.168.', 'localhost', '127.0.0.1', '172.16.', '::1', '169.254.0.0'];
@@ -49,11 +49,11 @@ class Socks5Server {
     }
     handleHandshake(data) {
         let methodCount = data[1];
-        let code = data.skip(2).take(methodCount).contains(socks5Constant_1.AUTHENTICATION.NOAUTH)
-            ? socks5Constant_1.AUTHENTICATION.NOAUTH
-            : socks5Constant_1.AUTHENTICATION.NONE;
-        let success = code === socks5Constant_1.AUTHENTICATION.NOAUTH;
-        return { success, data: new Buffer([socks5Constant_1.SOCKS_VER.V5, code]) };
+        let code = data.skip(2).take(methodCount).contains(socks5constant_1.AUTHENTICATION.NOAUTH)
+            ? socks5constant_1.AUTHENTICATION.NOAUTH
+            : socks5constant_1.AUTHENTICATION.NONE;
+        let success = code === socks5constant_1.AUTHENTICATION.NOAUTH;
+        return { success, data: new Buffer([socks5constant_1.SOCKS_VER.V5, code]) };
     }
 }
 exports.Socks5Server = Socks5Server;

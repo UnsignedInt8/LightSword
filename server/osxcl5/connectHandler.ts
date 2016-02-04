@@ -6,7 +6,7 @@
 
 import * as net from 'net';
 import * as crypto from 'crypto';
-import * as cryptoEx from '../../lib/cipher';
+import * as cryptoEx from '../../common/cipher';
 import { XorStream } from '../../lib/xorstream';
 import { SpeedStream } from '../../lib/speedstream';
 import { OSXCl5Options } from '../../common/constant';

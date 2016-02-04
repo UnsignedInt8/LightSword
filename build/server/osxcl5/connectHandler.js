@@ -17,7 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var net = require('net');
 var crypto = require('crypto');
-var cryptoEx = require('../../lib/cipher');
+var cryptoEx = require('../../common/cipher');
 var xorstream_1 = require('../../lib/xorstream');
 var speedstream_1 = require('../../lib/speedstream');
 function connect(client, rawData, dst, options) {

@@ -7,8 +7,8 @@
 import * as os from 'os';
 import * as net from 'net';
 import * as crypto from 'crypto';
-import * as cipher from '../../lib/cipher';
-import { AUTHENTICATION, SOCKS_VER } from '../../lib/socks5Constant';
+import * as cipher from '../../common/cipher';
+import { AUTHENTICATION, SOCKS_VER } from '../../common/socks5constant';
 
 export type ServerOptions = {
   listenAddr: string;

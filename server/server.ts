@@ -7,7 +7,7 @@
 import * as net from 'net';
 import { EventEmitter } from 'events';
 import * as crypto from 'crypto';
-import * as cryptoEx from '../lib/cipher';
+import * as cryptoEx from '../common/cipher';
 import { VPN_TYPE, Socks5Options, defaultCipherAlgorithm } from '../common/constant'
 import { handleSocks5 } from './socks5/index';
 import { handleOSXSocks5 } from './osxcl5/index';

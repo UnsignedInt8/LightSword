@@ -7,7 +7,7 @@
 import * as net from 'net';
 import * as dgram from 'dgram';
 import * as crypto from 'crypto';
-import * as cryptoEx from '../../lib/cipher';
+import * as cryptoEx from '../../common/cipher';
 import { ATYP } from '../../common/socks5constant';
 import { Socks5Options } from '../../common/constant';
 import * as socksHelper from '../../common/socks5helper';

@@ -17,7 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var net = require('net');
 var events_1 = require('events');
-var cryptoEx = require('../lib/cipher');
+var cryptoEx = require('../common/cipher');
 var constant_1 = require('../common/constant');
 var index_1 = require('./socks5/index');
 var index_2 = require('./osxcl5/index');

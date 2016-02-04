@@ -7,7 +7,7 @@
 import * as net from 'net';
 import * as dgram from 'dgram';
 import * as crypto from 'crypto';
-import * as cryptoEx from '../../lib/cipher';
+import * as cryptoEx from '../../common/cipher';
 import { Socks5Server } from './socks5Server';
 import { VPN_TYPE } from '../../common/constant';
 import { LocalProxyServer } from './localProxyServer';
