@@ -7,7 +7,7 @@
 import * as os from 'os';
 import * as net from 'net';
 import * as util from 'util';
-import { ATYP, REQUEST_CMD } from './socks5Constant';
+import { ATYP, REQUEST_CMD } from './socks5constant';
 
 //
 // TCP

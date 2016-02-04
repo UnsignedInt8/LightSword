@@ -1,7 +1,7 @@
 # LightSword
 
-[![Build Status](https://travis-ci.org/SunshinyNeko/LightSword.svg)](https://travis-ci.org/SunshinyNeko/LightSword)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/SunshinyNeko/LightSword?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Build Status](https://travis-ci.org/UnsignedInt8/LightSword.svg?branch=master)](https://travis-ci.org/UnsignedInt8/LightSword)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/UnsignedInt8/LightSword?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 LightSword —— 基于 Node.js 的 SOCKS5 代理。
 
