@@ -20,7 +20,7 @@ var path = require('path');
 var child = require('child_process');
 var cluster_1 = require('../cluster');
 program
-    .version('0.6.0')
+    .version('0.7.0')
     .option('-p, --port [number]', 'Server Listening Port', Number.parseInt)
     .option('-k, --password [password]', 'Cipher Password', String)
     .option('-m, --method [algorithm]', 'Cipher Algorithm', String)

@@ -17,7 +17,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var net = require('net');
 var util = require('util');
-var socks5Constant_1 = require('./socks5Constant');
+var socks5constant_1 = require('./socks5constant');
 //
 // TCP
 // +----+-----+-------+------+----------+----------+
@@ -41,15 +41,15 @@ function refineDestination(rawData) {
     let addr = '';
     let dnLength = 0;
     switch (atyp) {
-        case socks5Constant_1.ATYP.DN:
+        case socks5constant_1.ATYP.DN:
             dnLength = rawData[4];
             addr = rawData.toString('utf8', 5, 5 + dnLength);
             break;
-        case socks5Constant_1.ATYP.IPV4:
+        case socks5constant_1.ATYP.IPV4:
             dnLength = 4;
             addr = rawData.skip(4).take(4).aggregate((c, n) => c.length > 1 ? c + util.format('.%d', n) : util.format('%d.%d', c, n));
             break;
-        case socks5Constant_1.ATYP.IPV6:
+        case socks5constant_1.ATYP.IPV6:
             dnLength = 16;
             let bytes = rawData.skip(4).take(16).toArray();
             let ipv6 = '';
@@ -62,7 +62,7 @@ function refineDestination(rawData) {
             }
             break;
     }
-    let headerSize = 4 + (atyp === socks5Constant_1.ATYP.DN ? 1 : 0) + dnLength + 2;
+    let headerSize = 4 + (atyp === socks5constant_1.ATYP.DN ? 1 : 0) + dnLength + 2;
     let port = rawData.readUInt16BE(headerSize - 2);
     return { cmd, addr, port, headerSize };
 }
@@ -77,7 +77,7 @@ function createSocks5TcpReply(rep, atyp, fullAddr, port) {
     let type = tuple.type;
     let addr = tuple.addrBytes;
     let reply = [0x05, rep, 0x00, atyp];
-    if (type === socks5Constant_1.ATYP.DN)
+    if (type === socks5constant_1.ATYP.DN)
         reply.push(addr.length);
     reply = reply.concat(addr).concat([0x00, 0x00]);
     let buf = new Buffer(reply);
@@ -95,7 +95,7 @@ function createSocks5UdpHeader(dstAddr, dstPort) {
     let type = tuple.type;
     let addr = tuple.addrBytes;
     let reply = [0x0, 0x0, 0x0, type];
-    if (type === socks5Constant_1.ATYP.DN)
+    if (type === socks5constant_1.ATYP.DN)
         reply.push(addr.length);
     reply = reply.concat(addr).concat([0x00, 0x00]);
     let buf = new Buffer(reply);
@@ -117,5 +117,5 @@ function parseAddrToBytes(fullAddr) {
             fullAddr.each((c, i) => addrBytes.push(fullAddr.charCodeAt(i)));
             break;
     }
-    return { addrBytes, type: type ? (type === 4 ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6) : socks5Constant_1.ATYP.DN };
+    return { addrBytes, type: type ? (type === 4 ? socks5constant_1.ATYP.IPV4 : socks5constant_1.ATYP.IPV6) : socks5constant_1.ATYP.DN };
 }
