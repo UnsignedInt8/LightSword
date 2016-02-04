@@ -1,7 +1,7 @@
 {
   "name": "lightsword",
-  "version": "0.6.1",
-  "description": "LightSword Secure SOCKS5 Proxy",
+  "version": "0.7.0",
+  "description": "LightSword Secure SOCKS5 Proxy / iOS VPN Server",
   "main": "index.js",
   "bin": {
     "lslocal": "./build/client/bin/cli.js",
