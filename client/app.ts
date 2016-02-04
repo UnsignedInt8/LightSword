@@ -7,7 +7,7 @@
 require('../lib/socketEx');
 require('kinq').enable();
 require('async-node');
-import { defaultServerPort, defaultCipherAlgorithm } from '../lib/constant';
+import { defaultServerPort, defaultCipherAlgorithm } from '../common/constant';
 import { ServerOptions } from './socks5/socks5Server';
 import { LocalProxyServer } from './socks5/localProxyServer';
 import { RemoteProxyServer } from './socks5/remoteProxyServer';

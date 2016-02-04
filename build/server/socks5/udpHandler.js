@@ -19,8 +19,8 @@ var net = require('net');
 var dgram = require('dgram');
 var crypto = require('crypto');
 var cryptoEx = require('../../lib/cipher');
-var socks5Constant_1 = require('../../lib/socks5Constant');
-var socksHelper = require('../../lib/socks5Helper');
+var socks5constant_1 = require('../../common/socks5constant');
+var socksHelper = require('../../common/socks5helper');
 function udpAssociate(client, rawData, dst, options) {
     let udpType = 'udp' + (net.isIP(dst.addr) || 4);
     let serverUdp = dgram.createSocket(udpType);
@@ -29,7 +29,7 @@ function udpAssociate(client, rawData, dst, options) {
     serverUdp.unref();
     serverUdp.once('listening', () => __awaiter(this, void 0, Promise, function* () {
         let udpAddr = serverUdp.address();
-        let reply = socksHelper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
+        let reply = socksHelper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5constant_1.ATYP.IPV4 : socks5constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
         let encryptor = cryptoEx.createCipher(options.cipherAlgorithm, options.password);
         let cipher = encryptor.cipher;
         let iv = encryptor.iv;

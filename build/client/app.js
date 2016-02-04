@@ -18,7 +18,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 require('../lib/socketEx');
 require('kinq').enable();
 require('async-node');
-var constant_1 = require('../lib/constant');
+var constant_1 = require('../common/constant');
 var localProxyServer_1 = require('./socks5/localProxyServer');
 var remoteProxyServer_1 = require('./socks5/remoteProxyServer');
 let localAddrs = ['127.0.0.1', 'localhost', undefined, null];

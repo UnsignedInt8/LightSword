@@ -17,8 +17,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var connectHandler_1 = require('./connectHandler');
 var udpHandler_1 = require('./udpHandler');
-var socks5Constant_1 = require('../../lib/socks5Constant');
-var socks5Helper = require('../../lib/socks5Helper');
+var socks5constant_1 = require('../../common/socks5constant');
+var socks5Helper = require('../../common/socks5helper');
 var addressHelper_1 = require('../lib/addressHelper');
 function handleSocks5(client, data, options) {
     let dst = socks5Helper.refineDestination(data);
@@ -29,12 +29,12 @@ function handleSocks5(client, data, options) {
         return true;
     }
     switch (dst.cmd) {
-        case socks5Constant_1.REQUEST_CMD.CONNECT:
+        case socks5constant_1.REQUEST_CMD.CONNECT:
             connectHandler_1.connect(client, data, dst, options);
             break;
-        case socks5Constant_1.REQUEST_CMD.BIND:
+        case socks5constant_1.REQUEST_CMD.BIND:
             break;
-        case socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE:
+        case socks5constant_1.REQUEST_CMD.UDP_ASSOCIATE:
             udpHandler_1.udpAssociate(client, data, dst, options);
             break;
         default:

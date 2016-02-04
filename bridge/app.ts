@@ -8,7 +8,7 @@ require('../lib/socketEx');
 require('kinq').enable();
 require('async-node');
 import * as net from 'net';
-import { defaultServerPort } from '../lib/constant';
+import { defaultServerPort } from '../common/constant';
 
 export class App {
   

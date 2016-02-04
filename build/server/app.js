@@ -19,7 +19,7 @@ require('async-node');
 require('kinq').enable();
 require('../lib/socketEx');
 var server_1 = require('./server');
-var constant_1 = require('../lib/constant');
+var constant_1 = require('../common/constant');
 class App {
     constructor(options) {
         let defaultOptions = {

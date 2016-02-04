@@ -8,7 +8,7 @@ require('async-node');
 require('kinq').enable();
 require('../lib/socketEx');
 import { LsServer, ServerOptions, UpdateServerOptions } from './server';
-import { defaultCipherAlgorithm, defaultServerPort, defaultPassword } from '../lib/constant';
+import { defaultCipherAlgorithm, defaultServerPort, defaultPassword } from '../common/constant';
 
 export class App {
   

@@ -20,18 +20,18 @@ var dgram = require('dgram');
 var crypto = require('crypto');
 var cryptoEx = require('../../lib/cipher');
 var socks5Server_1 = require('./socks5Server');
-var constant_1 = require('../../lib/constant');
+var constant_1 = require('../../common/constant');
 var localProxyServer_1 = require('./localProxyServer');
-var socks5Helper = require('../../lib/socks5Helper');
-var socks5Constant_1 = require('../../lib/socks5Constant');
+var socks5Helper = require('../../common/socks5helper');
+var socks5constant_1 = require('../../common/socks5constant');
 class RemoteProxyServer extends socks5Server_1.Socks5Server {
     handleRequest(client, request) {
         let me = this;
         let req = socks5Helper.refineDestination(request);
         if (this.localArea.any((a) => req.addr.toLowerCase().startsWith(a)) && this.bypassLocal) {
-            if (req.cmd === socks5Constant_1.REQUEST_CMD.CONNECT)
+            if (req.cmd === socks5constant_1.REQUEST_CMD.CONNECT)
                 return localProxyServer_1.LocalProxyServer.connectServer(client, { addr: req.addr, port: req.port }, request, this.timeout);
-            if (req.cmd === socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE)
+            if (req.cmd === socks5constant_1.REQUEST_CMD.UDP_ASSOCIATE)
                 return localProxyServer_1.LocalProxyServer.udpAssociate(client, { addr: req.addr, port: req.port });
         }
         let proxySocket = net.createConnection(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
@@ -52,7 +52,7 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             let paddingSize = rlBuf[0];
             let reply = rlBuf.slice(1 + paddingSize, rlBuf.length);
             switch (req.cmd) {
-                case socks5Constant_1.REQUEST_CMD.CONNECT:
+                case socks5constant_1.REQUEST_CMD.CONNECT:
                     console.info(`connected: ${req.addr}:${req.port}`);
                     yield client.writeAsync(reply);
                     let cipher = cryptoEx.createCipher(me.cipherAlgorithm, me.password, iv).cipher;
@@ -60,7 +60,7 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
                     client.pipe(cipher).pipe(proxySocket);
                     proxySocket.pipe(decipher).pipe(client);
                     break;
-                case socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE:
+                case socks5constant_1.REQUEST_CMD.UDP_ASSOCIATE:
                     let udpReply = socks5Helper.refineDestination(reply);
                     me.udpAssociate(client, { addr: udpReply.addr, port: udpReply.port }, me.cipherAlgorithm, me.password);
                     break;
@@ -85,7 +85,7 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
         listeningUdp.unref();
         listeningUdp.once('listening', () => __awaiter(this, void 0, Promise, function* () {
             let udpAddr = listeningUdp.address();
-            let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
+            let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5constant_1.ATYP.IPV4 : socks5constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
             yield client.writeAsync(reply);
         }));
         let udpSet = new Set();

@@ -3,7 +3,6 @@
 //-----------------------------------
 
 'use strict'
-import { Decipher } from 'crypto';
 
 export enum VPN_TYPE {
   APLVPN = 0x01,

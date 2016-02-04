@@ -8,9 +8,9 @@ import * as net from 'net';
 import * as dgram from 'dgram';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
-import { ATYP } from '../../lib/socks5Constant';
-import { Socks5Options } from '../../lib/constant';
-import * as socksHelper from '../../lib/socks5Helper';
+import { ATYP } from '../../common/socks5constant';
+import { Socks5Options } from '../../common/constant';
+import * as socksHelper from '../../common/socks5helper';
 
 export function udpAssociate(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: Socks5Options) {
   let udpType = 'udp' + (net.isIP(dst.addr) || 4);

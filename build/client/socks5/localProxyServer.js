@@ -18,16 +18,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var net = require('net');
 var dgram = require('dgram');
 var socks5Server_1 = require('./socks5Server');
-var socks5Constant_1 = require('../../lib/socks5Constant');
-var socks5Helper = require('../../lib/socks5Helper');
+var socks5constant_1 = require('../../common/socks5constant');
+var socks5Helper = require('../../common/socks5helper');
 class LocalProxyServer extends socks5Server_1.Socks5Server {
     handleRequest(client, request) {
         let dst = socks5Helper.refineDestination(request);
         switch (dst.cmd) {
-            case socks5Constant_1.REQUEST_CMD.CONNECT:
+            case socks5constant_1.REQUEST_CMD.CONNECT:
                 LocalProxyServer.connectServer(client, dst, request, this.timeout);
                 break;
-            case socks5Constant_1.REQUEST_CMD.UDP_ASSOCIATE:
+            case socks5constant_1.REQUEST_CMD.UDP_ASSOCIATE:
                 LocalProxyServer.udpAssociate(client, dst);
                 break;
             default:
@@ -44,7 +44,7 @@ class LocalProxyServer extends socks5Server_1.Socks5Server {
         serverUdp.unref();
         serverUdp.on('listening', () => __awaiter(this, void 0, Promise, function* () {
             let udpAddr = serverUdp.address();
-            let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5Constant_1.ATYP.IPV4 : socks5Constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
+            let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5constant_1.ATYP.IPV4 : socks5constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
             yield client.writeAsync(reply);
         }));
         let udpSet = new Set();

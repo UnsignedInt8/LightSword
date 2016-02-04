@@ -7,8 +7,8 @@
 import * as net from 'net';
 import * as dgram from 'dgram';
 import { Socks5Server } from './socks5Server';
-import { REQUEST_CMD, ATYP } from '../../lib/socks5Constant';
-import * as socks5Helper from '../../lib/socks5Helper';
+import { REQUEST_CMD, ATYP } from '../../common/socks5constant';
+import * as socks5Helper from '../../common/socks5helper';
 
 export class LocalProxyServer extends Socks5Server {
   

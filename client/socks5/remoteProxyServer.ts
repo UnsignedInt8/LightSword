@@ -9,10 +9,10 @@ import * as dgram from 'dgram';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
 import { Socks5Server } from './socks5Server';
-import { VPN_TYPE } from '../../lib/constant';
+import { VPN_TYPE } from '../../common/constant';
 import { LocalProxyServer } from './localProxyServer';
-import * as socks5Helper from '../../lib/socks5Helper';
-import { REQUEST_CMD, ATYP } from '../../lib/socks5Constant';
+import * as socks5Helper from '../../common/socks5helper';
+import { REQUEST_CMD, ATYP } from '../../common/socks5constant';
 
 export class RemoteProxyServer extends Socks5Server {
   

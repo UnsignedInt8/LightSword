@@ -9,7 +9,7 @@ import * as crypto from 'crypto';
 import * as cryptoEx from '../../lib/cipher';
 import { XorStream } from '../../lib/xorstream';
 import { SpeedStream } from '../../lib/speedstream';
-import { OSXCl5Options } from '../../lib/constant';
+import { OSXCl5Options } from '../../common/constant';
 
 export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: OSXCl5Options) {
   

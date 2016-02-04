@@ -7,9 +7,9 @@
 import * as net from 'net';
 import { connect } from './connectHandler';
 import { udpAssociate } from './udpHandler';
-import { Socks5Options } from '../../lib/constant';
-import { REQUEST_CMD } from '../../lib/socks5Constant';
-import * as socks5Helper from '../../lib/socks5Helper';
+import { Socks5Options } from '../../common/constant';
+import { REQUEST_CMD } from '../../common/socks5constant';
+import * as socks5Helper from '../../common/socks5helper';
 import { isIllegalAddress } from '../lib/addressHelper';
 
 export function handleSocks5(client: net.Socket, data: Buffer, options: Socks5Options): boolean {
