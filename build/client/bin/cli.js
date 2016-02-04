@@ -16,7 +16,7 @@ var program = require('commander');
 var app_1 = require('../app');
 var fs = require('fs');
 var path = require('path');
-var ipc = require('../../lib/ipc');
+var ipc = require('../../common/ipc');
 var child = require('child_process');
 program
     .version('0.6.0')

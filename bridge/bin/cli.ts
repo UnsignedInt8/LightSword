@@ -7,7 +7,7 @@
 import * as program from 'commander';
 import { App } from '../app';
 import * as path from 'path';
-import * as ipc from '../../lib/ipc';
+import * as ipc from '../../common/ipc';
 import * as child from 'child_process';
 
 program

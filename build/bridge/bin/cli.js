@@ -15,7 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var program = require('commander');
 var app_1 = require('../app');
 var path = require('path');
-var ipc = require('../../lib/ipc');
+var ipc = require('../../common/ipc');
 var child = require('child_process');
 program
     .version('0.6.0')
