@@ -3,7 +3,3 @@
 //-----------------------------------
 
 'use strict'
-
-function handleTCP() {
-  
-}
