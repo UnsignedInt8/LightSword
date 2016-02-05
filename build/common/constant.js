@@ -11,9 +11,9 @@ var VPN_TYPE = exports.VPN_TYPE;
 exports.defaultCipherAlgorithm = 'aes-256-cfb';
 exports.defaultPassword = 'lightsword.neko';
 exports.defaultServerPort = 8900;
-class Socks5Options {
+class HandshakeOptions {
 }
-exports.Socks5Options = Socks5Options;
-class OSXCl5Options extends Socks5Options {
+exports.HandshakeOptions = HandshakeOptions;
+class OSXCl5Options extends HandshakeOptions {
 }
 exports.OSXCl5Options = OSXCl5Options;

@@ -15,6 +15,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-function handleAppleVPN(client, handshakeData, options) {
-}
-exports.handleAppleVPN = handleAppleVPN;
+var Protocols;
+(function (Protocols) {
+    Protocols[Protocols["TCP"] = 6] = "TCP";
+    Protocols[Protocols["UDP"] = 17] = "UDP";
+})(Protocols || (Protocols = {}));

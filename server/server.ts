@@ -8,7 +8,7 @@ import * as net from 'net';
 import { EventEmitter } from 'events';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../common/cipher';
-import { VPN_TYPE, Socks5Options, defaultCipherAlgorithm } from '../common/constant'
+import { VPN_TYPE, HandshakeOptions, defaultCipherAlgorithm } from '../common/constant'
 import { handleSocks5 } from './socks5/index';
 import { handleOSXSocks5 } from './osxcl5/index';
 import * as kinq from 'kinq';
@@ -45,7 +45,7 @@ export class LsServer extends EventEmitter {
   private blacklistIntervalTimer: NodeJS.Timer;
   private blacklist = new Map<string, Set<number>>();
   private server: net.Server;
-  private requestHandlers = new Map<VPN_TYPE, (client: net.Socket, data: Buffer, options: Socks5Options) => boolean>();
+  private requestHandlers = new Map<VPN_TYPE, (client: net.Socket, data: Buffer, options: HandshakeOptions) => boolean>();
   
   constructor(options: ServerOptions) {
     super()

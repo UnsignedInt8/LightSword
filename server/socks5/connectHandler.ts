@@ -7,10 +7,10 @@
 import * as net from 'net';
 import * as crypto from 'crypto';
 import * as cryptoEx from '../../common/cipher';
-import { Socks5Options } from '../../common/constant';
+import { HandshakeOptions } from '../../common/constant';
 import { SpeedStream } from '../../lib/speedstream';
 
-export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: Socks5Options) {
+export function connect(client: net.Socket, rawData: Buffer, dst: { addr: string, port: number }, options: HandshakeOptions) {
   let proxySocket = net.createConnection(dst.port, dst.addr, async () => {
     console.log(`connecting: ${dst.addr}:${dst.port}`);
     

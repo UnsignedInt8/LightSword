@@ -1,3 +1,7 @@
+//-----------------------------------
+// Copyright(c) 2016 Neko
+//-----------------------------------
+'use strict';
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
     return new Promise(function (resolve, reject) {
         generator = generator.call(thisArg, _arguments);
@@ -11,3 +15,5 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+function handleTCP() {
+}
