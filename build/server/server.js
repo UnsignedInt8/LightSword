@@ -21,6 +21,7 @@ var cryptoEx = require('../common/cipher');
 var constant_1 = require('../common/constant');
 var index_1 = require('./socks5/index');
 var index_2 = require('./osxcl5/index');
+var index_3 = require('./aplvpn/index');
 class LsServer extends events_1.EventEmitter {
     constructor(options) {
         super();
@@ -30,6 +31,7 @@ class LsServer extends events_1.EventEmitter {
         this.requestHandlers = new Map();
         let me = this;
         Object.getOwnPropertyNames(options).forEach(n => me[n] = options[n]);
+        this.requestHandlers.set(constant_1.VPN_TYPE.APLVPN, index_3.handleAppleVPN);
         this.requestHandlers.set(constant_1.VPN_TYPE.SOCKS5, index_1.handleSocks5);
         this.requestHandlers.set(constant_1.VPN_TYPE.OSXCL5, index_2.handleOSXSocks5);
     }

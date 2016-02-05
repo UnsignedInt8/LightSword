@@ -11,6 +11,7 @@ import * as cryptoEx from '../common/cipher';
 import { VPN_TYPE, HandshakeOptions, defaultCipherAlgorithm } from '../common/constant'
 import { handleSocks5 } from './socks5/index';
 import { handleOSXSocks5 } from './osxcl5/index';
+import { handleAppleVPN } from './aplvpn/index';
 import * as kinq from 'kinq';
 
 export type ServerOptions = {
@@ -53,6 +54,7 @@ export class LsServer extends EventEmitter {
     let me = this;
     Object.getOwnPropertyNames(options).forEach(n => me[n] = options[n]);
     
+    this.requestHandlers.set(VPN_TYPE.APLVPN, handleAppleVPN);
     this.requestHandlers.set(VPN_TYPE.SOCKS5, handleSocks5);
     this.requestHandlers.set(VPN_TYPE.OSXCL5, handleOSXSocks5);
   }
