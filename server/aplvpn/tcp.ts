@@ -6,9 +6,29 @@
 
 import * as net from 'net';
 import * as crypto from 'crypto';
+import * as cryptoEx from '../../common/cipher';
 import { VpnHandshake } from './index';
 import { HandshakeOptions } from '../../common/constant';
+import { IP_VER, Protocols } from './protocols';
+import * as addrHelper from '../lib/addressHelper';
 
 export function handleTCP(client: net.Socket, handshake: VpnHandshake, options: HandshakeOptions) {
+  let host = addrHelper.ntoa(handshake.destAddress);
+  if (handshake.flags == 0x80) {
+    handleOutbound(client, host, handshake.destPort, handshake.extra, options);
+  }
+}
+
+function handleOutbound(client: net.Socket, host: string, port: number, desiredIv: Buffer, options: HandshakeOptions) {
+  let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, desiredIv).cipher;
+  
+  let proxy = net.createConnection({ port, host }, async () => {
+    let success = new Buffer([0x01, 0x00]);
+    let randomLength = Number((Math.random() * 64).toFixed());
+    let reply = Buffer.concat([success, new Buffer(randomLength)]);
+    
+    await client.writeAsync(cipher.update(reply));
+    
+  });
   
 }

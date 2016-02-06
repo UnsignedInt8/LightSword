@@ -43,6 +43,7 @@ export function handleUDP(client: net.Socket, handshake: VpnHandshake, options: 
     clearInterval(cleanTimer);
     client.dispose();
     udpSocket.close();
+    udpSocket.unref();
     udpSocket.removeAllListeners();
   }
   
