@@ -17,11 +17,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 };
 var net = require('net');
 var cryptoEx = require('../../common/cipher');
-var addrHelper = require('../lib/addressHelper');
 function handleTCP(client, handshake, options) {
-    let host = addrHelper.ntoa(handshake.destAddress);
     if (handshake.flags == 0x80) {
-        handleOutbound(client, host, handshake.destPort, handshake.extra, options);
+        handleOutbound(client, handshake.destHost, handshake.destPort, handshake.extra, options);
     }
 }
 exports.handleTCP = handleTCP;
@@ -33,8 +31,6 @@ function handleOutbound(client, host, port, desiredIv, options) {
         let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, desiredIv).cipher;
         yield client.writeAsync(cipher.update(reply));
         let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
-        // client.on('data', (d) => {
-        // })
         client.pipe(decipher).pipe(proxy);
         proxy.pipe(cipher).pipe(client);
     }));

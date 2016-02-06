@@ -19,11 +19,10 @@ var dgram = require('dgram');
 var crypto = require('crypto');
 var cryptoEx = require('../../common/cipher');
 var protocols_1 = require('./protocols');
-var addrHelper = require('../lib/addressHelper');
 function handleUDP(client, handshake, options) {
     let communicationPending = false;
     let udpType = handshake.ipVer == protocols_1.IP_VER.V4 ? 'udp4' : 'udp6';
-    let destAddress = addrHelper.ntoa(handshake.destAddress);
+    let destAddress = handshake.destHost;
     let decipher = null;
     let udpSocket = dgram.createSocket(udpType, (msg, rinfo) => __awaiter(this, void 0, Promise, function* () {
         let iv = crypto.randomBytes(options.ivLength);
@@ -43,13 +42,6 @@ function handleUDP(client, handshake, options) {
         udpSocket.send(msg, 0, msg.length, handshake.destPort, destAddress);
         communicationPending = true;
     });
-    function dispose() {
-        clearInterval(cleanTimer);
-        client.dispose();
-        udpSocket.close();
-        udpSocket.unref();
-        udpSocket.removeAllListeners();
-    }
     let cleanTimer = setInterval(() => {
         if (communicationPending) {
             communicationPending = false;
@@ -57,6 +49,13 @@ function handleUDP(client, handshake, options) {
         }
         dispose();
     }, 30 * 1000);
+    function dispose() {
+        clearInterval(cleanTimer);
+        client.dispose();
+        udpSocket.close();
+        udpSocket.unref();
+        udpSocket.removeAllListeners();
+    }
     client.on('error', () => dispose());
     client.on('end', () => dispose());
 }

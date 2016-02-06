@@ -8,9 +8,10 @@ import * as os from 'os';
 import * as util from 'util';
 
 const illegalAddresses = ['127.0.0.1', '::1', '0.0.0.0', '::0', os.hostname()];
+const illegalPrefix = ['192.168.', '10.', '172.168.', 'fe80:'];
 
 export function isIllegalAddress(addr: string): boolean {
-  return illegalAddresses.any(a => a === addr);
+  return illegalAddresses.any(a => a === addr) || illegalPrefix.any(a => addr.startsWith(a));
 }
 
 export function ntoa(data: ArrayLike<number>): string {

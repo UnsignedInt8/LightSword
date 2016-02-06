@@ -10,12 +10,10 @@ import * as cryptoEx from '../../common/cipher';
 import { VpnHandshake } from './index';
 import { HandshakeOptions } from '../../common/constant';
 import { IP_VER, Protocols } from './protocols';
-import * as addrHelper from '../lib/addressHelper';
 
 export function handleTCP(client: net.Socket, handshake: VpnHandshake, options: HandshakeOptions) {
-  let host = addrHelper.ntoa(handshake.destAddress);
   if (handshake.flags == 0x80) {
-    handleOutbound(client, host, handshake.destPort, handshake.extra, options);
+    handleOutbound(client, handshake.destHost, handshake.destPort, handshake.extra, options);
   }
 }
 

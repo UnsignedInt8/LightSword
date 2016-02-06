@@ -18,8 +18,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
 var os = require('os');
 var util = require('util');
 const illegalAddresses = ['127.0.0.1', '::1', '0.0.0.0', '::0', os.hostname()];
+const illegalPrefix = ['192.168.', '10.', '172.168.', 'fe80:'];
 function isIllegalAddress(addr) {
-    return illegalAddresses.any(a => a === addr);
+    return illegalAddresses.any(a => a === addr) || illegalPrefix.any(a => addr.startsWith(a));
 }
 exports.isIllegalAddress = isIllegalAddress;
 function ntoa(data) {

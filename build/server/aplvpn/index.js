@@ -16,6 +16,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var protocols_1 = require('./protocols');
+var addrHelper = require('../lib/addressHelper');
 var udp_1 = require('./udp');
 var tcp_1 = require('./tcp');
 const SupportedIPVers = [protocols_1.IP_VER.V4, protocols_1.IP_VER.V6];
@@ -33,6 +34,10 @@ function handleAppleVPN(client, handshakeData, options) {
     }
     catch (error) {
         return false;
+    }
+    if (addrHelper.isIllegalAddress(handshake.destHost)) {
+        client.dispose();
+        return true;
     }
     switch (handshake.payloadProtocol) {
         case protocols_1.Protocols.TCP:
@@ -53,5 +58,8 @@ function extractHandeshake(data) {
     let destAddress = data.skip(3).take(ipLength).toArray();
     let destPort = data.readUInt16BE(3 + ipLength);
     let extra = data.slice(3 + ipLength + 2);
-    return { ipVer, payloadProtocol, flags, destAddress, destPort, extra };
+    let destHost = addrHelper.ntoa(destAddress);
+    return { ipVer, payloadProtocol, flags, destAddress, destHost, destPort, extra };
+}
+function handleHandshake() {
 }

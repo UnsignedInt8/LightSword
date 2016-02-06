@@ -5,8 +5,9 @@
 'use strict'
 
 import * as net from 'net';
-import { HandshakeOptions } from '../../common/constant';
 import { IP_VER, Protocols } from './protocols';
+import * as addrHelper from '../lib/addressHelper';
+import { HandshakeOptions } from '../../common/constant';
 import { handleUDP } from './udp';
 import { handleTCP } from './tcp';
 
@@ -15,6 +16,7 @@ export type VpnHandshake = {
   payloadProtocol: Protocols,
   flags: number,
   destAddress: number[],
+  destHost: string,
   destPort: number,
   extra: Buffer,
 }
@@ -33,6 +35,11 @@ export function handleAppleVPN(client: net.Socket, handshakeData: Buffer, option
     if (!SupportedProtocols.contains(handshake.payloadProtocol)) return false;
   } catch (error) {
     return false;
+  }
+  
+  if (addrHelper.isIllegalAddress(handshake.destHost)) {
+    client.dispose();
+    return true;
   }
   
   switch(handshake.payloadProtocol) {
@@ -56,5 +63,11 @@ function extractHandeshake(data: Buffer): VpnHandshake {
   let destAddress = data.skip(3).take(ipLength).toArray();
   let destPort = data.readUInt16BE(3 + ipLength);
   let extra = data.slice(3 + ipLength + 2);
-  return { ipVer, payloadProtocol, flags, destAddress, destPort, extra }
+  let destHost = addrHelper.ntoa(destAddress);
+  
+  return { ipVer, payloadProtocol, flags, destAddress, destHost, destPort, extra }
+}
+
+function handleHandshake() {
+  
 }

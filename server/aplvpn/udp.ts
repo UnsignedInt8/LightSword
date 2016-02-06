@@ -11,12 +11,11 @@ import * as cryptoEx from '../../common/cipher';
 import { HandshakeOptions } from '../../common/constant';
 import { VpnHandshake } from './index';
 import { IP_VER } from './protocols';
-import * as addrHelper from '../lib/addressHelper';
 
 export function handleUDP(client: net.Socket, handshake: VpnHandshake, options: HandshakeOptions) {
   let communicationPending = false;
   let udpType = handshake.ipVer == IP_VER.V4 ? 'udp4' : 'udp6';
-  let destAddress = addrHelper.ntoa(handshake.destAddress);
+  let destAddress = handshake.destHost;
   let decipher: crypto.Decipher = null;
   
   let udpSocket = dgram.createSocket(udpType, async (msg: Buffer, rinfo: dgram.RemoteInfo) => {
