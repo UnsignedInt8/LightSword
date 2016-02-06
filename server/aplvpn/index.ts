@@ -7,6 +7,7 @@
 import * as net from 'net';
 import { HandshakeOptions } from '../../common/constant';
 import { IP_VER, Protocols } from './protocols';
+import { handleUDP } from './udp';
 
 export type VpnHandshake = {
   ipVer: IP_VER,
@@ -21,6 +22,8 @@ const SupportedIPVers = [IP_VER.V4, IP_VER.V6];
 const SupportedProtocols = [Protocols.TCP, Protocols.UDP];
 
 export function handleAppleVPN(client: net.Socket, handshakeData: Buffer, options: HandshakeOptions): boolean {
+  if (handshakeData.length < 9) return false;
+  
   let handshake: VpnHandshake = null;
   
   try {
@@ -35,6 +38,7 @@ export function handleAppleVPN(client: net.Socket, handshakeData: Buffer, option
     case Protocols.TCP:
     break;
     case Protocols.UDP:
+      handleUDP(client, handshake, options);
     break;
   }
   

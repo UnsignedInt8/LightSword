@@ -16,9 +16,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var protocols_1 = require('./protocols');
+var udp_1 = require('./udp');
 const SupportedIPVers = [protocols_1.IP_VER.V4, protocols_1.IP_VER.V6];
 const SupportedProtocols = [protocols_1.Protocols.TCP, protocols_1.Protocols.UDP];
 function handleAppleVPN(client, handshakeData, options) {
+    if (handshakeData.length < 9)
+        return false;
     let handshake = null;
     try {
         handshake = extractHandeshake(handshakeData);
@@ -34,6 +37,7 @@ function handleAppleVPN(client, handshakeData, options) {
         case protocols_1.Protocols.TCP:
             break;
         case protocols_1.Protocols.UDP:
+            udp_1.handleUDP(client, handshake, options);
             break;
     }
     return true;
