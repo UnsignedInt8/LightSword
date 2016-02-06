@@ -15,39 +15,52 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var crypto = require('crypto');
 var protocols_1 = require('./protocols');
+var cryptoEx = require('../../common/cipher');
 var addrHelper = require('../lib/addressHelper');
 var udp_1 = require('./udp');
 var tcp_1 = require('./tcp');
 const SupportedIPVers = [protocols_1.IP_VER.V4, protocols_1.IP_VER.V6];
 const SupportedProtocols = [protocols_1.Protocols.TCP, protocols_1.Protocols.UDP];
 function handleAppleVPN(client, handshakeData, options) {
-    if (handshakeData.length < 9)
-        return false;
-    let handshake = null;
-    try {
-        handshake = extractHandeshake(handshakeData);
-        if (!SupportedIPVers.contains(handshake.ipVer))
+    return __awaiter(this, void 0, Promise, function* () {
+        if (handshakeData.length < 9)
             return false;
-        if (!SupportedProtocols.contains(handshake.payloadProtocol))
+        let handshake = null;
+        try {
+            handshake = extractHandeshake(handshakeData);
+            if (!SupportedIPVers.contains(handshake.ipVer))
+                return false;
+            if (!SupportedProtocols.contains(handshake.payloadProtocol))
+                return false;
+        }
+        catch (error) {
             return false;
-    }
-    catch (error) {
+        }
+        if (addrHelper.isIllegalAddress(handshake.destHost)) {
+            client.dispose();
+            return true;
+        }
+        if (handshake.flags === 0x00) {
+            try {
+                yield handleHandshake(client, handshake, options);
+            }
+            catch (error) {
+                return false;
+            }
+            return true;
+        }
+        switch (handshake.payloadProtocol) {
+            case protocols_1.Protocols.TCP:
+                tcp_1.handleTCP(client, handshake, options);
+                return true;
+            case protocols_1.Protocols.UDP:
+                udp_1.handleUDP(client, handshake, options);
+                return true;
+        }
         return false;
-    }
-    if (addrHelper.isIllegalAddress(handshake.destHost)) {
-        client.dispose();
-        return true;
-    }
-    switch (handshake.payloadProtocol) {
-        case protocols_1.Protocols.TCP:
-            tcp_1.handleTCP(client, handshake, options);
-            return true;
-        case protocols_1.Protocols.UDP:
-            udp_1.handleUDP(client, handshake, options);
-            return true;
-    }
-    return false;
+    });
 }
 exports.handleAppleVPN = handleAppleVPN;
 function extractHandeshake(data) {
@@ -61,5 +74,11 @@ function extractHandeshake(data) {
     let destHost = addrHelper.ntoa(destAddress);
     return { ipVer, payloadProtocol, flags, destAddress, destHost, destPort, extra };
 }
-function handleHandshake() {
+function handleHandshake(client, handshake, options) {
+    return __awaiter(this, void 0, Promise, function* () {
+        let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, handshake.extra).cipher;
+        let md5 = crypto.createHash('md5').update(handshake.extra).digest();
+        let randomPadding = new Buffer(Number((Math.random() * 128).toFixed()));
+        yield client.writeAsync(Buffer.concat([md5, randomPadding]));
+    });
 }

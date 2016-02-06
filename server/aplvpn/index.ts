@@ -5,7 +5,9 @@
 'use strict'
 
 import * as net from 'net';
+import * as crypto from 'crypto';
 import { IP_VER, Protocols } from './protocols';
+import * as cryptoEx from '../../common/cipher';
 import * as addrHelper from '../lib/addressHelper';
 import { HandshakeOptions } from '../../common/constant';
 import { handleUDP } from './udp';
@@ -24,7 +26,7 @@ export type VpnHandshake = {
 const SupportedIPVers = [IP_VER.V4, IP_VER.V6];
 const SupportedProtocols = [Protocols.TCP, Protocols.UDP];
 
-export function handleAppleVPN(client: net.Socket, handshakeData: Buffer, options: HandshakeOptions): boolean {
+export async function handleAppleVPN(client: net.Socket, handshakeData: Buffer, options: HandshakeOptions): Promise<boolean> {
   if (handshakeData.length < 9) return false;
   
   let handshake: VpnHandshake = null;
@@ -39,6 +41,11 @@ export function handleAppleVPN(client: net.Socket, handshakeData: Buffer, option
   
   if (addrHelper.isIllegalAddress(handshake.destHost)) {
     client.dispose();
+    return true;
+  }
+  
+  if (handshake.flags === 0x00) {
+    try { await handleHandshake(client, handshake, options); } catch (error) { return false; }
     return true;
   }
   
@@ -68,6 +75,9 @@ function extractHandeshake(data: Buffer): VpnHandshake {
   return { ipVer, payloadProtocol, flags, destAddress, destHost, destPort, extra }
 }
 
-function handleHandshake() {
-  
+async function handleHandshake(client: net.Socket, handshake: VpnHandshake, options: HandshakeOptions) {
+  let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, handshake.extra).cipher;
+  let md5 = crypto.createHash('md5').update(handshake.extra).digest();
+  let randomPadding = new Buffer(Number((Math.random() * 128).toFixed()));
+  await client.writeAsync(Buffer.concat([md5, randomPadding]));
 }
