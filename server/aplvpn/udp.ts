@@ -26,13 +26,20 @@ export function handleUDP(client: net.Socket, handshake: VpnHandshake, options: 
     len.writeUInt16LE(msg.length, 0);
     let encrypted = cipher.update(Buffer.concat([len, msg]));
     await client.writeAsync(Buffer.concat([iv, encrypted]));
-    disposeResource();
+    communicationPending = true;
   });
   
-  udpSocket.on('error', () => disposeResource());
+  udpSocket.on('error', () => dispose());
   udpSocket.send(handshake.extra, 0, handshake.extra.length, handshake.destPort, destAddress);
   
-  function disposeResource() {
+  client.on('data', (d: Buffer) => {
+    if (!decipher) decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
+    let msg = decipher.update(d);
+    udpSocket.send(msg, 0, msg.length, handshake.destPort, destAddress);
+    communicationPending = true;
+  });
+  
+  function dispose() {
     clearInterval(cleanTimer);
     client.dispose();
     udpSocket.close();
@@ -45,8 +52,9 @@ export function handleUDP(client: net.Socket, handshake: VpnHandshake, options: 
       return;
     }
     
-    disposeResource();
+    dispose();
   }, 30 * 1000);
   
-  client.on('error', () => disposeResource());
+  client.on('error', () => dispose());
+  client.on('end', () => dispose());
 }
