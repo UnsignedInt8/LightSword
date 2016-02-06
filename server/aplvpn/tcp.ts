@@ -20,15 +20,30 @@ export function handleTCP(client: net.Socket, handshake: VpnHandshake, options: 
 }
 
 function handleOutbound(client: net.Socket, host: string, port: number, desiredIv: Buffer, options: HandshakeOptions) {
-  let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, desiredIv).cipher;
   
   let proxy = net.createConnection({ port, host }, async () => {
     let success = new Buffer([0x01, 0x00]);
     let randomLength = Number((Math.random() * 64).toFixed());
     let reply = Buffer.concat([success, new Buffer(randomLength)]);
     
+    let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, desiredIv).cipher;
     await client.writeAsync(cipher.update(reply));
+    let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
     
+    client.pipe(decipher).pipe(proxy);
+    proxy.pipe(cipher).pipe(client);
   });
   
+  function dispose() {
+    client.dispose();
+    proxy.dispose();
+  }
+  
+  proxy.on('error', dispose);
+  proxy.on('end', dispose);
+  client.on('error', dispose);
+  client.on('end', dispose);
+  
+  proxy.setTimeout(options.timeout * 1000);
+  client.setTimeout(options.timeout * 1000);
 }

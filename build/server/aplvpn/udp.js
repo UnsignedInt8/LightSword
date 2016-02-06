@@ -47,6 +47,7 @@ function handleUDP(client, handshake, options) {
         clearInterval(cleanTimer);
         client.dispose();
         udpSocket.close();
+        udpSocket.unref();
         udpSocket.removeAllListeners();
     }
     let cleanTimer = setInterval(() => {

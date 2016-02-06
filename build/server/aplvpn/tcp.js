@@ -15,6 +15,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var net = require('net');
+var cryptoEx = require('../../common/cipher');
+var addrHelper = require('../lib/addressHelper');
 function handleTCP(client, handshake, options) {
+    let host = addrHelper.ntoa(handshake.destAddress);
+    if (handshake.flags == 0x80) {
+        handleOutbound(client, host, handshake.destPort, handshake.extra, options);
+    }
 }
 exports.handleTCP = handleTCP;
+function handleOutbound(client, host, port, desiredIv, options) {
+    let proxy = net.createConnection({ port, host }, () => __awaiter(this, void 0, Promise, function* () {
+        let success = new Buffer([0x01, 0x00]);
+        let randomLength = Number((Math.random() * 64).toFixed());
+        let reply = Buffer.concat([success, new Buffer(randomLength)]);
+        let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, desiredIv).cipher;
+        yield client.writeAsync(cipher.update(reply));
+        let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
+        // client.on('data', (d) => {
+        // })
+        client.pipe(decipher).pipe(proxy);
+        proxy.pipe(cipher).pipe(client);
+    }));
+    function dispose() {
+        client.dispose();
+        proxy.dispose();
+    }
+    proxy.on('error', dispose);
+    proxy.on('end', dispose);
+    client.on('error', dispose);
+    client.on('end', dispose);
+    proxy.setTimeout(options.timeout * 1000);
+    client.setTimeout(options.timeout * 1000);
+}
