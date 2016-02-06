@@ -22,6 +22,8 @@ IV: Client Required IV (TCP) or Data (UDP)
 
 FLAGS:
 
+Just for handshake, all flags are zero.
+
 +----------+
 | 00000000 |
 +----------+
