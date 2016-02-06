@@ -39,14 +39,6 @@ export function handleUDP(client: net.Socket, handshake: VpnHandshake, options: 
     communicationPending = true;
   });
   
-  function dispose() {
-    clearInterval(cleanTimer);
-    client.dispose();
-    udpSocket.close();
-    udpSocket.unref();
-    udpSocket.removeAllListeners();
-  }
-  
   let cleanTimer = setInterval(() => {
     if (communicationPending) {
       communicationPending = false;
@@ -55,6 +47,14 @@ export function handleUDP(client: net.Socket, handshake: VpnHandshake, options: 
     
     dispose();
   }, 30 * 1000);
+  
+  function dispose() {
+    clearInterval(cleanTimer);
+    client.dispose();
+    udpSocket.close();
+    udpSocket.unref();
+    udpSocket.removeAllListeners();
+  }
   
   client.on('error', () => dispose());
   client.on('end', () => dispose());
