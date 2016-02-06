@@ -15,3 +15,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
+var dgram = require('dgram');
+function handleUDP(client, handshake, options) {
+    let udpType = handshake.ipVer == IP_VER.V4 ? 'udp4' : 'udp6';
+    let udpSocket = dgram.createSocket(udpType, (msg, rinfo) => __awaiter(this, void 0, Promise, function* () {
+    }));
+    let destAddress = udpSocket.send(handshake.extra, 0, handshake.extra.length, handshake.destPort);
+}
+exports.handleUDP = handleUDP;

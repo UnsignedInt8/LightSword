@@ -15,5 +15,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-function handleTCP() {
+function handleTCP(client, handshake, options) {
 }
+exports.handleTCP = handleTCP;

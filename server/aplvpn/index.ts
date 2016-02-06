@@ -7,7 +7,7 @@
 import * as net from 'net';
 import { HandshakeOptions } from '../../common/constant';
 
-type VpnHandshake = {
+export type VpnHandshake = {
   ipVer: IP_VER,
   payloadProtocol: Protocols,
   flags: number,
