@@ -16,10 +16,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
     });
 };
 var dgram = require('dgram');
+var crypto = require('crypto');
+var cryptoEx = require('../../common/cipher');
+var protocols_1 = require('./protocols');
+var addrHelper = require('../lib/addressHelper');
 function handleUDP(client, handshake, options) {
-    let udpType = handshake.ipVer == IP_VER.V4 ? 'udp4' : 'udp6';
+    let communicationPending = false;
+    let udpType = handshake.ipVer == protocols_1.IP_VER.V4 ? 'udp4' : 'udp6';
+    let destAddress = addrHelper.ntoa(handshake.destAddress);
+    let decipher = null;
     let udpSocket = dgram.createSocket(udpType, (msg, rinfo) => __awaiter(this, void 0, Promise, function* () {
+        let iv = crypto.randomBytes(options.ivLength);
+        let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
+        let len = new Buffer(2);
+        len.writeUInt16LE(msg.length, 0);
+        let encrypted = cipher.update(Buffer.concat([len, msg]));
+        yield client.writeAsync(Buffer.concat([iv, encrypted]));
+        disposeResource();
     }));
-    let destAddress = udpSocket.send(handshake.extra, 0, handshake.extra.length, handshake.destPort);
+    udpSocket.on('error', () => disposeResource());
+    udpSocket.send(handshake.extra, 0, handshake.extra.length, handshake.destPort, destAddress);
+    function disposeResource() {
+        clearInterval(cleanTimer);
+        client.dispose();
+        udpSocket.close();
+        udpSocket.removeAllListeners();
+    }
+    let cleanTimer = setInterval(() => {
+        if (communicationPending) {
+            communicationPending = false;
+            return;
+        }
+        disposeResource();
+    }, 30 * 1000);
+    client.on('error', () => disposeResource());
 }
 exports.handleUDP = handleUDP;

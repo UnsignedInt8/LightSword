@@ -15,8 +15,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promi
         step("next", void 0);
     });
 };
-const SupportedIPVers = [IP_VER.V4, IP_VER.V6];
-const SupportedProtocols = [Protocols.TCP, Protocols.UDP];
+var protocols_1 = require('./protocols');
+const SupportedIPVers = [protocols_1.IP_VER.V4, protocols_1.IP_VER.V6];
+const SupportedProtocols = [protocols_1.Protocols.TCP, protocols_1.Protocols.UDP];
 function handleAppleVPN(client, handshakeData, options) {
     let handshake = null;
     try {
@@ -30,9 +31,9 @@ function handleAppleVPN(client, handshakeData, options) {
         return false;
     }
     switch (handshake.payloadProtocol) {
-        case Protocols.TCP:
+        case protocols_1.Protocols.TCP:
             break;
-        case Protocols.UDP:
+        case protocols_1.Protocols.UDP:
             break;
     }
     return true;
@@ -42,7 +43,7 @@ function extractHandeshake(data) {
     let ipVer = data[0];
     let payloadProtocol = data[1];
     let flags = data[2];
-    let ipLength = ipVer == IP_VER.V4 ? 4 : 16;
+    let ipLength = ipVer == protocols_1.IP_VER.V4 ? 4 : 16;
     let destAddress = data.skip(3).take(ipLength).toArray();
     let destPort = data.readUInt16BE(3 + ipLength);
     let extra = data.slice(3 + ipLength + 2);

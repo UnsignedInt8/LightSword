@@ -20,6 +20,8 @@ export abstract class HandshakeOptions  {
   timeout: number;
   iv: Buffer;
   speed: number;
+  ivLength: number;
+  // key: number[];
 }
 
 export abstract class OSXCl5Options extends HandshakeOptions  {

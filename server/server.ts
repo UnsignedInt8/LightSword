@@ -97,7 +97,8 @@ export class LsServer extends EventEmitter {
         cipherAlgorithm: me.cipherAlgorithm,
         timeout: me.timeout,
         xorNum: paddingSize,
-        speed: me.speed
+        speed: me.speed,
+        ivLength,
       };
       
       let request = dt.slice(2 + paddingSize, data.length);

@@ -6,6 +6,7 @@
 
 import * as net from 'net';
 import { HandshakeOptions } from '../../common/constant';
+import { IP_VER, Protocols } from './protocols';
 
 export type VpnHandshake = {
   ipVer: IP_VER,
