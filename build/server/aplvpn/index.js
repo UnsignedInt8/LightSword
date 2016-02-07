@@ -38,17 +38,17 @@ function handleAppleVPN(client, handshakeData, options) {
         catch (error) {
             return false;
         }
-        if (addrHelper.isIllegalAddress(handshake.destHost)) {
-            client.dispose();
-            return true;
-        }
-        if (handshake.flags === 0x00) {
+        if (handshake.flags === 0x00 && handshake.destHost === '0.0.0.0' && handshake.destPort === 0) {
             try {
                 yield handleHandshake(client, handshake, options);
             }
             catch (error) {
                 return false;
             }
+            return true;
+        }
+        if (addrHelper.isIllegalAddress(handshake.destHost)) {
+            client.dispose();
             return true;
         }
         switch (handshake.payloadProtocol) {
@@ -79,6 +79,6 @@ function handleHandshake(client, handshake, options) {
         let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, handshake.extra).cipher;
         let md5 = crypto.createHash('md5').update(handshake.extra).digest();
         let randomPadding = new Buffer(Number((Math.random() * 128).toFixed()));
-        yield client.writeAsync(Buffer.concat([md5, randomPadding]));
+        yield client.writeAsync(Buffer.concat([cipher.update(md5), cipher.update(randomPadding)]));
     });
 }

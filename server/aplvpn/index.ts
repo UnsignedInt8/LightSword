@@ -39,13 +39,13 @@ export async function handleAppleVPN(client: net.Socket, handshakeData: Buffer, 
     return false;
   }
   
-  if (addrHelper.isIllegalAddress(handshake.destHost)) {
-    client.dispose();
+  if (handshake.flags === 0x00 && handshake.destHost === '0.0.0.0' && handshake.destPort === 0) {
+    try { await handleHandshake(client, handshake, options); } catch (error) { return false; }
     return true;
   }
   
-  if (handshake.flags === 0x00) {
-    try { await handleHandshake(client, handshake, options); } catch (error) { return false; }
+  if (addrHelper.isIllegalAddress(handshake.destHost)) {
+    client.dispose();
     return true;
   }
   
@@ -79,5 +79,6 @@ async function handleHandshake(client: net.Socket, handshake: VpnHandshake, opti
   let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, handshake.extra).cipher;
   let md5 = crypto.createHash('md5').update(handshake.extra).digest();
   let randomPadding = new Buffer(Number((Math.random() * 128).toFixed()));
-  await client.writeAsync(Buffer.concat([md5, randomPadding]));
+  
+  await client.writeAsync(Buffer.concat([cipher.update(md5), cipher.update(randomPadding)]));
 }
