@@ -79,6 +79,9 @@ async function handleHandshake(client: net.Socket, handshake: VpnHandshake, opti
   let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, handshake.extra).cipher;
   let md5 = crypto.createHash('md5').update(handshake.extra).digest();
   let randomPadding = new Buffer(Number((Math.random() * 128).toFixed()));
+  client.on('error', () => {});
   
   await client.writeAsync(Buffer.concat([cipher.update(md5), cipher.update(randomPadding)]));
+  
+  client.dispose();
 }
