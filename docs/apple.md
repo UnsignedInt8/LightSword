@@ -15,7 +15,7 @@ TCP (UDP over TCP)
 
 IP TYPE: IPv4, IPv6
 PAYLOAD TYPE: TCP(0x06), UDP(0x11)
-FLAGS: Data flow direction (1bit), Handshake (All zero)
+FLAGS: Option flags
 DEST IP: Destination IP
 DEST PORT: Destination Port
 IV: Client Required IV (TCP) or Data (UDP)
@@ -30,9 +30,8 @@ Just for handshake, all flags are zero.
 | D------- |
 +----------+ 
 
-Data flow Direction:
-0b10000000 Outbound
-0b00000000 Inbound
+Data flow:
+0b10000000
 
 --------------------TCP Response--------------------
 
