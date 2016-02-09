@@ -1,6 +1,6 @@
 # LightSword 服务器端
 
-LightSword 服务器基于 Node.js 4.0+。支持 SOCKS5 代理，多用户支持，HTTP 管理。
+LightSword 服务器基于 Node.js 4.0+。支持 SOCKS5 代理，多用户支持，HTTP 管理。从 0.7.0 开始支持 Level.4 客户端。
 
 运行参数
 ---
@@ -22,6 +22,29 @@ LightSword 服务器基于 Node.js 4.0+。支持 SOCKS5 代理，多用户支持
 注意：
 
 网速限制仅针对单个TCP连接限速，目前无法针对全局限速。因此对网页浏览等限速效果不明显，对文件下载、观看视频等效果较好。
+
+支持加密算法:
+---
+
+| 算法 |
+|----------|
+|aes-128-cfb|
+|aes-128-ofb|
+|aes-192-cfb|
+|aes-192-ofb|
+|aes-256-cfb|
+|aes-256-ofb|
+|bf-cfb|
+|camellia-128-cfb|
+|camellia-192-cfb|
+|camellia-256-cfb|
+|cast5-cfb|
+|des-cfb|
+|idea-cfb|
+|rc2-cfb|
+|rc4|
+|rc4-md5|
+|seed-cfb|
 
 使用方法
 ---
