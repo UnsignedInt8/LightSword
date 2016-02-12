@@ -19,7 +19,7 @@ Quick Start
 Server:
 
 ```
-> lsserver -password abcabc -port 1234 --fork --cluster
+> lsserver --password abcabc --port 1234 --fork --cluster
 ```
 
 License
