@@ -2,24 +2,19 @@
 // Copyright(c) 2015 Neko
 //-----------------------------------
 'use strict';
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
-    return new Promise(function (resolve, reject) {
-        generator = generator.call(thisArg, _arguments);
-        function cast(value) { return value instanceof Promise && value.constructor === Promise ? value : new Promise(function (resolve) { resolve(value); }); }
-        function onfulfill(value) { try { step("next", value); } catch (e) { reject(e); } }
-        function onreject(value) { try { step("throw", value); } catch (e) { reject(e); } }
-        function step(verb, value) {
-            var result = generator[verb](value);
-            result.done ? resolve(result.value) : cast(result.value).then(onfulfill, onreject);
-        }
-        step("next", void 0);
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-var net = require('net');
-var dgram = require('dgram');
-var socks5Server_1 = require('./socks5Server');
-var socks5constant_1 = require('../../common/socks5constant');
-var socks5Helper = require('../../common/socks5helper');
+const net = require('net');
+const dgram = require('dgram');
+const socks5Server_1 = require('./socks5Server');
+const socks5constant_1 = require('../../common/socks5constant');
+const socks5Helper = require('../../common/socks5helper');
 class LocalProxyServer extends socks5Server_1.Socks5Server {
     handleRequest(client, request) {
         let dst = socks5Helper.refineDestination(request);
@@ -42,7 +37,7 @@ class LocalProxyServer extends socks5Server_1.Socks5Server {
         let serverUdp = dgram.createSocket(udpType);
         serverUdp.bind();
         serverUdp.unref();
-        serverUdp.on('listening', () => __awaiter(this, void 0, Promise, function* () {
+        serverUdp.on('listening', () => __awaiter(this, void 0, void 0, function* () {
             let udpAddr = serverUdp.address();
             let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5constant_1.ATYP.IPV4 : socks5constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
             yield client.writeAsync(reply);
@@ -77,7 +72,7 @@ class LocalProxyServer extends socks5Server_1.Socks5Server {
         client.on('end', dispose);
     }
     static connectServer(client, dst, request, timeout) {
-        let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, Promise, function* () {
+        let proxySocket = net.createConnection(dst.port, dst.addr, () => __awaiter(this, void 0, void 0, function* () {
             let reply = new Buffer(request.length);
             request.copy(reply);
             reply[0] = 0x05;

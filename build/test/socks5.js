@@ -2,27 +2,22 @@
 // Copyright(c) 2015 Neko
 //--------------------------------------------- 
 'use strict';
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
-    return new Promise(function (resolve, reject) {
-        generator = generator.call(thisArg, _arguments);
-        function cast(value) { return value instanceof Promise && value.constructor === Promise ? value : new Promise(function (resolve) { resolve(value); }); }
-        function onfulfill(value) { try { step("next", value); } catch (e) { reject(e); } }
-        function onreject(value) { try { step("throw", value); } catch (e) { reject(e); } }
-        function step(verb, value) {
-            var result = generator[verb](value);
-            result.done ? resolve(result.value) : cast(result.value).then(onfulfill, onreject);
-        }
-        step("next", void 0);
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
 require('async-node');
 require('kinq').enable();
 require('../lib/socketEx');
-var server_1 = require('../server/server');
-var remoteProxyServer_1 = require('../client/socks5/remoteProxyServer');
-var assert = require('assert');
-var socks = require('socks');
-var net = require('net');
+const server_1 = require('../server/server');
+const remoteProxyServer_1 = require('../client/socks5/remoteProxyServer');
+const assert = require('assert');
+const socks = require('socks');
+const net = require('net');
 describe('socks5 server', () => {
     let serverPort = 10000;
     let proxyPort = 8900;
@@ -53,7 +48,7 @@ describe('socks5 server', () => {
             type: 5 // (4 or 5)
         },
         target: {
-            host: "ip.cn",
+            host: "baidu.com",
             port: 80
         }
     };
@@ -61,8 +56,8 @@ describe('socks5 server', () => {
     server.start();
     let rpServer = new remoteProxyServer_1.RemoteProxyServer(proxyOpts);
     rpServer.start();
-    it('status test', (done) => __awaiter(this, void 0, Promise, function* () {
-        socks.createConnection(clientOpts, (err, socket, info) => __awaiter(this, void 0, Promise, function* () {
+    it('status test', (done) => __awaiter(this, void 0, void 0, function* () {
+        socks.createConnection(clientOpts, (err, socket, info) => __awaiter(this, void 0, void 0, function* () {
             if (err)
                 return assert.fail(err, null, err.message);
             assert(net.isIP(socket.remoteAddress));

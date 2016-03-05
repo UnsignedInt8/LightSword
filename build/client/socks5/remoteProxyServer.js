@@ -2,28 +2,23 @@
 // Copyright(c) 2015 Neko
 //-----------------------------------
 'use strict';
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
-    return new Promise(function (resolve, reject) {
-        generator = generator.call(thisArg, _arguments);
-        function cast(value) { return value instanceof Promise && value.constructor === Promise ? value : new Promise(function (resolve) { resolve(value); }); }
-        function onfulfill(value) { try { step("next", value); } catch (e) { reject(e); } }
-        function onreject(value) { try { step("throw", value); } catch (e) { reject(e); } }
-        function step(verb, value) {
-            var result = generator[verb](value);
-            result.done ? resolve(result.value) : cast(result.value).then(onfulfill, onreject);
-        }
-        step("next", void 0);
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-var net = require('net');
-var dgram = require('dgram');
-var crypto = require('crypto');
-var cryptoEx = require('../../common/cipher');
-var socks5Server_1 = require('./socks5Server');
-var constant_1 = require('../../common/constant');
-var localProxyServer_1 = require('./localProxyServer');
-var socks5Helper = require('../../common/socks5helper');
-var socks5constant_1 = require('../../common/socks5constant');
+const net = require('net');
+const dgram = require('dgram');
+const crypto = require('crypto');
+const cryptoEx = require('../../common/cipher');
+const socks5Server_1 = require('./socks5Server');
+const constant_1 = require('../../common/constant');
+const localProxyServer_1 = require('./localProxyServer');
+const socks5Helper = require('../../common/socks5helper');
+const socks5constant_1 = require('../../common/socks5constant');
 class RemoteProxyServer extends socks5Server_1.Socks5Server {
     handleRequest(client, request) {
         let me = this;
@@ -34,7 +29,7 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
             if (req.cmd === socks5constant_1.REQUEST_CMD.UDP_ASSOCIATE)
                 return localProxyServer_1.LocalProxyServer.udpAssociate(client, { addr: req.addr, port: req.port });
         }
-        let proxySocket = net.createConnection(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, Promise, function* () {
+        let proxySocket = net.createConnection(this.serverPort, this.serverAddr, () => __awaiter(this, void 0, void 0, function* () {
             let encryptor = cryptoEx.createCipher(me.cipherAlgorithm, me.password);
             let handshakeCipher = encryptor.cipher;
             let iv = encryptor.iv;
@@ -83,13 +78,13 @@ class RemoteProxyServer extends socks5Server_1.Socks5Server {
         let listeningUdp = dgram.createSocket(udpType);
         listeningUdp.bind();
         listeningUdp.unref();
-        listeningUdp.once('listening', () => __awaiter(this, void 0, Promise, function* () {
+        listeningUdp.once('listening', () => __awaiter(this, void 0, void 0, function* () {
             let udpAddr = listeningUdp.address();
             let reply = socks5Helper.createSocks5TcpReply(0x0, udpAddr.family === 'IPv4' ? socks5constant_1.ATYP.IPV4 : socks5constant_1.ATYP.IPV6, udpAddr.address, udpAddr.port);
             yield client.writeAsync(reply);
         }));
         let udpSet = new Set();
-        listeningUdp.on('message', (msg, cinfo) => __awaiter(this, void 0, Promise, function* () {
+        listeningUdp.on('message', (msg, cinfo) => __awaiter(this, void 0, void 0, function* () {
             let proxyUdp = dgram.createSocket(udpType);
             proxyUdp.unref();
             let encryptor = cryptoEx.createCipher(cipherAlgorithm, password);

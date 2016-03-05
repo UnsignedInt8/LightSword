@@ -2,29 +2,24 @@
 // Copyright(c) 2016 Neko
 //-----------------------------------
 'use strict';
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
-    return new Promise(function (resolve, reject) {
-        generator = generator.call(thisArg, _arguments);
-        function cast(value) { return value instanceof Promise && value.constructor === Promise ? value : new Promise(function (resolve) { resolve(value); }); }
-        function onfulfill(value) { try { step("next", value); } catch (e) { reject(e); } }
-        function onreject(value) { try { step("throw", value); } catch (e) { reject(e); } }
-        function step(verb, value) {
-            var result = generator[verb](value);
-            result.done ? resolve(result.value) : cast(result.value).then(onfulfill, onreject);
-        }
-        step("next", void 0);
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-var dgram = require('dgram');
-var crypto = require('crypto');
-var cryptoEx = require('../../common/cipher');
-var protocols_1 = require('./protocols');
+const dgram = require('dgram');
+const crypto = require('crypto');
+const cryptoEx = require('../../common/cipher');
+const protocols_1 = require('./protocols');
 function handleUDP(client, handshake, options) {
     let communicationPending = false;
     let udpType = handshake.ipVer == protocols_1.IP_VER.V4 ? 'udp4' : 'udp6';
     let destAddress = handshake.destHost;
     let decipher = null;
-    let udpSocket = dgram.createSocket(udpType, (msg, rinfo) => __awaiter(this, void 0, Promise, function* () {
+    let udpSocket = dgram.createSocket(udpType, (msg, rinfo) => __awaiter(this, void 0, void 0, function* () {
         let iv = crypto.randomBytes(options.ivLength);
         let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, iv).cipher;
         let len = new Buffer(2);

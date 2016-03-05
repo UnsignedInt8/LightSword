@@ -5,8 +5,8 @@
 require('../lib/socketEx');
 require('kinq').enable();
 require('async-node');
-var net = require('net');
-var constant_1 = require('../common/constant');
+const net = require('net');
+const constant_1 = require('../common/constant');
 class App {
     constructor(options) {
         let dstAddr = options.dstAddr;

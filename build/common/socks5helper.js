@@ -2,22 +2,9 @@
 // Copyright(c) 2015 Neko
 //-----------------------------------
 'use strict';
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
-    return new Promise(function (resolve, reject) {
-        generator = generator.call(thisArg, _arguments);
-        function cast(value) { return value instanceof Promise && value.constructor === Promise ? value : new Promise(function (resolve) { resolve(value); }); }
-        function onfulfill(value) { try { step("next", value); } catch (e) { reject(e); } }
-        function onreject(value) { try { step("throw", value); } catch (e) { reject(e); } }
-        function step(verb, value) {
-            var result = generator[verb](value);
-            result.done ? resolve(result.value) : cast(result.value).then(onfulfill, onreject);
-        }
-        step("next", void 0);
-    });
-};
-var net = require('net');
-var util = require('util');
-var socks5constant_1 = require('./socks5constant');
+const net = require('net');
+const util = require('util');
+const socks5constant_1 = require('./socks5constant');
 //
 // TCP
 // +----+-----+-------+------+----------+----------+
@@ -64,7 +51,7 @@ function refineDestination(rawData) {
     }
     let headerSize = 4 + (atyp === socks5constant_1.ATYP.DN ? 1 : 0) + dnLength + 2;
     let port = rawData.readUInt16BE(headerSize - 2);
-    return { cmd, addr, port, headerSize };
+    return { cmd: cmd, addr: addr, port: port, headerSize: headerSize };
 }
 exports.refineDestination = refineDestination;
 // +----+-----+-------+------+----------+----------+
@@ -117,5 +104,5 @@ function parseAddrToBytes(fullAddr) {
             fullAddr.each((c, i) => addrBytes.push(fullAddr.charCodeAt(i)));
             break;
     }
-    return { addrBytes, type: type ? (type === 4 ? socks5constant_1.ATYP.IPV4 : socks5constant_1.ATYP.IPV6) : socks5constant_1.ATYP.DN };
+    return { addrBytes: addrBytes, type: type ? (type === 4 ? socks5constant_1.ATYP.IPV4 : socks5constant_1.ATYP.IPV6) : socks5constant_1.ATYP.DN };
 }

@@ -2,25 +2,20 @@
 // Copyright(c) 2016 Neko
 //-----------------------------------
 'use strict';
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
-    return new Promise(function (resolve, reject) {
-        generator = generator.call(thisArg, _arguments);
-        function cast(value) { return value instanceof Promise && value.constructor === Promise ? value : new Promise(function (resolve) { resolve(value); }); }
-        function onfulfill(value) { try { step("next", value); } catch (e) { reject(e); } }
-        function onreject(value) { try { step("throw", value); } catch (e) { reject(e); } }
-        function step(verb, value) {
-            var result = generator[verb](value);
-            result.done ? resolve(result.value) : cast(result.value).then(onfulfill, onreject);
-        }
-        step("next", void 0);
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-var crypto = require('crypto');
-var protocols_1 = require('./protocols');
-var cryptoEx = require('../../common/cipher');
-var addrHelper = require('../lib/addressHelper');
-var udp_1 = require('./udp');
-var tcp_1 = require('./tcp');
+const crypto = require('crypto');
+const protocols_1 = require('./protocols');
+const cryptoEx = require('../../common/cipher');
+const addrHelper = require('../lib/addressHelper');
+const udp_1 = require('./udp');
+const tcp_1 = require('./tcp');
 const SupportedIPVers = [protocols_1.IP_VER.V4, protocols_1.IP_VER.V6];
 const SupportedProtocols = [protocols_1.Protocols.TCP, protocols_1.Protocols.UDP];
 function handleAppleVPN(client, handshakeData, options) {
@@ -72,10 +67,10 @@ function extractHandeshake(data) {
     let destPort = data.readUInt16BE(3 + ipLength);
     let extra = data.slice(3 + ipLength + 2);
     let destHost = addrHelper.ntoa(destAddress);
-    return { ipVer, payloadProtocol, flags, destAddress, destHost, destPort, extra };
+    return { ipVer: ipVer, payloadProtocol: payloadProtocol, flags: flags, destAddress: destAddress, destHost: destHost, destPort: destPort, extra: extra };
 }
 function handleHandshake(client, handshake, options) {
-    return __awaiter(this, void 0, Promise, function* () {
+    return __awaiter(this, void 0, void 0, function* () {
         let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, handshake.extra).cipher;
         let md5 = crypto.createHash('md5').update(handshake.extra).digest();
         let randomPadding = new Buffer(Number((Math.random() * 128).toFixed()));

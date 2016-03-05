@@ -2,26 +2,21 @@
 // Copyright(c) 2015 Neko
 //-----------------------------------
 'use strict';
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, Promise, generator) {
-    return new Promise(function (resolve, reject) {
-        generator = generator.call(thisArg, _arguments);
-        function cast(value) { return value instanceof Promise && value.constructor === Promise ? value : new Promise(function (resolve) { resolve(value); }); }
-        function onfulfill(value) { try { step("next", value); } catch (e) { reject(e); } }
-        function onreject(value) { try { step("throw", value); } catch (e) { reject(e); } }
-        function step(verb, value) {
-            var result = generator[verb](value);
-            result.done ? resolve(result.value) : cast(result.value).then(onfulfill, onreject);
-        }
-        step("next", void 0);
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-var net = require('net');
-var events_1 = require('events');
-var cryptoEx = require('../common/cipher');
-var constant_1 = require('../common/constant');
-var index_1 = require('./socks5/index');
-var index_2 = require('./osxcl5/index');
-var index_3 = require('./aplvpn/index');
+const net = require('net');
+const events_1 = require('events');
+const cryptoEx = require('../common/cipher');
+const constant_1 = require('../common/constant');
+const index_1 = require('./socks5/index');
+const index_2 = require('./osxcl5/index');
+const index_3 = require('./aplvpn/index');
 class LsServer extends events_1.EventEmitter {
     constructor(options) {
         super();
@@ -37,7 +32,7 @@ class LsServer extends events_1.EventEmitter {
     }
     start() {
         let me = this;
-        let server = net.createServer((client) => __awaiter(this, void 0, Promise, function* () {
+        let server = net.createServer((client) => __awaiter(this, void 0, void 0, function* () {
             if (me.blacklist.has(client.remoteAddress) && me.blacklist.get(client.remoteAddress).size > 20)
                 return client.dispose();
             let data = yield client.readAsync();
@@ -62,13 +57,13 @@ class LsServer extends events_1.EventEmitter {
             let vpnType = dt[0];
             let paddingSize = dt[1];
             let options = {
-                iv,
+                iv: iv,
                 password: me.password,
                 cipherAlgorithm: me.cipherAlgorithm,
                 timeout: me.timeout,
                 xorNum: paddingSize,
                 speed: me.speed,
-                ivLength,
+                ivLength: ivLength,
             };
             let request = dt.slice(2 + paddingSize, data.length);
             let handler = me.requestHandlers.get(vpnType);
