@@ -48,7 +48,7 @@ describe('socks5 server', () => {
             type: 5 // (4 or 5)
         },
         target: {
-            host: "baidu.com",
+            host: "google.com",
             port: 80
         }
     };
