@@ -14,7 +14,7 @@
     "lightsword-bridge": "./build/bridge/bin/cli.js"
   },
   "scripts": {
-    "test": "mocha --timeout 30000 test/**/*.js test/*.js build/test/*.js"
+    "test": "mocha --timeout 60000 test/**/*.js test/*.js build/test/*.js"
   },
   "repository": {
     "type": "git",
