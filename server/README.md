@@ -93,7 +93,7 @@ lsserver -d status
 多用户支持:
 ---
 
-使用 -u (--users) 参数指定多用户配置文件路径，配置文件请参见 ../misc/users.conf 文件提供的实例。
+使用 -u (--users) 参数指定多用户配置文件路径，配置文件请参见 ../misc/users.conf 文件提供的示例。
 
 其中，每个用户对应一个端口号，因此端口号不可以重复，如有重复，则选择最开始的一个。
 
@@ -101,12 +101,14 @@ lsserver -d status
 
 ```
 ＃ 注释行 <必填项> [可选项］
-<Port-Number> <Password> <Cipher-Algorithm> [ISO-8601-Extended-Date-Format-String]
+＃ <Port-Number> <Password> <Cipher-Algorithm> [ISO-8601-Extended-Date-Format-String]
 
 25000 abc123 aes-256-cfb
 25001 abc123 aes-256-cfb 2016-01-04T03:01:54+09:00
 
 #注意: 字段之间用半角空格分割，字段中不允许出现空格
+
+lsserver --users ./users.txt
 ```
 
 HTTP 管理
