@@ -58,6 +58,11 @@ lsbridge -s server_addr -f
 
 端口: 1080
 
+Linux 支持
+---
+
+在 `'misc'` 文件夹下，已经写好了 Linux 启动脚本，你可以根据自己的实际情况，修改运行参数。并放到 init.d 目录下，再 `chkconfig on` 或者其它 Linux 分发版的命令激活自动运行即可。
+
 Apple 用户
 ---
 
