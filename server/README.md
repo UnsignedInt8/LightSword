@@ -108,7 +108,9 @@ lsserver -d status
 
 #注意: 字段之间用半角空格分割，字段中不允许出现空格
 
-lsserver --users ./users.txt
+------------------------------
+> lsserver --users ./users.txt
+
 ```
 
 HTTP 管理
