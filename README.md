@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/UnsignedInt8/LightSword.svg?branch=master)](https://travis-ci.org/UnsignedInt8/LightSword)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/UnsignedInt8/LightSword?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-LightSword —— 基于 Node.js 的 SOCKS5 代理。
+LightSword —— 基于 Node.js 的 SOCKS5 代理 / Apple NE 服务器。
 
 LightSword 参考了 Shadowsocks 的协议，并用 Typescript 实现。LightSword 基于 Node.js 4.0＋，因此需要首先安装 Node.js 4.0  以上版本，点击访问[官方网址](https://nodejs.org)。
 
@@ -57,6 +57,11 @@ lsbridge -s server_addr -f
 默认监听地址: localhost
 
 端口: 1080
+
+Apple 用户
+---
+
+Apple 用户只需要运行好服务器，即可打开iOS客户端填写配置并且投入使用。
 
 License
 ---
