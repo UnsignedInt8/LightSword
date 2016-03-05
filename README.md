@@ -61,7 +61,9 @@ lsbridge -s server_addr -f
 Apple 用户
 ---
 
-Apple 用户只需要运行好服务器，即可打开iOS客户端填写配置并且投入使用。如需测试 DNS 泄漏，请访问[https://dnsleaktest.com](https://dnsleaktest.com)。
+Apple 用户只需要运行服务器，即可打开iOS客户端填写配置并投入使用。如需测试 DNS 泄漏，请访问[https://dnsleaktest.com](https://dnsleaktest.com)。
+
+建议在运行的时候加入 --cluster 参数，以提升服务器性能和稳定性。
 
 License
 ---
