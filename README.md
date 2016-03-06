@@ -61,7 +61,44 @@ lsbridge -s server_addr -f
 Linux 支持
 ---
 
-在 `'misc'` 文件夹下，已经写好了 Linux 启动脚本，你可以根据自己的实际情况，修改运行参数。并放到 init.d 目录下，再 `chkconfig on` 或者其它 Linux 分发版的命令激活自动运行即可。
+在 `misc` 文件夹下，已经写好了 Linux 启动脚本，你可以根据自己的实际情况，修改运行参数。并放到 init.d 目录下，再 `chkconfig on` 或者其它 Linux 分发版的命令激活自动运行即可。
+
+快速安装方法：
+
+Ubuntu 用户
+
+```
+# Using Ubuntu
+[sudo] apt-get update -y
+[sudo] apt-get install curl -y
+
+curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -
+[sudo] apt-get install -y nodejs
+[sudo] npm install lightsword -g
+```
+
+Debian 用户
+
+```
+# Using Debian, as root
+[sudo] apt-get update -y
+[sudo] apt-get install curl -y
+
+curl -sL https://deb.nodesource.com/setup_5.x | bash -
+[sudo] apt-get install -y nodejs
+[sudo] npm install lightsword -g
+```
+
+RHEL 6, CentOS 6 用户
+
+```
+# Using RHEL 6, CentOS 6
+[sudo] yum update
+[sudo] yum install curl
+
+curl -sL https://rpm.nodesource.com/setup_5.x | bash -
+[sudo] npm install lightsword -g
+```
 
 Apple 用户
 ---
