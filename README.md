@@ -72,7 +72,7 @@ Ubuntu 用户
 [sudo] apt-get update -y
 [sudo] apt-get install curl -y
 
-curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -
+[sudo] curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -
 [sudo] apt-get install -y nodejs
 [sudo] npm install lightsword -g
 ```
@@ -84,7 +84,7 @@ Debian 用户
 [sudo] apt-get update -y
 [sudo] apt-get install curl -y
 
-curl -sL https://deb.nodesource.com/setup_5.x | bash -
+[sudo] curl -sL https://deb.nodesource.com/setup_5.x | bash -
 [sudo] apt-get install -y nodejs
 [sudo] npm install lightsword -g
 ```
@@ -96,7 +96,7 @@ RHEL 6, CentOS 6 用户
 [sudo] yum update
 [sudo] yum install curl
 
-curl -sL https://rpm.nodesource.com/setup_5.x | bash -
+[sudo] curl -sL https://rpm.nodesource.com/setup_5.x | bash -
 [sudo] npm install lightsword -g
 ```
 
