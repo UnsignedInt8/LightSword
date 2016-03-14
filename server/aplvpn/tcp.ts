@@ -10,6 +10,7 @@ import * as cryptoEx from '../../common/cipher';
 import { VpnHandshake } from './index';
 import { HandshakeOptions } from '../../common/constant';
 import { IP_VER, Protocols } from './protocols';
+import { SpeedStream } from '../../lib/speedstream';
 
 export function handleTCP(client: net.Socket, handshake: VpnHandshake, options: HandshakeOptions) {
   if (handshake.flags == 0x80) {
@@ -28,8 +29,13 @@ function handleOutbound(client: net.Socket, host: string, port: number, desiredI
     await client.writeAsync(cipher.update(reply));
     let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
     
-    client.pipe(decipher).pipe(proxy);
-    proxy.pipe(cipher).pipe(client);
+    let speed = options.speed;
+    
+    let clientStream = speed > 0 ? client.pipe(new SpeedStream(speed)) : client;
+    clientStream.pipe(decipher).pipe(proxy);
+    
+    let proxyStream = speed > 0 ? proxy.pipe(new SpeedStream(speed)) : proxy;
+    proxyStream.pipe(cipher).pipe(client);
   });
   
   function dispose() {

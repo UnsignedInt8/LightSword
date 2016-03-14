@@ -12,6 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const net = require('net');
 const cryptoEx = require('../../common/cipher');
+const speedstream_1 = require('../../lib/speedstream');
 function handleTCP(client, handshake, options) {
     if (handshake.flags == 0x80) {
         handleOutbound(client, handshake.destHost, handshake.destPort, handshake.extra, options);
@@ -26,8 +27,11 @@ function handleOutbound(client, host, port, desiredIv, options) {
         let cipher = cryptoEx.createCipher(options.cipherAlgorithm, options.password, desiredIv).cipher;
         yield client.writeAsync(cipher.update(reply));
         let decipher = cryptoEx.createDecipher(options.cipherAlgorithm, options.password, options.iv);
-        client.pipe(decipher).pipe(proxy);
-        proxy.pipe(cipher).pipe(client);
+        let speed = options.speed;
+        let clientStream = speed > 0 ? client.pipe(new speedstream_1.SpeedStream(speed)) : client;
+        clientStream.pipe(decipher).pipe(proxy);
+        let proxyStream = speed > 0 ? proxy.pipe(new speedstream_1.SpeedStream(speed)) : proxy;
+        proxyStream.pipe(cipher).pipe(client);
     }));
     function dispose() {
         client.dispose();
