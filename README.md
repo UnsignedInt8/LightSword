@@ -11,7 +11,7 @@ LightSword 参考了 Shadowsocks 的协议，并用 Typescript 实现。LightSwo
 Quick Start
 ---
 
-首先，安装Node.js 4.0+，安装好 Node.js 之后，即可使用 Node.js 的包管理器 npm 安装 LightSword 。目前 npmjs.org 可以访问，因此可以直接安装：
+首先，安装Node.js 4.0+（详细方法参见下文），安装好 Node.js 之后，即可使用 Node.js 的包管理器 npm 安装 LightSword 。目前 npmjs.org 可以访问，因此可以直接安装：
 
 
 1.安装
