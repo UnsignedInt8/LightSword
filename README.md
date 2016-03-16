@@ -97,6 +97,7 @@ RHEL 6, CentOS 6 用户
 [sudo] yum install curl
 
 [sudo] curl -sL https://rpm.nodesource.com/setup_5.x | bash -
+[sudo] yum install -y nodejs
 [sudo] npm install lightsword -g
 ```
 
