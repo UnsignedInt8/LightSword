@@ -77,6 +77,12 @@ Ubuntu 用户
 [sudo] npm install lightsword -g
 ```
 
+一键安装
+
+```
+[sudo] curl -sL https://raw.githubusercontent.com/UnsignedInt8/LightSword/master/misc/onekey_ubuntu.sh | bash -
+```
+
 Debian 用户
 
 ```
@@ -87,6 +93,12 @@ Debian 用户
 [sudo] curl -sL https://deb.nodesource.com/setup_5.x | bash -
 [sudo] apt-get install -y nodejs
 [sudo] npm install lightsword -g
+```
+
+一键安装
+
+```
+[sudo] curl -sL https://raw.githubusercontent.com/UnsignedInt8/LightSword/master/misc/onekey_debian.sh | bash -
 ```
 
 RHEL 6, CentOS 6 用户
@@ -100,6 +112,13 @@ RHEL 6, CentOS 6 用户
 [sudo] yum install -y nodejs
 [sudo] npm install lightsword -g
 ```
+
+一键安装
+
+```
+[sudo] curl -sL https://raw.githubusercontent.com/UnsignedInt8/LightSword/master/misc/onekey_centos.sh | bash -
+```
+
 
 Apple 用户
 ---
