@@ -105,8 +105,8 @@ RHEL 6, CentOS 6 用户
 
 ```
 # Using RHEL 6, CentOS 6
-[sudo] yum update
-[sudo] yum install curl
+[sudo] yum update -y
+[sudo] yum install curl -y
 
 [sudo] curl -sL https://rpm.nodesource.com/setup_5.x | bash -
 [sudo] yum install -y nodejs
