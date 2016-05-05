@@ -64,7 +64,7 @@ lslocal -d stop
   "method": "aes-256-cfb",
   "timeout": 60,
   "fork": true,
-  "dontbypasslocal", false
+  "dontbypasslocal": false,
   "any": false
 }
 ```
