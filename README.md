@@ -80,7 +80,7 @@ Ubuntu 用户
 一键安装
 
 ```
-[sudo] curl -sL https://raw.githubusercontent.com/UnsignedInt8/LightSword/master/misc/onekey_ubuntu.sh | bash -
+curl -sL https://raw.githubusercontent.com/UnsignedInt8/LightSword/master/misc/onekey_ubuntu.sh | sudo -E bash -
 ```
 
 Debian 用户
@@ -98,7 +98,7 @@ Debian 用户
 一键安装
 
 ```
-[sudo] curl -sL https://raw.githubusercontent.com/UnsignedInt8/LightSword/master/misc/onekey_debian.sh | bash -
+curl -sL https://raw.githubusercontent.com/UnsignedInt8/LightSword/master/misc/onekey_debian.sh | sudo -E bash -
 ```
 
 RHEL 6, CentOS 6 用户
@@ -116,7 +116,7 @@ RHEL 6, CentOS 6 用户
 一键安装
 
 ```
-[sudo] curl -sL https://raw.githubusercontent.com/UnsignedInt8/LightSword/master/misc/onekey_centos.sh | bash -
+curl -sL https://raw.githubusercontent.com/UnsignedInt8/LightSword/master/misc/onekey_centos.sh | sudo -E bash -
 ```
 
 
